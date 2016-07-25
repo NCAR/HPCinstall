@@ -61,9 +61,14 @@ else:
 os.environ['INSTALL_DIR'] = prefix
 os.environ['MODULE_FILENAME'] = modulefile
 
-print "Saving environment status in env.txt ...",
-print subprocess.call("env > env.txt", shell=True)
+print "Saving environment status in log.env.txt ...",
+subprocess.call("env > log.env.txt", shell=True)
 print "Done."
+
+print "Saving module list in log.modules.txt (if ./" + install_file, "loads modules, it should overwrite this file after last load) ...",
+subprocess.call("module list &> log.modules.txt", shell=True)
+print "Done."
+
 print "Passing control to ./" + install_file
 print "----------------------------------------------"
 subprocess.call("./" + install_file)
