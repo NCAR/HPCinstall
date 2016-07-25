@@ -1,22 +1,47 @@
 #!/bin/env python
 
 import optparse # compatible with older versions of python
-import os
+import os, sys
 
-usage = "usage: %prog [options] file"
+usage = "usage: %prog [options] <software-version-compiler-version>"
 parser = optparse.OptionParser(usage)
 
 parser.add_option("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
 
 (options, args) = parser.parse_args()
 
-if options.csgteam:
-    prefix = "/glade/apps/opt/"
-    mods = "/glade/apps/modulefiles/"
-else:
-    prefix = "/glade/scratch/" + os.environ['USER'] + "/"
-    mods = prefix + "/modulefiles/"
+if len(args) != 1:
+    parser.print_help()
+    sys.exit(1)
 
-print "Will install software in", prefix
-print "and modules in", mods
-print "Continue?"
+install_file = args[0]
+
+if not os.path.isfile(install_file):
+    parser.print_help()
+    sys.exit(1)
+
+stuff = install_file.split("-")
+
+if len(stuff) !=2 and len(stuff) !=4:
+    print "The install script file should be named like <software-version-compiler-version>,"
+    print "or <software-version>. Got '" + install_file + "' instead"
+    sys.exit(1)
+
+if len(stuff) == 4:
+    my_compiler = stuff[2] + "/" + stuff[3]
+else:
+    my_compiler = ""
+
+my_program = stuff[0] + "/" + stuff[1]
+
+if options.csgteam:
+    prefix = "/glade/apps/opt/" + my_program + "/" + my_compiler
+    modulefile = "/glade/apps/modulefiles/" + my_program + ".lua"
+else:
+    prefix = "/glade/scratch/" + os.environ['USER'] + "/" + my_program + "/" + my_compiler
+    modulefile = "/glade/scratch/modulefiles/" + my_program + ".lua"
+
+
+print "Will set INSTALL_DIR environmental variable to", prefix
+print "and MODULE_FILENAME one to", modulefile
+print "then run ./" + install_file, "as", os.environ['USER'], " -- continue?"
