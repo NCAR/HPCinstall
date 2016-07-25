@@ -46,11 +46,17 @@ else:
 
 print "Will set INSTALL_DIR environmental variable to", prefix
 print "and MODULE_FILENAME one to", modulefile
-sys.stdout.write("then run ./" + install_file + " as " + os.environ['USER'] + ". Continue? ")
-answer = sys.stdin.readline()
-print
-if answer.lower().strip() != "yes":
-    print "You did not say an ethusiastic 'yes', aborting..."
+sys.stdout.write("then run ./" + install_file + " as " + os.environ['USER'] + ". ")
+
+if options.csgteam:
+    sys.stdout.write("Continue? ")
+    answer = sys.stdin.readline()
+    print
+    if answer.lower().strip() != "yes":
+        print "You did not say an ethusiastic 'yes', aborting..."
+        sys.exit(1)
+else:
+    print "\n"
 
 os.environ['INSTALL_DIR'] = prefix
 os.environ['MODULE_FILENAME'] = modulefile
