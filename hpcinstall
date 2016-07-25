@@ -1,7 +1,7 @@
 #!/bin/env python
 
 import optparse # compatible with older versions of python
-import os, sys
+import os, sys, subprocess
 
 usage = "usage: %prog [options] <software-version-compiler-version>"
 parser = optparse.OptionParser(usage)
@@ -46,4 +46,14 @@ else:
 
 print "Will set INSTALL_DIR environmental variable to", prefix
 print "and MODULE_FILENAME one to", modulefile
-print "then run ./" + install_file, "as", os.environ['USER'], " -- continue?"
+sys.stdout.write("then run ./" + install_file + " as " + os.environ['USER'] + ". Continue? ")
+answer = sys.stdin.readline()
+print
+if answer.lower().strip() != "yes":
+    print "You did not say an ethusiastic 'yes', aborting..."
+
+os.environ['INSTALL_DIR'] = prefix
+os.environ['MODULE_FILENAME'] = modulefile
+
+print "Passing control to ./" + install_file
+subprocess.call("./" + install_file)
