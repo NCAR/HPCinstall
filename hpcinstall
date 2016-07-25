@@ -35,12 +35,14 @@ else:
 my_program = stuff[0] + "/" + stuff[1]
 
 if options.csgteam:
+    if os.environ['USER'] != "csgteam":
+        print "Must sudo into 'csgteam' user to run as csgteam"
+        sys.exit(1)
     prefix = "/glade/apps/opt/" + my_program + "/" + my_compiler
     modulefile = "/glade/apps/modulefiles/" + my_program + ".lua"
 else:
     prefix = "/glade/scratch/" + os.environ['USER'] + "/" + my_program + "/" + my_compiler
     modulefile = "/glade/scratch/modulefiles/" + my_program + ".lua"
-
 
 print "Will set INSTALL_DIR environmental variable to", prefix
 print "and MODULE_FILENAME one to", modulefile
