@@ -1,3 +1,22 @@
 #!/bin/env python
 
-print "Worked"
+import optparse # compatible with older versions of python
+import os
+
+usage = "usage: %prog [options] file"
+parser = optparse.OptionParser(usage)
+
+parser.add_option("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
+
+(options, args) = parser.parse_args()
+
+if options.csgteam:
+    prefix = "/glade/apps/opt/"
+    mods = "/glade/apps/modulefiles/"
+else:
+    prefix = "/glade/scratch/" + os.environ['USER'] + "/"
+    mods = prefix + "/modulefiles/"
+
+print "Will install software in", prefix
+print "and modules in", mods
+print "Continue?"
