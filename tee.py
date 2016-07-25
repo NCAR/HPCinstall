@@ -24,4 +24,8 @@ def overwrite_out_to(filename):
     outputlog = open(filename, "w")
     sys.stdout = tee(saved, outputlog)
 
+def overwrite_err_to(filename):
+    saved = sys.stderr
+    outputlog = open(filename, "w")
+    sys.stderr = tee(saved, outputlog)
 
