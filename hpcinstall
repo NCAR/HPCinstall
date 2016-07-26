@@ -3,6 +3,8 @@
 import optparse # cruder than others, but compatible with older versions of python
 import os, sys, subprocess
 
+use_parent_shell = os.environ['SHELL'] + " -c "
+
 usage = "usage: %prog [options] <software-version-compiler-version>"
 parser = optparse.OptionParser(usage)
 
@@ -68,12 +70,12 @@ print "Done."
 
 module_log = "log.modules.txt"
 print "Saving module list in", module_log,
-subprocess.call("module list &> " + module_log, shell=True)
+subprocess.call(use_parent_shell + "'module list' &> " + module_log, shell=True)
 print "Done."
 
 install_log = "log.install." + install_file + ".txt"
 print "Passing control to ./" + install_file, "and logging output into", install_log
 print "----------------------------------------------"
-subprocess.call("./" + install_file, stderr=subprocess.STDOUT)
+subprocess.call(use_parent_shell + "./" + install_file, stderr=subprocess.STDOUT, shell=True)
 
 print "Not logged anything in", install_log, "see https://github.com/NCAR/HPCinstall/issues/3"
