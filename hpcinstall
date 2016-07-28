@@ -96,6 +96,8 @@ subprocess.call("touch " + install_log, shell=True)
 
 print "Not logged anything in", install_log, "see https://github.com/NCAR/HPCinstall/issues/3"
 
+tee.close_all_files()
+
 build_dir = prefix + "/BUILD_DIR/"
 os.makedirs(build_dir)
 for logfile in (install_log, module_log, env_log, hpcinstall_log):
