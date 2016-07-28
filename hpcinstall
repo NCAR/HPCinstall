@@ -21,21 +21,25 @@ def parse_install_filename(filename):
 
 use_parent_shell = os.environ['SHELL'] + " -c "    # workaround for fixing tcsh module problem, see https://github.com/NCAR/HPCinstall/issues/6
 
-usage = ("usage: %prog [options] <software-version-compiler-version>\n" +
-         "Required:\n" +
-         "  <software-ver-compiler-ver> script in the current directory\n" +
-         "                              doing the build and install\n" +
-         "                              (don't use '/' or fully qualified paths)")
-parser = optparse.OptionParser(usage)
-parser.add_option("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
-(options, args) = parser.parse_args()
-if len(args) != 1:
-    parser.print_help()
-    sys.exit(1)
-install_file = args[0]
-if not os.path.isfile(install_file) or "/" in install_file:
-    parser.print_help()
-    sys.exit(1)
+def parse_command_line_arguments():
+    usage = ("usage: %prog [options] <software-version-compiler-version>\n" +
+             "Required:\n" +
+             "  <software-ver-compiler-ver> script in the current directory\n" +
+             "                              doing the build and install\n" +
+             "                              (don't use '/' or fully qualified paths)")
+    parser = optparse.OptionParser(usage)
+    parser.add_option("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
+    (options, args) = parser.parse_args()
+    if len(args) != 1:
+        parser.print_help()
+        sys.exit(1)
+    install_file = args[0]
+    if not os.path.isfile(install_file) or "/" in install_file:
+        parser.print_help()
+        sys.exit(1)
+    return install_file, options
+
+install_file, options = parse_command_line_arguments()
 
 my_compiler, my_program = parse_install_filename(install_file)
 
