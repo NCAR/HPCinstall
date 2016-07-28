@@ -5,7 +5,11 @@ import os, sys, subprocess
 
 use_parent_shell = os.environ['SHELL'] + " -c "
 
-usage = "usage: %prog [options] <software-version-compiler-version>"
+usage = ("usage: %prog [options] <software-version-compiler-version>\n" +
+         "Required:\n" +
+         "  <software-ver-compiler-ver> script in the current directory\n" +
+         "                              doing the build and install\n" +
+         "                              (don't use '/' or fully qualified paths)")
 parser = optparse.OptionParser(usage)
 
 parser.add_option("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
