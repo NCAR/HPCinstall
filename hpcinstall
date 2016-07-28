@@ -7,6 +7,9 @@ import tee
 use_parent_shell = os.environ['SHELL'] + " -c "    # workaround for fixing tcsh module problem, see https://github.com/NCAR/HPCinstall/issues/6
 files_to_archive = [os.path.realpath(__file__)]    # logs and other files to preserve
 
+def separator():
+    print "----------------------------------------------"
+
 def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
     if len(sw_structure) !=2 and len(sw_structure) !=4:
@@ -92,14 +95,14 @@ def log_full_env():
 
 def execute_installscript(install_script):
     print "Executing ./" + install_script
-    print "----------------------------------------------"
+    separator()
     p = subprocess.Popen(use_parent_shell + "./" + install_script, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
     process_output = " "
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
         process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
         print process_output,                 # 'tee' to log the process output
     p.poll()
-    print "----------------------------------------------"
+    separator()
     print "./" + install_script, "completed and exit with code", p.returncode
 
 def archive_in(prefix):
