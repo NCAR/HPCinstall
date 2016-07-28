@@ -83,16 +83,19 @@ def start_logging_current_session():
 def stop_logging_current_session():
     tee.close_all_files()
 
-def log_full_env():
+def subcall(modules_to_load, command, log):
+    subprocess.call(use_parent_shell + "'" + modules_to_load + "; " + command + "' &> " + log, shell=True)
+
+def log_full_env(modules_to_load):
     env_log = "log.env.txt"
     print "Saving environment status in", env_log, "...",
-    subprocess.call("env > " + env_log, shell=True)
+    subcall(modules_to_load, "env", env_log)
     print "Done."
     files_to_archive.append(env_log)
 
     module_log = "log.modules.txt"
     print "Saving module list in", module_log, "...",
-    subprocess.call(use_parent_shell + "'module list' &> " + module_log, shell=True)
+    subcall(modules_to_load, "module list", module_log)
     print "Done.\n"
     files_to_archive.append(module_log)
 
@@ -141,7 +144,7 @@ prefix, modulefile = get_variables(options, my_program, my_compiler)
 start_logging_current_session()
 set_variables_and_warn(prefix, modulefile, options, install_script)
 modules_to_load = parse_installscript_for_modules(install_script)
-log_full_env()
-execute_installscript(install_script)
+log_full_env(modules_to_load)
+execute_installscript(modules_to_load, install_script)
 stop_logging_current_session()
 archive_in(prefix)
