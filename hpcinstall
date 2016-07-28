@@ -1,7 +1,7 @@
 #!/bin/env python
 
 import optparse # cruder than others, but compatible with older versions of python
-import os, sys, subprocess
+import os, shutil, sys, subprocess
 import tee
 
 use_parent_shell = os.environ['SHELL'] + " -c "
@@ -85,5 +85,13 @@ install_log = "log.install." + install_file + ".txt"
 print "Passing control to ./" + install_file, "and logging output into", install_log
 print "----------------------------------------------"
 subprocess.call(use_parent_shell + "./" + install_file, stderr=subprocess.STDOUT, shell=True)
+subprocess.call("touch " + install_log, shell=True)
 
 print "Not logged anything in", install_log, "see https://github.com/NCAR/HPCinstall/issues/3"
+
+build_dir = prefix + "/BUILD_DIR/"
+os.makedirs(build_dir)
+for logfile in (install_log, module_log, env_log, hpcinstall_log):
+    shutil.copyfile(logfile, build_dir + logfile)
+#subprocess.call("mv log*.txt " + build_dir, stderr=subprocess.STDOUT, shell=True)
+
