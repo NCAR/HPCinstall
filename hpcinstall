@@ -2,6 +2,7 @@
 
 import optparse # cruder than others, but compatible with older versions of python
 import os, sys, subprocess
+import tee
 
 use_parent_shell = os.environ['SHELL'] + " -c "
 
@@ -50,12 +51,15 @@ else:
     prefix = "/glade/scratch/" + os.environ['USER'] + "/" + my_program + "/" + my_compiler
     modulefile = "/glade/scratch/modulefiles/" + my_program + ".lua"
 
+hpcinstall_log = "log.hpcinstall." + str(os.getpid()) + ".txt"
+tee.overwrite_out_to(hpcinstall_log)
+
 print "Will set INSTALL_DIR environmental variable to", prefix
 print "and MODULE_FILENAME one to", modulefile
 sys.stdout.write("then run ./" + install_file + " as " + os.environ['USER'] + ". ")
 
 if options.csgteam:
-    sys.stdout.write("Continue? ")
+    sys.sterr.write("Continue? ")
     answer = sys.stdin.readline()
     print
     if answer.lower().strip() != "yes":
