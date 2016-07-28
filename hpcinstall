@@ -83,9 +83,14 @@ def start_logging_current_session():
 def stop_logging_current_session():
     tee.close_all_files()
 
-def subcall(modules_to_load, command, log):
-    str_cmd = use_parent_shell + "'" + modules_to_load + "; " + command + "' &> " + log
-    subprocess.call(str_cmd, shell=True)
+def subcall(modules_to_load, command, log=None, use_popen = False):
+    str_cmd = use_parent_shell + "'" + modules_to_load + "; " + command + "'"
+    if log:
+        str_cmd += " &> " + log
+    if use_popen:
+        return subprocess.Popen(str_cmd, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
+    else:
+        return subprocess.call(str_cmd, shell=True)
 
 def log_full_env(modules_to_load):
     env_log = "log.env.txt"
@@ -121,9 +126,9 @@ def parse_installscript_for_modules(install_script):
         separator()
     return "; ".join(executing_lines)
 
-def execute_installscript(install_script):
+def execute_installscript(modules_to_load, install_script):
     separator(" LOG of EXECUTING ./" + install_script + " ")
-    p = subprocess.Popen(use_parent_shell + "./" + install_script, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
+    p = subcall(modules_to_load, "./" + install_script, use_popen=True)
     process_output = " "
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
         process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
