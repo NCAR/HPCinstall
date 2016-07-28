@@ -22,19 +22,22 @@ if not os.path.isfile(install_file) or "/" in install_file:
     parser.print_help()
     sys.exit(1)
 
-sw_structure = install_file.split("-")
+def parse_install_filename(install_file):
+    sw_structure = install_file.split("-")
 
-if len(sw_structure) !=2 and len(sw_structure) !=4:
-    print "The install script file should be named like <software-version-compiler-version>,"
-    print "or <software-version>. Got '" + install_file + "' instead"
-    sys.exit(1)
+    if len(sw_structure) !=2 and len(sw_structure) !=4:
+        print "The install script file should be named like <software-version-compiler-version>,"
+        print "or <software-version>. Got '" + install_file + "' instead"
+        sys.exit(1)
 
-if len(sw_structure) == 4:
-    my_compiler = sw_structure[2] + "/" + sw_structure[3]
-else:
-    my_compiler = ""
+    if len(sw_structure) == 4:
+        my_compiler = sw_structure[2] + "/" + sw_structure[3]
+    else:
+        my_compiler = ""
 
-my_program = sw_structure[0] + "/" + sw_structure[1]
+    return my_compiler, sw_structure[0] + "/" + sw_structure[1]
+
+my_compiler, my_program = parse_install_filename(install_file)
 
 if options.csgteam:
     if os.environ['USER'] != "csgteam":
