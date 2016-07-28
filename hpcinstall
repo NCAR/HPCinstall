@@ -77,12 +77,6 @@ def start_logging_current_session():
 def stop_logging_current_session():
     tee.close_all_files()
 
-install_script, options = parse_command_line_arguments()
-my_compiler, my_program = parse_installscript_filename(install_script)
-prefix, modulefile = get_variables(options, my_program, my_compiler)
-start_logging_current_session()
-set_variables_and_warn(prefix, modulefile, options, install_script)
-
 def log_full_env():
     env_log = "log.env.txt"
     print "Saving environment status in", env_log, "...",
@@ -96,17 +90,23 @@ def log_full_env():
     print "Done."
     files_to_archive.append(module_log)
 
+def execute_installscript(install_script):
+    install_log = "log.install." + install_script + ".txt"
+    print "Passing control to ./" + install_script, "and logging output into", install_log
+    print "----------------------------------------------"
+    subprocess.call(use_parent_shell + "./" + install_script, stderr=subprocess.STDOUT, shell=True)
+    subprocess.call("touch " + install_log, shell=True)
+    files_to_archive.append(install_log)
+    print "Not logged anything in", install_log, "see https://github.com/NCAR/HPCinstall/issues/3"
+
+# execution starts here
+install_script, options = parse_command_line_arguments()
+my_compiler, my_program = parse_installscript_filename(install_script)
+prefix, modulefile = get_variables(options, my_program, my_compiler)
+start_logging_current_session()
+set_variables_and_warn(prefix, modulefile, options, install_script)
 log_full_env()
-
-install_log = "log.install." + install_script + ".txt"
-print "Passing control to ./" + install_script, "and logging output into", install_log
-print "----------------------------------------------"
-subprocess.call(use_parent_shell + "./" + install_script, stderr=subprocess.STDOUT, shell=True)
-subprocess.call("touch " + install_log, shell=True)
-files_to_archive.append(install_log)
-
-print "Not logged anything in", install_log, "see https://github.com/NCAR/HPCinstall/issues/3"
-
+execute_installscript(install_script)
 stop_logging_current_session()
 
 build_dir = prefix + "/BUILD_DIR/"
