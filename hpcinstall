@@ -35,9 +35,6 @@ def parse_command_line_arguments():
         sys.exit(1)
     return install_script, options
 
-install_script, options = parse_command_line_arguments()
-my_compiler, my_program = parse_installscript_filename(install_script)
-
 def get_variables(options, my_program, my_compiler):
     if options.csgteam:
         if os.environ['USER'] != "csgteam":
@@ -57,24 +54,24 @@ def get_variables(options, my_program, my_compiler):
         sys.exit(1)
     return prefix, modulefile
 
+install_script, options = parse_command_line_arguments()
+my_compiler, my_program = parse_installscript_filename(install_script)
 prefix, modulefile = get_variables(options, my_program, my_compiler)
 
 hpcinstall_log = "log.hpcinstall." + str(os.getpid()) + ".txt"
 tee.overwrite_out_to(hpcinstall_log)
 
-print "Will set INSTALL_DIR environmental variable to", prefix
-print "and MODULE_FILENAME one to", modulefile
-sys.stdout.write("then run ./" + install_script + " as " + os.environ['USER'] + ". ")
-
+print "Setting environmental variables:"
+print "INSTALL_DIR     =", prefix
+print "MODULE_FILENAME =", modulefile
+print
 if options.csgteam:
-    sys.sterr.write("Continue? ")
+    print "Then will run ./" + install_script + " as " + os.environ['USER'] + ". Continue? ",
     answer = sys.stdin.readline()
     print
     if answer.lower().strip() != "yes":
         print "You did not say an ethusiastic 'yes', aborting..."
         sys.exit(1)
-else:
-    print "\n"
 
 os.environ['INSTALL_DIR'] = prefix
 os.environ['MODULE_FILENAME'] = modulefile
@@ -85,7 +82,7 @@ subprocess.call("env > " + env_log, shell=True)
 print "Done."
 
 module_log = "log.modules.txt"
-print "Saving module list in", module_log,
+print "Saving module list in", module_log, "...",
 subprocess.call(use_parent_shell + "'module list' &> " + module_log, shell=True)
 print "Done."
 
