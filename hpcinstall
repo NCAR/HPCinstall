@@ -51,6 +51,13 @@ else:
     prefix = "/glade/scratch/" + os.environ['USER'] + "/" + my_program + "/" + my_compiler
     modulefile = "/glade/scratch/modulefiles/" + my_program + ".lua"
 
+if os.path.exists(prefix):
+    print "File already exists", prefix
+    sys.exit(1)
+if os.path.exists(modulefile):
+    print "File already exists", prefix
+    sys.exit(1)
+
 hpcinstall_log = "log.hpcinstall." + str(os.getpid()) + ".txt"
 tee.overwrite_out_to(hpcinstall_log)
 
