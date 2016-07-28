@@ -115,9 +115,9 @@ def parse_installscript_for_modules(install_script):
         separator(" MODULE COMMANDS THAT WILL BE EXECUTED ")
         for l in executing_lines: print l
         separator()
+    return "; ".join(executing_lines)
 
 def execute_installscript(install_script):
-    parse_installscript_for_modules(install_script)
     separator(" LOG of EXECUTING ./" + install_script + " ")
     p = subprocess.Popen(use_parent_shell + "./" + install_script, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
     process_output = " "
@@ -140,6 +140,7 @@ my_compiler, my_program = parse_installscript_filename(install_script)
 prefix, modulefile = get_variables(options, my_program, my_compiler)
 start_logging_current_session()
 set_variables_and_warn(prefix, modulefile, options, install_script)
+modules_to_load = parse_installscript_for_modules(install_script)
 log_full_env()
 execute_installscript(install_script)
 stop_logging_current_session()
