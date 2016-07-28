@@ -95,8 +95,10 @@ def execute_installscript(install_script):
     print "Passing control to ./" + install_script, "and logging output into", install_log
     print "----------------------------------------------"
     subprocess.call(use_parent_shell + "./" + install_script, stderr=subprocess.STDOUT, shell=True)
+    print "----------------------------------------------"
     subprocess.call("touch " + install_log, shell=True)
     files_to_archive.append(install_log)
+    print "./" + install_script, "completed with exit code ?"
     print "Not logged anything in", install_log, "see https://github.com/NCAR/HPCinstall/issues/3"
 
 def archive_in(prefix):
