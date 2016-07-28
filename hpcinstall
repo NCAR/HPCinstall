@@ -22,7 +22,7 @@ if len(args) != 1:
 
 install_file = args[0]
 
-if not os.path.isfile(install_file):
+if not os.path.isfile(install_file) or "/" in install_file:
     parser.print_help()
     sys.exit(1)
 
