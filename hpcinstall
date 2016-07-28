@@ -38,22 +38,26 @@ def parse_command_line_arguments():
 install_script, options = parse_command_line_arguments()
 my_compiler, my_program = parse_installscript_filename(install_script)
 
-if options.csgteam:
-    if os.environ['USER'] != "csgteam":
-        print "Must sudo into 'csgteam' user to run as csgteam"
-        sys.exit(1)
-    prefix = "/glade/apps/opt/" + my_program + "/" + my_compiler
-    modulefile = "/glade/apps/modulefiles/" + my_program + ".lua"
-else:
-    prefix = "/glade/scratch/" + os.environ['USER'] + "/" + my_program + "/" + my_compiler
-    modulefile = "/glade/scratch/modulefiles/" + my_program + ".lua"
+def get_variables(options, my_program, my_compiler):
+    if options.csgteam:
+        if os.environ['USER'] != "csgteam":
+            print "Must sudo into 'csgteam' user to run as csgteam"
+            sys.exit(1)
+        prefix = "/glade/apps/opt/" + my_program + "/" + my_compiler
+        modulefile = "/glade/apps/modulefiles/" + my_program + ".lua"
+    else:
+        prefix = "/glade/scratch/" + os.environ['USER'] + "/" + my_program + "/" + my_compiler
+        modulefile = "/glade/scratch/modulefiles/" + my_program + ".lua"
 
-if os.path.exists(prefix):
-    print "File already exists", prefix
-    sys.exit(1)
-if os.path.exists(modulefile):
-    print "File already exists", prefix
-    sys.exit(1)
+    if os.path.exists(prefix):
+        print "File already exists", prefix
+        sys.exit(1)
+    if os.path.exists(modulefile):
+        print "File already exists", prefix
+        sys.exit(1)
+    return prefix, modulefile
+
+prefix, modulefile = get_variables(options, my_program, my_compiler)
 
 hpcinstall_log = "log.hpcinstall." + str(os.getpid()) + ".txt"
 tee.overwrite_out_to(hpcinstall_log)
