@@ -91,15 +91,16 @@ def log_full_env():
     files_to_archive.append(module_log)
 
 def execute_installscript(install_script):
-    install_log = "log.install." + install_script + ".txt"
-    print "Passing control to ./" + install_script, "and logging output into", install_log
+    print "Executing ./" + install_script
     print "----------------------------------------------"
-    subprocess.call(use_parent_shell + "./" + install_script, stderr=subprocess.STDOUT, shell=True)
+    p = subprocess.Popen(use_parent_shell + "./" + install_script, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
+    process_output = " "
+    while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
+        process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
+        print process_output,                 # 'tee' to log the process output
+    p.poll()
     print "----------------------------------------------"
-    subprocess.call("touch " + install_log, shell=True)
-    files_to_archive.append(install_log)
-    print "./" + install_script, "completed with exit code ?"
-    print "Not logged anything in", install_log, "see https://github.com/NCAR/HPCinstall/issues/3"
+    print "./" + install_script, "completed and exit with code", p.returncode
 
 def archive_in(prefix):
     build_dir = prefix + "/BUILD_DIR/"
