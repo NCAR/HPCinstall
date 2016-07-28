@@ -93,7 +93,28 @@ def log_full_env():
     print "Done."
     files_to_archive.append(module_log)
 
+def parse_installscript_for_modules(install_script):
+    warning = ""
+    executing_lines = []
+    for line in open(install_script):
+        if "module" in line or "ml" in line:
+            if line.startswith("#"):
+                exe_line = line.replace("#", "", 1).strip()
+                executing_lines.append(exe_line)
+            else:
+                warning += line
+    if warning != "":
+        separator()
+        print "Warning module commands found in ./" + install_script
+        print warning,
+        separator()
+    if len(executing_lines) > 0:
+        separator()
+        print "Should run following modules:\n", executing_lines
+        separator()
+
 def execute_installscript(install_script):
+    parse_installscript_for_modules(install_script)
     print "Executing ./" + install_script
     separator()
     p = subprocess.Popen(use_parent_shell + "./" + install_script, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
