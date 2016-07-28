@@ -4,7 +4,7 @@ import optparse # cruder than others, but compatible with older versions of pyth
 import os, shutil, sys, subprocess
 import tee
 
-use_parent_shell = os.environ['SHELL'] + " -c "
+use_parent_shell = os.environ['SHELL'] + " -c "    # workaround for fixing tcsh module problem, see https://github.com/NCAR/HPCinstall/issues/6
 
 usage = ("usage: %prog [options] <software-version-compiler-version>\n" +
          "Required:\n" +
@@ -12,17 +12,12 @@ usage = ("usage: %prog [options] <software-version-compiler-version>\n" +
          "                              doing the build and install\n" +
          "                              (don't use '/' or fully qualified paths)")
 parser = optparse.OptionParser(usage)
-
 parser.add_option("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
-
 (options, args) = parser.parse_args()
-
 if len(args) != 1:
     parser.print_help()
     sys.exit(1)
-
 install_file = args[0]
-
 if not os.path.isfile(install_file) or "/" in install_file:
     parser.print_help()
     sys.exit(1)
