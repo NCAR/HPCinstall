@@ -4,7 +4,7 @@ import optparse # cruder than others, but compatible with older versions of pyth
 import os, shutil, sys, subprocess
 import tee
 
-def parse_install_filename(filename):
+def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
 
     if len(sw_structure) !=2 and len(sw_structure) !=4:
@@ -33,15 +33,15 @@ def parse_command_line_arguments():
     if len(args) != 1:
         parser.print_help()
         sys.exit(1)
-    install_file = args[0]
-    if not os.path.isfile(install_file) or "/" in install_file:
+    install_script = args[0]
+    if not os.path.isfile(install_script) or "/" in install_script:
         parser.print_help()
         sys.exit(1)
-    return install_file, options
+    return install_script, options
 
-install_file, options = parse_command_line_arguments()
+install_script, options = parse_command_line_arguments()
 
-my_compiler, my_program = parse_install_filename(install_file)
+my_compiler, my_program = parse_installscript_filename(install_script)
 
 if options.csgteam:
     if os.environ['USER'] != "csgteam":
@@ -65,7 +65,7 @@ tee.overwrite_out_to(hpcinstall_log)
 
 print "Will set INSTALL_DIR environmental variable to", prefix
 print "and MODULE_FILENAME one to", modulefile
-sys.stdout.write("then run ./" + install_file + " as " + os.environ['USER'] + ". ")
+sys.stdout.write("then run ./" + install_script + " as " + os.environ['USER'] + ". ")
 
 if options.csgteam:
     sys.sterr.write("Continue? ")
@@ -90,10 +90,10 @@ print "Saving module list in", module_log,
 subprocess.call(use_parent_shell + "'module list' &> " + module_log, shell=True)
 print "Done."
 
-install_log = "log.install." + install_file + ".txt"
-print "Passing control to ./" + install_file, "and logging output into", install_log
+install_log = "log.install." + install_script + ".txt"
+print "Passing control to ./" + install_script, "and logging output into", install_log
 print "----------------------------------------------"
-subprocess.call(use_parent_shell + "./" + install_file, stderr=subprocess.STDOUT, shell=True)
+subprocess.call(use_parent_shell + "./" + install_script, stderr=subprocess.STDOUT, shell=True)
 subprocess.call("touch " + install_log, shell=True)
 
 print "Not logged anything in", install_log, "see https://github.com/NCAR/HPCinstall/issues/3"
