@@ -84,7 +84,8 @@ def stop_logging_current_session():
     tee.close_all_files()
 
 def subcall(modules_to_load, command, log):
-    subprocess.call(use_parent_shell + "'" + modules_to_load + "; " + command + "' &> " + log, shell=True)
+    str_cmd = use_parent_shell + "'" + modules_to_load + "; " + command + "' &> " + log
+    subprocess.call(str_cmd, shell=True)
 
 def log_full_env(modules_to_load):
     env_log = "log.env.txt"
