@@ -120,10 +120,6 @@ def parse_installscript_for_modules(install_script):
         print warning,
         separator()
         ask_confirmation_for(options, "Would you like to run anyway? ")
-    if len(executing_lines) > 0:
-        separator(" MODULE COMMANDS THAT WILL BE EXECUTED ")
-        for l in executing_lines: print l
-        separator()
     return "; ".join(executing_lines)
 
 def execute_installscript(modules_to_load, install_script):
