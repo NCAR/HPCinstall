@@ -43,11 +43,24 @@ _open_tees = []
 def close_all_files():
     for t in _open_tees:
         t.close()
+        _open_tees.remove(t)
 
 def overwrite_out_to(filename):
-    sys.stdout = _tee(open(filename, "w"), OUT)
+    _write_out_to(filename, "w")
+
+def append_out_to(filename):
+    _write_out_to(filename, "a")
+
+def _write_out_to(filename, mode):
+    sys.stdout = _tee(open(filename, mode), OUT)
     _open_tees.append(sys.stdout)
 
 def overwrite_err_to(filename):
-    sys.stderr = _tee(open(filename, "w"), ERR)
+    _write_err_to(filename, "w")
+
+def append_err_to(filename):
+    _write_err_to(filename, "a")
+
+def _write_err_to(filename, mode):
+    sys.stderr = _tee(open(filename, mode), ERR)
     _open_tees.append(sys.stderr)
