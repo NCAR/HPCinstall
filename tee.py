@@ -1,26 +1,24 @@
 import sys
 
-class tee :
-    def __init__(self, _fd1, _fd2) :
-        self.fd1 = _fd1
-        self.fd2 = _fd2
+class tee_out :
+    def __init__(self, logfile):
+        self.stdout = sys.stdout
+        self.log = logfile
 
     def __del__(self) :
         self.close()
 
     def close(self):
-        if self.fd1 != sys.stdout and self.fd1 != sys.stderr :
-            self.fd1.close()
-        if self.fd2 != sys.stdout and self.fd2 != sys.stderr :
-            self.fd2.close()
+        self.log.close()
+        sys.stdout = self.stdout
 
     def write(self, text) :
-        self.fd1.write(text)
-        self.fd2.write(text)
+        self.stdout.write(text)
+        self.log.write(text)
 
     def flush(self) :
-        self.fd1.flush()
-        self.fd2.flush()
+        self.stdout.flush()
+        self.log.flush()
 
 _open_tees = []
 
@@ -29,9 +27,7 @@ def close_all_files():
         t.close()
 
 def overwrite_out_to(filename):
-    saved = sys.stdout
-    outputlog = open(filename, "w")
-    sys.stdout = tee(saved, outputlog)
+    sys.stdout = tee_out(open(filename, "w"))
     _open_tees.append(sys.stdout)
 
 def overwrite_err_to(filename):
