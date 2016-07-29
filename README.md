@@ -26,4 +26,10 @@ It is easier to show how it achieves these goals with an example
 
 ## Sample use
 
-Install zlib
+###Install zlib
+According to [this document](https://docs.google.com/spreadsheets/d/1BxkASYb_Tdt7G-idwD7rScTLT1wj4rovwbZQ-L6Aguk/edit#gid=0) I should evaluate build/install tools by trying them on zlib, so here it is.
+
+1. Download the software to be installed. After some googling `wget http://zlib.net/zlib-1.2.8.tar.gz` is the solution. I don't think it's worth saving this in the install script (URL often changes), so I don't. Nothing prevents you to think and do differently.
+2. Anywhere in the filesystem (`HPCinstall` does not care) create a directory and run `tar xf zlib-1.2.8.tar.gz` into it. I don't think this is worth saving this in the install script, so I don't. Nothing prevents you to think and do differently.
+3. Go into the untarred directory and create a file named `name-version` or `name-version-compiler-version`. So in this case I run `touch zlib-1.2.8-gnu-6.1.0`. 
+4. At this point you can start using `HPCinstall` by invoking it using the file we just created as argument. So if `HPCinstall` is in your `PATH` you can run `HPCinstall zlib-1.2.8-gnu-6.1.0` otherwise run `/absolute/or/relative/path/HPCinstall zlib-1.2.8-gnu-6.1.0` (either one will work)
