@@ -1,23 +1,41 @@
 import sys
 
-class tee_out :
-    def __init__(self, logfile):
-        self.stdout = sys.stdout
+OUT=0
+ERR=1
+
+class _tee:
+    def __init__(self, logfile, type):
+        if type == OUT:
+            self.stdout = sys.stdout
+            self.stderr = None
+        elif type == ERR:
+            self.stdout = None
+            self.stderr = sys.stderr
         self.log = logfile
+        self.type = type
 
     def __del__(self) :
         self.close()
 
     def close(self):
         self.log.close()
-        sys.stdout = self.stdout
+        if self.type == OUT:
+            sys.stdout = self.stdout
+        elif type == ERR:
+            sys.stderr = self.stderr
 
-    def write(self, text) :
-        self.stdout.write(text)
+    def write(self, text):
+        if self.type == OUT:
+            self.stdout.write(text)
+        elif type == ERR:
+            self.stderr.write(text)
         self.log.write(text)
 
-    def flush(self) :
-        self.stdout.flush()
+    def flush(self):
+        if self.type == OUT:
+            self.stdout.flush()
+        elif type == ERR:
+            self.stderr.flush()
         self.log.flush()
 
 _open_tees = []
@@ -27,12 +45,9 @@ def close_all_files():
         t.close()
 
 def overwrite_out_to(filename):
-    sys.stdout = tee_out(open(filename, "w"))
+    sys.stdout = _tee(open(filename, "w"), OUT)
     _open_tees.append(sys.stdout)
 
 def overwrite_err_to(filename):
-    saved = sys.stderr
-    outputlog = open(filename, "w")
-    sys.stderr = tee(saved, outputlog)
+    sys.stderr = _tee(open(filename, "w"), ERR)
     _open_tees.append(sys.stderr)
-
