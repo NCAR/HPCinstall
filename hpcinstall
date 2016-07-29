@@ -123,9 +123,11 @@ def parse_installscript_for_modules(install_script):
         print warning,
         separator()
         ask_confirmation_for(options, "Would you like to run anyway? ")
+        print
     return "; ".join(executing_lines)
 
 def execute_installscript(modules_to_load, install_script):
+    print "Running ./" + install_script, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "log." + install_script  + str(os.getpid()) + ".txt"
     start_logging_current_session(log=log)
@@ -138,7 +140,7 @@ def execute_installscript(modules_to_load, install_script):
     stop_logging_current_session()
     files_to_archive.append(log)
     start_logging_current_session(continuation=True)
-    print "./" + install_script, "completed and exit with code", p.returncode
+    print "Done running ./" + install_script, "- exited with code", p.returncode
 
 def archive_in(prefix):
     build_dir = prefix + "/BUILD_DIR/"
