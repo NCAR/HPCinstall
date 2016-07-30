@@ -1,7 +1,7 @@
 #!/bin/env python
 
 import optparse # cruder than others, but compatible with older versions of python
-import os, shutil, sys, subprocess
+import os, stat, shutil, sys, subprocess
 import tee
 
 use_parent_shell = os.environ['SHELL'] + " -c "    # workaround for fixing tcsh module problem, see https://github.com/NCAR/HPCinstall/issues/6
@@ -130,6 +130,8 @@ def parse_installscript_for_modules(install_script):
     return modules_to_run
 
 def execute_installscript(modules_to_load, install_script):
+    current_perm = os.stat(install_script)
+    os.chmod(install_script, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + install_script, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "log." + install_script  + str(os.getpid()) + ".txt"
