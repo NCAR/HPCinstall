@@ -87,7 +87,7 @@ def stop_logging_current_session():
     tee.close_all_files()
 
 def subcall(modules_to_load, command, log=None, use_popen = False):
-    str_cmd = use_parent_shell + "'" + modules_to_load + "; " + command + "'"
+    str_cmd = use_parent_shell + "'" + modules_to_load + command + "'"
     if log:
         str_cmd += " &> " + log
     if use_popen:
@@ -124,7 +124,10 @@ def parse_installscript_for_modules(install_script):
         separator()
         ask_confirmation_for(options, "Would you like to run anyway? ")
         print
-    return "; ".join(executing_lines)
+    modules_to_run = "; ".join(executing_lines)
+    if len(modules_to_run) > 0:
+        modules_to_run += "; "
+    return modules_to_run
 
 def execute_installscript(modules_to_load, install_script):
     print "Running ./" + install_script, "..."
