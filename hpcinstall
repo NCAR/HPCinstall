@@ -134,7 +134,7 @@ def execute_installscript(modules_to_load, install_script):
     os.chmod(install_script, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + install_script, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
-    log = "log." + install_script  + str(os.getpid()) + ".txt"
+    log = "log." + install_script  + "-" + str(os.getpid()) + ".txt"
     start_logging_current_session(log=log)
     p = subcall(modules_to_load, "./" + install_script, use_popen=True)
     process_output = " "
