@@ -83,3 +83,27 @@ So `HPCinstall` has done the following:
 
  Everything should be self-documenting, but let's look at the content of the four files
 7. Let's start with the environment `log.env.txt`
+Run a `less log.env.txt` -- you will see the list of all the environment variables in the system, right before the script is executed
+
+8. Move on with `cat log.modules.txt`. You will see:
+ ```
+Currently Loaded Modules:
+  1) ncarenv/1.0        3) intel/12.1.5         5) netcdf/4.3.0
+  2) ncarbinlibs/1.1    4) ncarcompilers/1.0
+```
+Which is the list of module I had loaded when I run the script (it does not have to be the *reset* environment).
+Most importantly, see **summary** below!
+
+9. Next file to cat is `log.hpcinstall.txt`. You will see:
+ ```
+Setting environmental variables:
+INSTALL_DIR     = /glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5
+MODULE_FILENAME = /glade/scratch/modulefiles/zlib/1.2.8.lua
+
+Running ./zlib-1.2.8 ...
+Done running ./zlib-1.2.8 - exited with code 0
+```
+Which is the output that we have seen on the screen in step 6. Note that if our own script `zlib-1.2.8` produced any output, it would have
+been printed onscreen, but it would **not** be included in this log, but in the subsequent.
+
+10. Finally, the last log is `log.zlib-1.2.8-3120.txt` which in this case is empty, but it contains the output of the script `zlib-1.2.8`, see below for details.
