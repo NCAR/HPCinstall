@@ -4,6 +4,8 @@ import optparse # cruder than others, but compatible with older versions of pyth
 import os, stat, shutil, sys, subprocess
 import tee
 
+compiler_modules = ["gnu", "intel", "pgi", "pathscale", "pgi", "cuda", "sun"]
+
 use_parent_shell = os.environ['SHELL'] + " -c "    # workaround for fixing tcsh module problem, see https://github.com/NCAR/HPCinstall/issues/6
 files_to_archive = [os.path.realpath(__file__)]    # logs and other files to preserve
 HPCi_log = "log.hpcinstall.txt"
@@ -13,21 +15,17 @@ def separator(msg=""):
 
 def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
-    if len(sw_structure) !=2 and len(sw_structure) !=4:
-        print "The install script file should be named like <software-version-compiler-version>,"
-        print "or <software-version>. Got '" + filename + "' instead"
+    if len(sw_structure) !=2:
+        print "The install script file must be named like <software-version>. Got '" + filename + "' instead"
         sys.exit(1)
-    my_compiler = ""
-    if len(sw_structure) == 4:
-        my_compiler = sw_structure[2] + "/" + sw_structure[3]
-    return my_compiler, sw_structure[0] + "/" + sw_structure[1]
+    return sw_structure[0] + "/" + sw_structure[1]
 
 def parse_command_line_arguments():
-    usage = ("usage: %prog [options] <software-version-compiler-version>\n" +
+    usage = ("usage: %prog [options] <software-version>\n" +
              "Required:\n" +
-             "  <software-ver-compiler-ver> script in the current directory\n" +
-             "                              doing the build and install\n" +
-             "                              (don't use '/' or fully qualified paths)")
+             "  <software-ver> script in the current directory which\n" +
+             "                 does the build and install (do not use\n" +
+             "                 './', relative nor fully qualified paths)")
     parser = optparse.OptionParser(usage)
     parser.add_option("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
     (options, args) = parser.parse_args()
@@ -95,7 +93,7 @@ def subcall(modules_to_load, command, log=None, use_popen = False):
     else:
         return subprocess.call(str_cmd, shell=True)
 
-def log_full_env(modules_to_load):
+def parse_compiler_and_log_full_env(modules_to_load):
     env_log = "log.env.txt"
     print "Saving environment status in", env_log, "...",
     subcall(modules_to_load, "env", env_log)
@@ -106,7 +104,21 @@ def log_full_env(modules_to_load):
     print "Saving module list in", module_log, "...",
     subcall(modules_to_load, "module list", module_log)
     print "Done.\n"
+    loaded_compiler = []
     files_to_archive.append(module_log)
+    for line in open(module_log):
+        for c in compiler_modules:
+            if c in line:
+                for single_module in line.split():
+                    if single_module.startswith(c + "/"):
+                        loaded_compiler.append(single_module)
+    compiler = ""
+    if len(loaded_compiler) == 1:
+        compiler = loaded_compiler[0]
+    elif len(loaded_compiler) > 1:
+        compiler = loaded_compiler[0]
+        print "Warning, more than one compiler found:", loaded_compiler, "-- Using only the first."
+    return compiler
 
 def parse_installscript_for_modules(install_script):
     warning = ""
@@ -155,12 +167,12 @@ def archive_in(prefix):
 
 # execution starts here
 install_script, options = parse_command_line_arguments()
-my_compiler, my_program = parse_installscript_filename(install_script)
+my_program = parse_installscript_filename(install_script)
+modules_to_load = parse_installscript_for_modules(install_script)
+my_compiler = parse_compiler_and_log_full_env(modules_to_load)
 prefix, modulefile = get_variables(options, my_program, my_compiler)
 start_logging_current_session()
 set_variables_and_warn(prefix, modulefile, options, install_script)
-modules_to_load = parse_installscript_for_modules(install_script)
-log_full_env(modules_to_load)
 execute_installscript(modules_to_load, install_script)
 stop_logging_current_session()
 archive_in(prefix)
