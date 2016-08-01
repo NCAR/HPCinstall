@@ -135,9 +135,9 @@ Running ./zlib-1.2.8 ...
 Done running ./zlib-1.2.8 - exited with code 0
 ```
 
-4. As see in the previous bullet, the code should have been installed into `/glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2`, verify that it worked by cd into it and poking around
+4. As see in the previous bullet, the code should have been installed into `/glade/scratch/$USER/zlib/1.2.8/gnu/4.8.2`, verify that it worked by cd into it and poking around
  ```
-ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ cd /glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2
+ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ cd /glade/scratch/$USER/zlib/1.2.8/gnu/4.8.2
 ddvento@yslogin6 /glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2 $ ls -l
 total 0
 drwxrwxr-x 2 ddvento consult 512 Aug  1 11:30 BUILD_DIR
@@ -174,7 +174,7 @@ hpcinstall -c zlib-1.2.8
  **THIS WILL INSTALL in /glade/apps/opt !!!!!**
 
 6. Notes
- 1. The install directory is automatically generated and contains the name and version of the compiler module loaded, per our policies. If no compiler is loaded, only software would be used, such in `/glade/scratch/ddvento/zlib/1.2.8/`, which is the policy for non-compiled stuff, such as pure-python (non compiled) libraries.
+ 1. The install directory is automatically generated and contains the name and version of the compiler module loaded, per our policies. If no compiler is loaded, only software name and version would be used, such in `/glade/scratch/$USER/zlib/1.2.8/`, which is the policy for non-compiled stuff, such as pure-python (non compiled) libraries.
 
  2. The modules are specified as comments in file `zlib-1.2.8`. This is needed for `HPCinstall` to correctly generate the `log.modules.txt` file and (especially) to correctly generate the install directory as `/glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2` (note the automatic use of the loaded module). If you are ok with not having both of these features, you may load the modules in any other way you want (e.g. command line before invoking, or executable `module such-and-such` in the script), and everything else will work just fine
 
