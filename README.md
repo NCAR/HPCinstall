@@ -24,17 +24,17 @@ Some of the features of `HPCinstall` are:
  
 It is easier to show how it achieves these goals with an example
 
-## Sample use
+## Very detailed example of use (covering every small thing)
 
 ###Install zlib
 According to [this document](https://docs.google.com/spreadsheets/d/1BxkASYb_Tdt7G-idwD7rScTLT1wj4rovwbZQ-L6Aguk/edit#gid=0) I should evaluate build/install tools by trying them on zlib, so here it is. See the same document for what software *you* should install.
 
-1. Download the software to be installed. After some googling `wget http://zlib.net/zlib-1.2.8.tar.gz` is the solution. I don't think it's worth saving this in the install script (URL often changes), so I don't. Nothing prevents you to think and do differently.
+1. Download the software to be installed. After some googling `wget http://zlib.net/zlib-1.2.8.tar.gz` is the solution. I don't think it's worth saving this in the install script (URL may change), so I don't. Nothing prevents you to think and do differently.
 2. Anywhere in the filesystem (`HPCinstall` does not care) create a directory and run `tar xf zlib-1.2.8.tar.gz` into it. I don't think this is worth saving this in the install script, so I don't. Nothing prevents you to think and do differently.
-3. Go into the untarred directory and create a file named `name-version`. So in this case I run `touch zlib-1.2.8`. This is a requirement, but I might change `HPCinstall` to parse the directory name instead and leave you with a free filename, if the group so prefer.
-4. This is a useless bullet, but just to make sure of what `HPCinstall does` let's run `ls -l /glade/scratch/$USER/zlib/1.2.8/intel/12.1.5` and see the `No such file or directory` response.
-5. At this point you can start using `HPCinstall` by invoking it using the file we just created as argument. So if `hpcinstall` is in your `PATH` you can run `hpcinstall zlib-1.2.8` otherwise run `/absolute/or/relative/path/hpcinstall zlib-1.2.8` (either one will work, `HPCinstall` does not require to be officially installed)
-6. Now, the install script `zlib-1.2.8` we created in bullet 3 is empty, so it does nothing, but `HPCinstall` still does something with it. The output on the script of running `hpcinstall zlib-1.2.8` should be something like:
+3. Go into the untarred directory and create a file named `name-version`. So in this case I run `touch zlib-1.2.8`. This is a requirement, but I might change `HPCinstall` to parse the directory name instead and leave you with a free filename, if the group so prefers.
+4. This is a useless bullet point, it is here to show you in detail what `HPCinstall` does. Let's run `ls -l /glade/scratch/$USER/zlib/1.2.8/intel/12.1.5` and see the `No such file or directory` response (if the directory exists, either delete it or rename the `zlib-1.2.8` to something else).
+5. At this point you can start using `HPCinstall` by invoking it on the file we've just created. So if `hpcinstall` is in your `PATH` you can run `hpcinstall zlib-1.2.8` otherwise run `/absolute/or/relative/path/hpcinstall zlib-1.2.8` (either one will work, `HPCinstall` does not require to be officially installed)
+6. Now, the install script `zlib-1.2.8` we created in bullet 3 is empty, so it does nothing, but `HPCinstall` still does something with it. The output of running `hpcinstall zlib-1.2.8` should be something like:
  ```
 Saving environment status in log.env.txt ... Done.
 Saving module list in log.modules.txt ... Done.
@@ -77,7 +77,7 @@ total 256
 So `HPCinstall` has done the following:
  - created the four `log.*.txt` files in current directory
  - made the `zlib-1.2.8` script executable (we did not make so in 3. when we created it)
- - created the directory `/glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5` (and all the necessary parents)
+ - created the directory `/glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5/BUILD_DIR/` (and all the necessary parents)
  - copied in the directory of the previous bullet the four `log.*.txt` plus the `hpcinstall` script itself
  - note that it has not done anything with `/glade/scratch/modulefiles/zlib/1.2.8.lua` (other than setting the env var)
 
@@ -91,8 +91,8 @@ Currently Loaded Modules:
   1) ncarenv/1.0        3) intel/12.1.5         5) netcdf/4.3.0
   2) ncarbinlibs/1.1    4) ncarcompilers/1.0
 ```
-Which is the list of module I had loaded when I run the script (it does not have to be the *reset* environment).
-Most importantly, see **summary** below!
+Which is the list of module I had loaded when I ran the script (it does not have to be the *reset* environment).
+See in the **summary** below about a suggested way of loading modules with `HPCinstall`
 
 9. Next file to cat is `log.hpcinstall.txt`. You will see:
  ```
