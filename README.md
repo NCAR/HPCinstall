@@ -107,3 +107,77 @@ Which is the output that we have seen on the screen in step 6. Note that if our 
 been printed onscreen, but it would **not** be included in this log, but in the subsequent.
 
 10. Finally, the last log is `log.zlib-1.2.8-3120.txt` which in this case is empty, but it contains the output of the script `zlib-1.2.8`, see below for details.
+
+## Summary (very succint example of use)
+
+1. In the directory containing the source to be compiled (e.g. `zlib v1.2.8`) create a file like the following named `zlib-1.2.8` (any language will work, using `bash` for this example):
+ ```
+#!/bin/env bash
+# ml reset
+# ml sw intel gnu/4.8.2
+# ml remove netcdf
+
+./configure --prefix=$INSTALL_DIR
+make && make install
+```
+
+2. run `hpcinstall zlib-1.2.8` and go get a coffee (or stare the screen in awe looking at the compiler logs)
+
+3. If the last command is different from `Done running ./zlib-1.2.8 - exited with code 0`, figure out what was wrong, and go back to previous bullet, otherwise run:
+ ```
+ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ cat log.hpcinstall.txt
+Setting environmental variables:
+INSTALL_DIR     = /glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2
+MODULE_FILENAME = /glade/scratch/modulefiles/zlib/1.2.8.lua
+
+Running ./zlib-1.2.8 ...
+Done running ./zlib-1.2.8 - exited with code 0
+```
+
+4. As see in the previous bullet, the code should have been installed into `/glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2`, verify that it worked by cd into it and poking around
+ ```
+ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ cd /glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2
+ddvento@yslogin6 /glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2 $ ls -l
+total 0
+drwxrwxr-x 2 ddvento consult 512 Aug  1 11:30 BUILD_DIR
+drwxrwxr-x 2 ddvento consult 512 Aug  1 11:30 include
+drwxrwxr-x 3 ddvento consult 512 Aug  1 11:30 lib
+drwxrwxr-x 3 ddvento consult 512 Aug  1 11:30 share
+ddvento@yslogin6 /glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2 $ ls BUILD_DIR/ -l
+total 384
+-rw-rw-r-- 1 ddvento consult 7397 Aug  1 11:30 hpcinstall
+-rw-rw-r-- 1 ddvento consult 7197 Aug  1 11:30 log.env.txt
+-rw-rw-r-- 1 ddvento consult  228 Aug  1 11:30 log.hpcinstall.txt
+-rw-rw-r-- 1 ddvento consult  341 Aug  1 11:30 log.modules.txt
+-rw-rw-r-- 1 ddvento consult 5295 Aug  1 11:30 log.zlib-1.2.8-25493.txt
+ddvento@yslogin6 /glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2 $ cat BUILD_DIR/log.modules.txt
+Restoring modules to system default
+
+Due to MODULEPATH changes the following have been reloaded:
+  1) ncarcompilers/1.0     2) netcdf/4.3.0
+
+
+Lmod Warning: Did not find: remove
+
+Try: "module spider remove"
+Currently Loaded Modules:
+  1) ncarenv/1.0        3) gnu/4.8.2            5) netcdf/4.3.0
+  2) ncarbinlibs/1.1    4) ncarcompilers/1.0
+```
+
+5. Run as csgteam as
+
+6. Notes
+ 1. The install directory is automatically generated and contains the name and version of the compiler module loaded, per our policies. If no compiler is loaded, only software would be used, such in `/glade/scratch/ddvento/zlib/1.2.8/`, which is the policy for non-compiled stuff, such as pure-python (non compiled) libraries.
+
+ 2. The modules are specified as comments in file `zlib-1.2.8`. This is needed for `HPCinstall` to correctly generate the `log.modules.txt` file and (especially) to correctly generate the install directory as `/glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2` (note the automatic use of the loaded module). If you are ok with not having both of these features, you may load the modules in any other way you want (e.g. command line before invoking, or executable `module such-and-such` in the script), and everything else will work just fine
+
+ 3. The install directory must not exist. This is only to prevent involuntary clobbering. It is easy to add a `--force-clobber` option to allow `HPCinstall` if desired (the current workaround is to run a `mkdir` as first line of the install script, if necessary)
+
+ 4. The number (25493 in this case) at the end of the install script log `log.zlib-1.2.8-25493.txt` is the PID of the execution.
+It is added to avoid deleting the log from previous attempts. I have often found myself re-running an install script, creating an error
+which I wanted to compare with the previous one, only to discover I did not have the previous ones, so I decided to not delete them!
+The other logs tend to be more obvious, so to reduce clutter, I do not do the same for them.
+
+ 5. The csgteam install is interactive! It may ask a bunch of questions. We may need to discuss in the group meeting whether or not
+this is desired, it can be easily changed if appropriate
