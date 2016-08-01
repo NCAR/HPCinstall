@@ -167,11 +167,11 @@ Currently Loaded Modules:
   2) ncarbinlibs/1.1    4) ncarcompilers/1.0
 ```
 
-5. You may run as csgteam (or as yourself) with the `--csgteam` option:
+5. Verify that everything works fine, e.g. by running some program using this version of zlib (and maybe making that program a test case for [shark](https://github.com/NCAR/shark/)). If everything is fine, you may install globally by running `HPCinstall` as csgteam (or as yourself, if you have writing permissions) by using the `--csgteam` option:
  ```
 hpcinstall -c zlib-1.2.8
 ```
- **THIS WILL INSTALL in /glade/apps/opt !!!!!**
+ If you are running this as a test, beware! **THIS WILL INSTALL in /glade/apps/opt !!!!!** So do it for a piece of software for which is appropriate (if directory exists, `HPCinstall` will not clobber, but you might want to play safe and use a strange name instead)
 
 6. Notes
  1. The install directory is automatically generated and contains the name and version of the compiler module loaded, per our policies. If no compiler is loaded, only software name and version would be used, such in `/glade/scratch/$USER/zlib/1.2.8/`, which is the policy for non-compiled stuff, such as pure-python (non compiled) libraries.
