@@ -32,14 +32,15 @@ According to [this document](https://docs.google.com/spreadsheets/d/1BxkASYb_Tdt
 1. Download the software to be installed. After some googling `wget http://zlib.net/zlib-1.2.8.tar.gz` is the solution. I don't think it's worth saving this in the install script (URL often changes), so I don't. Nothing prevents you to think and do differently.
 2. Anywhere in the filesystem (`HPCinstall` does not care) create a directory and run `tar xf zlib-1.2.8.tar.gz` into it. I don't think this is worth saving this in the install script, so I don't. Nothing prevents you to think and do differently.
 3. Go into the untarred directory and create a file named `name-version`. So in this case I run `touch zlib-1.2.8`. This is a requirement, but I might change `HPCinstall` to parse the directory name instead and leave you with a free filename, if the group so prefer.
-4. At this point you can start using `HPCinstall` by invoking it using the file we just created as argument. So if `hpcinstall` is in your `PATH` you can run `hpcinstall zlib-1.2.8` otherwise run `/absolute/or/relative/path/hpcinstall zlib-1.2.8` (either one will work, `HPCinstall` does not require to be officially installed)
-5. Now, the install script `zlib-1.2.8` we created in bullet 3 is empty, so it does nothing, but `HPCinstall` still does something with it. The output on the script of running `hpcinstall zlib-1.2.8` should be something like:
+4. This is a useless bullet, but just to make sure of what `HPCinstall does` let's run `ls -l /glade/scratch/$USER/zlib/1.2.8/intel/12.1.5` and see the `No such file or directory` response.
+5. At this point you can start using `HPCinstall` by invoking it using the file we just created as argument. So if `hpcinstall` is in your `PATH` you can run `hpcinstall zlib-1.2.8` otherwise run `/absolute/or/relative/path/hpcinstall zlib-1.2.8` (either one will work, `HPCinstall` does not require to be officially installed)
+6. Now, the install script `zlib-1.2.8` we created in bullet 3 is empty, so it does nothing, but `HPCinstall` still does something with it. The output on the script of running `hpcinstall zlib-1.2.8` should be something like:
 ```
 Saving environment status in log.env.txt ... Done.
 Saving module list in log.modules.txt ... Done.
 
 Setting environmental variables:
-INSTALL_DIR     = /glade/scratch/ddvento/zlib/1.2.8/no_compiler
+INSTALL_DIR     = /glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5
 MODULE_FILENAME = /glade/scratch/modulefiles/zlib/1.2.8.lua
 
 Running ./zlib-1.2.8 ...
@@ -48,33 +49,37 @@ Done running ./zlib-1.2.8 - exited with code 0
 Let's look at what `HPCinstall` has done in the current directory:
 ```
 ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ ls -lt | head
--rw-rw-r--  1 ddvento consult   230 Aug  1 09:23 log.hpcinstall.txt
--rw-rw-r--  1 ddvento consult     0 Aug  1 09:23 log.zlib-1.2.8-17983.txt
--rw-rw-r--  1 ddvento consult   135 Aug  1 09:23 log.modules.txt
--rw-rw-r--  1 ddvento consult  7450 Aug  1 09:23 log.env.txt
+total 1104
+-rw-rw-r--  1 ddvento consult   135 Aug  1 10:46 log.modules.txt
+-rw-rw-r--  1 ddvento consult  7450 Aug  1 10:46 log.env.txt
+-rw-rw-r--  1 ddvento consult   231 Aug  1 10:43 log.hpcinstall.txt
+-rw-rw-r--  1 ddvento consult     0 Aug  1 10:43 log.zlib-1.2.8-3120.txt
 -rwxrw-r--  1 ddvento consult     0 Jul 29 15:55 zlib-1.2.8
 -rw-r--r--  1 ddvento consult 76402 Apr 28  2013 ChangeLog
 -rw-r--r--  1 ddvento consult  4236 Apr 28  2013 zlib.3
 -rw-r--r--  1 ddvento consult  8734 Apr 28  2013 zlib.3.pdf
 -rw-r--r--  1 ddvento consult 87883 Apr 28  2013 zlib.h
 ```
-and also let's look at `/glade/scratch/ddvento/zlib/1.2.8/gnu/6.1.0`
+and also let's look at `/glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5` content (not empty anymore like in bullet 4. above):
 ```
-ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ ls /glade/scratch/ddvento/zlib/1.2.8/gnu/6.1.0
-BUILD_DIR
-ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ ls /glade/scratch/ddvento/zlib/1.2.8/gnu/6.1.0/BUILD_DIR/ -l
+ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ ls -l /glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5
+total 0
+drwxrwxr-x 2 ddvento consult 512 Aug  1 10:43 BUILD_DIR
+
+ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ ls -l /glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5/BUILD_DIR/
 total 256
--rw-rw-r-- 1 ddvento consult 6948 Jul 29 20:45 hpcinstall
--rw-rw-r-- 1 ddvento consult 7846 Jul 29 20:45 log.env.txt
--rw-rw-r-- 1 ddvento consult  348 Jul 29 20:45 log.hpcinstall.txt
--rw-rw-r-- 1 ddvento consult  151 Jul 29 20:45 log.modules.txt
--rw-rw-r-- 1 ddvento consult    0 Jul 29 20:45 log.zlib-1.2.8-gnu-6.1.023975.txt
+-rw-rw-r-- 1 ddvento consult 7397 Aug  1 10:43 hpcinstall
+-rw-rw-r-- 1 ddvento consult 7450 Aug  1 10:43 log.env.txt
+-rw-rw-r-- 1 ddvento consult  231 Aug  1 10:43 log.hpcinstall.txt
+-rw-rw-r-- 1 ddvento consult  135 Aug  1 10:43 log.modules.txt
+-rw-rw-r-- 1 ddvento consult    0 Aug  1 10:43 log.zlib-1.2.8-3120.txt
 ```
 So `HPCinstall` has done the following:
  - created the four `log.*.txt` files in current directory
- - made the `zlib-1.2.8-gnu-6.1.0` script executable (we did not make so in 3. when we created it)
- - created the directory `/glade/scratch/ddvento/zlib/1.2.8/gnu/6.1.0/BUILD_DIR/` (and all the necessary parents)
- - copied in the directory of the previous bullet the four `log.*.txt` plus the `hpcinstall` script itself.
+ - made the `zlib-1.2.8` script executable (we did not make so in 3. when we created it)
+ - created the directory `/glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5` (and all the necessary parents)
+ - copied in the directory of the previous bullet the four `log.*.txt` plus the `hpcinstall` script itself
+ - note that it has not done anything with `/glade/scratch/modulefiles/zlib/1.2.8.lua` (other than setting the env var)
 
 Everything should be self-documenting, but let's look at the content of the four files
 6. Let's start with the environment `log.env.txt`
