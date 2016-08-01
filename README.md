@@ -24,7 +24,7 @@ Some of the features of `HPCinstall` are:
  
 It is easier to show how it achieves these goals with an example
 
-## Very detailed example of use (covering every small thing)
+## Very detailed example of use (covering every small thing, skip below if you want just a quicker summary)
 
 ###Install zlib
 According to [this document](https://docs.google.com/spreadsheets/d/1BxkASYb_Tdt7G-idwD7rScTLT1wj4rovwbZQ-L6Aguk/edit#gid=0) I should evaluate build/install tools by trying them on zlib, so here it is. See the same document for what software *you* should install.
@@ -122,7 +122,7 @@ been printed onscreen, but it would **not** be included in this log, but in the 
 make && make install
 ```
 
-2. run `hpcinstall zlib-1.2.8` and go get a coffee (or stare the screen in awe looking at the compiler logs)
+2. run `hpcinstall zlib-1.2.8` and [go playing in the hallway](http://www.xkcd.com/303/)
 
 3. If the last command is different from `Done running ./zlib-1.2.8 - exited with code 0`, figure out what was wrong, and go back to previous bullet, otherwise run:
  ```
