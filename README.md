@@ -182,8 +182,9 @@ hpcinstall -c zlib-1.2.8
 
  4. The number (25493 in this case) at the end of the install script log `log.zlib-1.2.8-25493.txt` is the PID of the execution.
 It is added to avoid deleting the log from previous attempts. I have often found myself re-running an install script, creating an error
-which I wanted to compare with the previous one, only to discover I did not have the previous ones, so I decided to not delete them!
-The other logs tend to be more obvious, so to reduce clutter, I do not do the same for them.
+which I wanted to compare with the previous ones, only to discover I did not have the previous logs, so I decided to not delete them!
+The other logs (modules, env, etc) tend to be more obvious and not needed for comparison, so to reduce clutter, 
+I did not add a separate name for them. This is easily changed if desired.
 
  5. The csgteam install is interactive! It may ask a bunch of questions. We may need to discuss in the group meeting whether or not
 this is desired, it can be easily changed if appropriate, as well as if we want the script to know about picnic and whatsnot
