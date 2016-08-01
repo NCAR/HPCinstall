@@ -124,7 +124,7 @@ make && make install
 
 2. run `hpcinstall zlib-1.2.8` and [go playing in the hallway](http://www.xkcd.com/303/)
 
-3. If the last command is different from `Done running ./zlib-1.2.8 - exited with code 0`, figure out what was wrong, and go back to previous bullet, otherwise run:
+3. If the last line of the log is different from `Done running ./zlib-1.2.8 - exited with code 0`, figure out what was wrong, and go back to previous bullet, otherwise run:
  ```
 ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ cat log.hpcinstall.txt
 Setting environmental variables:
