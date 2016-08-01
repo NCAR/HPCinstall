@@ -167,7 +167,11 @@ Currently Loaded Modules:
   2) ncarbinlibs/1.1    4) ncarcompilers/1.0
 ```
 
-5. Run as csgteam as
+5. You may run as csgteam (or as yourself) with the `--csgteam` option:
+ ```
+hpcinstall -c zlib-1.2.8
+```
+ **THIS WILL INSTALL in /glade/apps/opt !!!!!**
 
 6. Notes
  1. The install directory is automatically generated and contains the name and version of the compiler module loaded, per our policies. If no compiler is loaded, only software would be used, such in `/glade/scratch/ddvento/zlib/1.2.8/`, which is the policy for non-compiled stuff, such as pure-python (non compiled) libraries.
@@ -182,4 +186,4 @@ which I wanted to compare with the previous one, only to discover I did not have
 The other logs tend to be more obvious, so to reduce clutter, I do not do the same for them.
 
  5. The csgteam install is interactive! It may ask a bunch of questions. We may need to discuss in the group meeting whether or not
-this is desired, it can be easily changed if appropriate
+this is desired, it can be easily changed if appropriate, as well as if we want the script to know about picnic and whatsnot
