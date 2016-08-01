@@ -35,7 +35,7 @@ According to [this document](https://docs.google.com/spreadsheets/d/1BxkASYb_Tdt
 4. This is a useless bullet, but just to make sure of what `HPCinstall does` let's run `ls -l /glade/scratch/$USER/zlib/1.2.8/intel/12.1.5` and see the `No such file or directory` response.
 5. At this point you can start using `HPCinstall` by invoking it using the file we just created as argument. So if `hpcinstall` is in your `PATH` you can run `hpcinstall zlib-1.2.8` otherwise run `/absolute/or/relative/path/hpcinstall zlib-1.2.8` (either one will work, `HPCinstall` does not require to be officially installed)
 6. Now, the install script `zlib-1.2.8` we created in bullet 3 is empty, so it does nothing, but `HPCinstall` still does something with it. The output on the script of running `hpcinstall zlib-1.2.8` should be something like:
-```
+ ```
 Saving environment status in log.env.txt ... Done.
 Saving module list in log.modules.txt ... Done.
 
@@ -46,8 +46,8 @@ MODULE_FILENAME = /glade/scratch/modulefiles/zlib/1.2.8.lua
 Running ./zlib-1.2.8 ...
 Done running ./zlib-1.2.8 - exited with code 0
 ```
-Let's look at what `HPCinstall` has done in the current directory:
-```
+ Let's look at what `HPCinstall` has done in the current directory:
+ ```
 ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ ls -lt | head
 total 1104
 -rw-rw-r--  1 ddvento consult   135 Aug  1 10:46 log.modules.txt
@@ -60,8 +60,8 @@ total 1104
 -rw-r--r--  1 ddvento consult  8734 Apr 28  2013 zlib.3.pdf
 -rw-r--r--  1 ddvento consult 87883 Apr 28  2013 zlib.h
 ```
-and also let's look at `/glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5` content (not empty anymore like in bullet 4. above):
-```
+ and also let's look at `/glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5` content (not empty anymore like in bullet 4. above):
+ ```
 ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ ls -l /glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5
 total 0
 drwxrwxr-x 2 ddvento consult 512 Aug  1 10:43 BUILD_DIR
@@ -81,5 +81,5 @@ So `HPCinstall` has done the following:
  - copied in the directory of the previous bullet the four `log.*.txt` plus the `hpcinstall` script itself
  - note that it has not done anything with `/glade/scratch/modulefiles/zlib/1.2.8.lua` (other than setting the env var)
 
-Everything should be self-documenting, but let's look at the content of the four files
-6. Let's start with the environment `log.env.txt`
+ Everything should be self-documenting, but let's look at the content of the four files
+7. Let's start with the environment `log.env.txt`
