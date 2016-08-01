@@ -73,12 +73,13 @@ total 256
 -rw-rw-r-- 1 ddvento consult  231 Aug  1 10:43 log.hpcinstall.txt
 -rw-rw-r-- 1 ddvento consult  135 Aug  1 10:43 log.modules.txt
 -rw-rw-r-- 1 ddvento consult    0 Aug  1 10:43 log.zlib-1.2.8-3120.txt
+-rw-rw-r-- 1 ddvento consult  126 Aug  1 10:43 zlib-1.2.8
 ```
 So `HPCinstall` has done the following:
  - created the four `log.*.txt` files in current directory
  - made the `zlib-1.2.8` script executable (we did not make so in 3. when we created it)
  - created the directory `/glade/scratch/ddvento/zlib/1.2.8/intel/12.1.5/BUILD_DIR/` (and all the necessary parents)
- - copied in the directory of the previous bullet the four `log.*.txt` plus the `hpcinstall` script itself
+ - copied in the directory of the previous bullet the four `log.*.txt` plus the `hpcinstall` and the `zlib-1.2.8` scripts for reproducibility
  - note that it has not done anything with `/glade/scratch/modulefiles/zlib/1.2.8.lua` (other than setting the env var)
 
  Everything should be self-documenting, but let's look at the content of the four files
@@ -150,6 +151,7 @@ total 384
 -rw-rw-r-- 1 ddvento consult  228 Aug  1 11:30 log.hpcinstall.txt
 -rw-rw-r-- 1 ddvento consult  341 Aug  1 11:30 log.modules.txt
 -rw-rw-r-- 1 ddvento consult 5295 Aug  1 11:30 log.zlib-1.2.8-25493.txt
+-rw-rw-r-- 1 ddvento consult  126 Aug  1 11:30 zlib-1.2.8
 ddvento@yslogin6 /glade/scratch/ddvento/zlib/1.2.8/gnu/4.8.2 $ cat BUILD_DIR/log.modules.txt
 Restoring modules to system default
 
