@@ -158,6 +158,7 @@ def execute_installscript(modules_to_load, install_script):
     files_to_archive.append(log)
     start_logging_current_session(continuation=True)
     print "Done running ./" + install_script, "- exited with code", p.returncode
+    files_to_archive.append(install_script)
 
 def archive_in(prefix):
     build_dir = prefix + "/BUILD_DIR/"
