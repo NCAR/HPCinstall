@@ -35,25 +35,24 @@ According to [this document](https://docs.google.com/spreadsheets/d/1BxkASYb_Tdt
 4. At this point you can start using `HPCinstall` by invoking it using the file we just created as argument. So if `hpcinstall` is in your `PATH` you can run `hpcinstall zlib-1.2.8` otherwise run `/absolute/or/relative/path/hpcinstall zlib-1.2.8` (either one will work, `HPCinstall` does not require to be officially installed)
 5. Now, the install script `zlib-1.2.8` we created in bullet 3 is empty, so it does nothing, but `HPCinstall` still does something with it. The output on the script of running `hpcinstall zlib-1.2.8` should be something like:
 ```
-Setting environmental variables:
-INSTALL_DIR     = /glade/scratch/ddvento/zlib/1.2.8/gnu/6.1.0
-MODULE_FILENAME = /glade/scratch/modulefiles/zlib/1.2.8.lua
-
 Saving environment status in log.env.txt ... Done.
 Saving module list in log.modules.txt ... Done.
 
-Running ./zlib-1.2.8-gnu-6.1.0 ...
-Done running ./zlib-1.2.8-gnu-6.1.0 - exited with code 0
+Setting environmental variables:
+INSTALL_DIR     = /glade/scratch/ddvento/zlib/1.2.8/no_compiler
+MODULE_FILENAME = /glade/scratch/modulefiles/zlib/1.2.8.lua
+
+Running ./zlib-1.2.8 ...
+Done running ./zlib-1.2.8 - exited with code 0
 ```
 Let's look at what `HPCinstall` has done in the current directory:
 ```
 ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ ls -lt | head
-total 1088
--rw-rw-r--  1 ddvento consult   348 Jul 29 20:45 log.hpcinstall.txt
--rw-rw-r--  1 ddvento consult     0 Jul 29 20:45 log.zlib-1.2.8-gnu-6.1.023975.txt
--rw-rw-r--  1 ddvento consult   151 Jul 29 20:45 log.modules.txt
--rw-rw-r--  1 ddvento consult  7846 Jul 29 20:45 log.env.txt
--rwxrw-r--  1 ddvento consult     0 Jul 29 15:55 zlib-1.2.8-gnu-6.1.0
+-rw-rw-r--  1 ddvento consult   230 Aug  1 09:23 log.hpcinstall.txt
+-rw-rw-r--  1 ddvento consult     0 Aug  1 09:23 log.zlib-1.2.8-17983.txt
+-rw-rw-r--  1 ddvento consult   135 Aug  1 09:23 log.modules.txt
+-rw-rw-r--  1 ddvento consult  7450 Aug  1 09:23 log.env.txt
+-rwxrw-r--  1 ddvento consult     0 Jul 29 15:55 zlib-1.2.8
 -rw-r--r--  1 ddvento consult 76402 Apr 28  2013 ChangeLog
 -rw-r--r--  1 ddvento consult  4236 Apr 28  2013 zlib.3
 -rw-r--r--  1 ddvento consult  8734 Apr 28  2013 zlib.3.pdf
