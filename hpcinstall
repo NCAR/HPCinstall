@@ -15,10 +15,10 @@ def separator(msg=""):
 
 def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
-    if len(sw_structure) !=2:
-        print "The install script file must be named like <software-version>. Got '" + filename + "' instead"
+    if len(sw_structure) !=3:
+        print "The software name and version must be specified as <software-version>. Got '" + filename + "' instead"
         sys.exit(1)
-    return sw_structure[0] + "/" + sw_structure[1]
+    return sw_structure[1] + "/" + sw_structure[2]
 
 def parse_command_line_arguments():
     usage = ("usage: %prog [options] <software-version>\n" +
@@ -32,7 +32,7 @@ def parse_command_line_arguments():
     if len(args) != 1:
         parser.print_help()
         sys.exit(1)
-    install_script = args[0]
+    install_script = "build-" + args[0]
     if not os.path.isfile(install_script) or "/" in install_script:
         parser.print_help()
         sys.exit(1)
