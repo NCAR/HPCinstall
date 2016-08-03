@@ -28,6 +28,7 @@ def parse_command_line_arguments():
              "                 './', relative nor fully qualified paths)")
     parser = optparse.OptionParser(usage)
     parser.add_option("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
+    parser.add_option("-f", "--force", action="store_true", default=False, help='Force overwrite of existing install (default: False)')
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
@@ -57,10 +58,10 @@ def get_variables(options, my_program, my_compiler):
         prefix = "/glade/scratch/" + os.environ['USER'] + "/" + my_program + "/" + my_compiler
         modulefile = "/glade/scratch/modulefiles/" + my_program + ".lua"
 
-    if os.path.exists(prefix):
+    if os.path.exists(prefix) and not options.force:
         print "File already exists", prefix
         sys.exit(1)
-    if os.path.exists(modulefile):
+    if os.path.exists(modulefile) and not options.force:
         print "File already exists", prefix
         sys.exit(1)
     return prefix, modulefile
@@ -162,9 +163,10 @@ def execute_installscript(modules_to_load, install_script):
 
 def archive_in(prefix):
     build_dir = prefix + "/BUILD_DIR/"
-    os.makedirs(build_dir)
+    if not os.path.exists(build_dir):
+    	os.makedirs(build_dir)
     for somefile in files_to_archive:
-        shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
+    	shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
 
 # execution starts here
 install_script, options = parse_command_line_arguments()
