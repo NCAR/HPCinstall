@@ -55,8 +55,12 @@ def get_variables(options, my_program, my_compiler):
         prefix = "/glade/apps/opt/" + my_program + "/" + my_compiler
         modulefile = "/glade/apps/modulefiles/" + my_program + ".lua"
     else:
-        prefix = "/glade/scratch/" + os.environ['USER'] + "/" + my_program + "/" + my_compiler
-        modulefile = "/glade/scratch/modulefiles/" + my_program + ".lua"
+        if "INSTALL_TEST_BASEPATH" in os.environ:
+            basepath = os.environ['INSTALL_TEST_BASEPATH']
+        else:
+            basepath = "/glade/scratch/" + os.environ['USER']
+        prefix = basepath + "/" + my_program + "/" + my_compiler
+        modulefile = basepath + "/modulefiles/" + my_program + ".lua"
 
     if os.path.exists(prefix) and not options.force:
         print "File already exists", prefix
