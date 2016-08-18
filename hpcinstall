@@ -58,7 +58,7 @@ def get_variables(options, my_program, my_compiler):
         if "INSTALL_TEST_BASEPATH" in os.environ:
             basepath = os.environ['INSTALL_TEST_BASEPATH']
         else:
-            basepath = "/glade/scratch/" + os.environ['USER']
+            basepath = "/glade/scratch/" + os.environ['USER'] + "/test_installs/"
         prefix = basepath + "/" + my_program + "/" + my_compiler
         modulefile = basepath + "/modulefiles/" + my_program + ".lua"
 
