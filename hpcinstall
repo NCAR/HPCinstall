@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 import optparse # cruder than others, but compatible with older versions of python
 import os, stat, shutil, sys, subprocess, socket
