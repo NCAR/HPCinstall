@@ -40,7 +40,7 @@ According to [this document](https://docs.google.com/spreadsheets/d/1BxkASYb_Tdt
 Cannot set ['scratch_tree', 'sw_install_dir', 'mod_install_dir'] -- ABORTING
 ```
  - just link `config.hpcinstall.yellowstone.yaml` (or the appropriate one) into `config.hpcinstall.yaml`
-6. Now, the install script `build-zlib-1.2.8` we created in bullet 3 is empty, so it does nothing, but `HPCinstall` still does something with it. The output of running `hpcinstall zlib-1.2.8` should be something like:
+6. Now, the install script `build-zlib-1.2.8` we created in bullet 3 is empty, so it does nothing, but `HPCinstall` still does something with it. The output of running `hpcinstall build-zlib-1.2.8` should be something like:
  ```
 Saving environment status in log.env.txt ... Done.
 Saving module list in log.modules.txt ... Done.
