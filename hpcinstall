@@ -9,12 +9,12 @@ compiler_modules = ["gnu", "intel", "pgi", "pathscale", "pgi", "cuda", "sun"]
 use_parent_shell = os.environ['SHELL'] + " -c "    # workaround for fixing tcsh module problem, see https://github.com/NCAR/HPCinstall/issues/6
 files_to_archive = [os.path.realpath(__file__)]    # logs and other files to preserve, initialized with this script
 HPCi_log = "log.hpcinstall.txt"
+default_dirs = {}                                  # just make it global
 
 def parse_config_file():
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
-    list_of_dirs =['scratch', 'sw_install', 'mod_install' ]
-    default_dirs = {}
+    list_of_dirs =['scratch_tree', 'sw_install_dir', 'mod_install_dir' ]
     try:
         config = yaml.safe_load(open(config_filename))
         if not config:
@@ -71,13 +71,13 @@ def get_variables(options, my_program, my_compiler):
     if options.csgteam:
         if os.environ['USER'] != "csgteam":
             ask_confirmation_for(options, "Should sudo into 'csgteam' to install as such. Continue anyway? ")
-        prefix = get_system_prefix() + my_program + "/" + my_compiler
-        modulefile = "/glade/apps/modulefiles/" + my_program + ".lua"
+        prefix     = default_dirs["sw_install_dir"]  + my_program + "/" + my_compiler
+        modulefile = default_dirs["mod_install_dir"] + my_program + ".lua"
     else:
         if "INSTALL_TEST_BASEPATH" in os.environ:
             basepath = os.environ['INSTALL_TEST_BASEPATH']
         else:
-            basepath = "/glade/scratch/" + os.environ['USER'] + "/test_installs/"
+            basepath = default_dirs["scratch_tree"] + os.environ['USER'] + "/test_installs/"
         prefix = basepath + "/" + my_program + "/" + my_compiler
         modulefile = basepath + "/modulefiles/" + my_program + ".lua"
 
