@@ -188,3 +188,5 @@ I did not add a separate name for them. This is easily changed if desired.
 
  5. The csgteam install is interactive! It may ask a bunch of questions. We may need to discuss in the group meeting whether or not
 this is desired, it can be easily changed if appropriate, as well as if we want the script to know about picnic and whatsnot
+
+NEEDS UPDATE for the latest commits - WILL DO on GITHUB
