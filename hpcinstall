@@ -20,7 +20,7 @@ def parse_config_file():
         if not config:
             raise AttributeError()
         for dirname in list_of_dirs:
-            default_dirs[dirname] = config[dirname]
+            default_dirs[dirname] = config[dirname] + "/"
     except KeyError:
         print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
         sys.exit(1)
