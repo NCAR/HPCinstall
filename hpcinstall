@@ -32,20 +32,6 @@ def parse_config_file():
 def separator(msg=""):
     print msg.center(80,"-")
 
-def get_system_prefix():
-    hostname = socket.gethostname()
-    if ( hostname.startswith("caldera") or
-         hostname.startswith("geyser") or
-         hostname.startswith("pronghorn") or
-         hostname.startswith("yslogin") ):
-             prefix = "/glade/apps/opt/"
-    elif hostname.startswith("laramie"):
-             prefix = "/picnic/u/apps/la/opt/"
-    else:
-        print "Do not know where to install code in", hostname
-        sys.exit(1)
-    return prefix
-
 def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
     if len(sw_structure) !=3:
