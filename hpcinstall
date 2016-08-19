@@ -12,7 +12,7 @@ HPCi_log = "log.hpcinstall.txt"
 
 def parse_config_file():
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
-                        "/hpcinstall.config.yaml" )
+                        "/config.hpcinstall.yaml" )
     list_of_dirs =['scratch', 'sw_install', 'mod_install' ]
     default_dirs = {}
     try:
@@ -21,7 +21,7 @@ def parse_config_file():
             raise AttributeError()
         for dirname in list_of_dirs:
             default_dirs[dirname] = config[dirname]
-    except AttributeError:
+    except KeyError:
         print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
         sys.exit(1)
     except IOError as e:
