@@ -52,7 +52,6 @@ def parse_command_line_arguments():
     if len(args) != 1:
         parser.print_help()
         sys.exit(1)
-    install_script = "build-" + args[0]
     if not os.path.isfile(install_script) or "/" in install_script:
         parser.print_help()
         sys.exit(1)
