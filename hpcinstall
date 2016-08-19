@@ -1,14 +1,33 @@
 #!/usr/bin/env python
 
 import optparse # cruder than others, but compatible with older versions of python
-import os, stat, shutil, sys, subprocess, socket
+import os, stat, shutil, sys, subprocess, yaml
 import tee
 
 compiler_modules = ["gnu", "intel", "pgi", "pathscale", "pgi", "cuda", "sun"]
 
 use_parent_shell = os.environ['SHELL'] + " -c "    # workaround for fixing tcsh module problem, see https://github.com/NCAR/HPCinstall/issues/6
-files_to_archive = [os.path.realpath(__file__)]    # logs and other files to preserve
+files_to_archive = [os.path.realpath(__file__)]    # logs and other files to preserve, initialized with this script
 HPCi_log = "log.hpcinstall.txt"
+
+def parse_config_file():
+    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
+                        "/hpcinstall.config.yaml" )
+    list_of_dirs =['scratch', 'sw_install', 'mod_install' ]
+    default_dirs = {}
+    try:
+        config = yaml.safe_load(open(config_filename))
+        if not config:
+            raise AttributeError()
+        for dirname in list_of_dirs:
+            default_dirs[dirname] = config[dirname]
+    except AttributeError:
+        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
+        sys.exit(1)
+    except IOError as e:
+        print >> sys.stderr, e
+        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
+        sys.exit(1)
 
 def separator(msg=""):
     print msg.center(80,"-")
@@ -187,6 +206,7 @@ def archive_in(prefix):
     	shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
 
 # execution starts here
+parse_config_file()
 install_script, options = parse_command_line_arguments()
 my_program = parse_installscript_filename(install_script)
 modules_to_load = parse_installscript_for_modules(install_script)
