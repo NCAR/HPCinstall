@@ -34,6 +34,12 @@ According to [this document](https://docs.google.com/spreadsheets/d/1BxkASYb_Tdt
 3. Go into the untarred directory and create a file named `build-name-version`. So in this case I run `touch build-zlib-1.2.8`. This is a requirement, but I might change `HPCinstall` to parse the directory name instead and leave you with a free filename, if the group so prefers.
 4. This is a useless bullet point, it is here to show you in detail what `HPCinstall` does. Let's assume we are on Yellowstone and run `ls -l /glade/scratch/$USER/zlib/1.2.8/intel/12.1.5` and see the `No such file or directory` response (if the directory exists, either delete it or rename the `zlib-1.2.8` to something else).
 5. At this point you can start using `HPCinstall` by invoking it on the file we've just created. So if `hpcinstall` is in your `PATH` you can run `hpcinstall zlib-1.2.8` otherwise run `/absolute/or/relative/path/hpcinstall zlib-1.2.8` (either one will work, `HPCinstall` does not require to be officially installed)
+ - If this is the first time you use `hpcinstall`, this will fail with an error like
+ ```
+[Errno 2] No such file or directory: '/some/absolute/path/config.hpcinstall.yaml'
+Cannot set ['scratch_tree', 'sw_install_dir', 'mod_install_dir'] -- ABORTING
+```
+ - just link `config.hpcinstall.yellowstone.yaml` (or the appropriate one) into `config.hpcinstall.yaml`
 6. Now, the install script `build-zlib-1.2.8` we created in bullet 3 is empty, so it does nothing, but `HPCinstall` still does something with it. The output of running `hpcinstall zlib-1.2.8` should be something like:
  ```
 Saving environment status in log.env.txt ... Done.
