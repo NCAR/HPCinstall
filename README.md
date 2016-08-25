@@ -40,6 +40,8 @@ Cannot set ['scratch_tree', 'sw_install_dir', 'mod_install_dir'] -- ABORTING
 Saving environment status in log.env.txt ... Done.
 Saving module list in log.modules.txt ... Done.
 
+Running HPCinstall as /glade/apps/opt/hpcinstall/someversion/hpcinstall
+
 Setting environmental variables:
 HPCI_SW_DIR     = /glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5
 HPCI_SW_NAME    = zlib
