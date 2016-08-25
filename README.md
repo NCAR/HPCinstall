@@ -101,15 +101,15 @@ make && make install
 
 7. If the last line of the log is different from `Done running ./build-zlib-1.2.8 - exited with code 0`, figure out what was wrong, and go back to previous bullet.
 
-8. Run  `cat log.hpcinstall.txt` and pay attention to the `HPCI_SW_DIR` directory, which for me is `/glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5`
+8. Run  `cat log.hpcinstall.txt` and look at the content of `$HPCI_SW_DIR` directory, which for me is `/glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5` (this is where everything should be installed, but **only** if the build script described at the bullet 5. uses `$HPCI_SW_DIR` as prefix)
 
-9. Poke around that directory to make sure everything worked, maybe run some program using this version of zlib (ideally making that program a test case for [shark](https://github.com/NCAR/shark/)). If everything is fine, you may install globally by running `HPCinstall` as csgteam (or as yourself, if you have writing permissions) by using the `--csgteam` option:
+9. Run some program using this version of zlib (ideally making that program a test case for [shark](https://github.com/NCAR/shark/)). If everything is fine, you may install globally by running `HPCinstall` as csgteam (or as yourself, if you have writing permissions) by using the `--csgteam` option:
  ```
 hpcinstall -c build-zlib-1.2.8
 ```
  If you are running this as a test, beware! **THIS WILL INSTALL in /glade/apps/opt !!!!!** So do it for a piece of software for which is appropriate (if directory exists, `HPCinstall` will not clobber, but you might want to play safe and use a strange name instead)
 
-6. Notes
+# Notes
  1. The install directory is automatically generated and contains the name and version of the compiler module loaded, per our policies. If no compiler is loaded, only software name and version would be used, such in `/glade/apps/opt/zlib/1.2.8/`, which is the policy for non-compiled stuff, such as pure-python (non compiled) libraries. It is now possible to change the base path of test installs from `/glade/scratch/$USER/test_installs` to a custom path by setting the `INSTALL_TEST_BASEPATH` environment variable before running `HPCinstall`.
 
  2. The modules are specified as comments in file `build-zlib-1.2.8`. This is needed for `HPCinstall` to correctly generate the `log.modules.txt` file and (especially) to correctly generate the install directory as `/glade/apps/opt/zlib/1.2.8/gnu/4.8.2` (note the automatic use of the loaded module). If you are ok with not having both of these features, you may load the modules in any other way you want (e.g. command line before invoking, or executable `module such-and-such` in the script), and everything else will work just fine -- **HOWEVER THIS IS NOT RECOMMENDED PRACTICE**, ask Sidd for details.
