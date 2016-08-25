@@ -3,11 +3,13 @@
 ## Goal and Vision
 
 `HPCinstall` is a piece of software used to install other software. It tries to not being in your way while 
-nudging you towards the practices our team agreed up. It will help by automatize the stupid, clerical, tedious tasks.
+nudging you towards the practices our team agreed upon. It will help by automatize the stupid, clerical, tedious tasks.
 
-Some of the best practices we agree that we should be doing and that `HPCinstall` tries to nudge you towards are:
+Some of the best practices we agreed and that `HPCinstall` tries to nudge you towards are:
 
-* Make the install process easily reproducible, i.e. use a script file instead of typing commands at the prompt. A different approach is possible, namely using the `script` typescript (or something like it) e.g. as described [here](stackoverflow.com/questions/5985060/5985255#5985255). But that is not what `HPCinstall` does.
+* Make the install process easily reproducible, i.e. use a script file instead of typing commands at the prompt.
+A different approach is possible, e.g. using the `script` typescript as described
+[here](stackoverflow.com/questions/5985060/5985255#5985255), but that is not what `HPCinstall` does.
 * Use environmental variables (which `HPCinstall` sets) to make the install script mentioned in above bullet independed from the particular version of the software you are installing, so you can reuse it
 * Test the installed software as yourself before installing as csgteam 
  
@@ -73,11 +75,11 @@ total 384
 -rw-rw-r-- 1 ddvento consult  151 Aug 25 11:36 log.modules.txt
 ```
 So `HPCinstall` has done the following:
- - created the four `log.*.txt` files in current directory
-  - `log.env.txt contains the list of all the environment variables in the system, right before the script started executing
-  - `log.modules.txt` contains the list of all the loaded modules, right before the script is executed
-  - `log.hpcinstall.txt` contains a log of what happened
-  - `log.build-zlib-1.2.8-3249.txt` contains the stdout and stderr produced by running `build-zlib-1.2.8` (in this case nothing)
+ - created the four `log.*.txt` files in current directory:
+   - `log.env.txt` contains the list of all the environment variables in the system, right before the script started executing
+   - `log.modules.txt` contains the list of all the loaded modules, right before the script is executed
+   - `log.hpcinstall.txt` contains a log of what happened
+   - `log.build-zlib-1.2.8-3249.txt` contains the stdout and stderr produced by running `build-zlib-1.2.8` (in this case nothing)
  - made the `build-zlib-1.2.8` script executable (we did not make so in 3. when we created it)
  - created the directory `/glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5/` (and all the necessary parents)
  - copied in the directory of the previous bullet the four `log.*.txt` plus the `hpcinstall` and the `build-zlib-1.2.8` scripts for reproducibility
@@ -108,7 +110,7 @@ hpcinstall -c build-zlib-1.2.8
 6. Notes
  1. The install directory is automatically generated and contains the name and version of the compiler module loaded, per our policies. If no compiler is loaded, only software name and version would be used, such in `/glade/apps/opt/zlib/1.2.8/`, which is the policy for non-compiled stuff, such as pure-python (non compiled) libraries. It is now possible to change the base path of test installs from `/glade/scratch/$USER/test_installs` to a custom path by setting the `INSTALL_TEST_BASEPATH` environment variable before running `HPCinstall`.
 
- 2. The modules are specified as comments in file `build-zlib-1.2.8`. This is needed for `HPCinstall` to correctly generate the `log.modules.txt` file and (especially) to correctly generate the install directory as `/glade/apps/opt/zlib/1.2.8/gnu/4.8.2` (note the automatic use of the loaded module). If you are ok with not having both of these features, you may load the modules in any other way you want (e.g. command line before invoking, or executable `module such-and-such` in the script), and everything else will work just fine -- ** HOWEVER THIS IS NOT RECOMMENDED PRACTICE **, ask Sidd for details.
+ 2. The modules are specified as comments in file `build-zlib-1.2.8`. This is needed for `HPCinstall` to correctly generate the `log.modules.txt` file and (especially) to correctly generate the install directory as `/glade/apps/opt/zlib/1.2.8/gnu/4.8.2` (note the automatic use of the loaded module). If you are ok with not having both of these features, you may load the modules in any other way you want (e.g. command line before invoking, or executable `module such-and-such` in the script), and everything else will work just fine -- **HOWEVER THIS IS NOT RECOMMENDED PRACTICE**, ask Sidd for details.
 
  3. The install directory should not exist, to prevent involuntary clobbering. Use the `--force` option to allow `HPCinstall` to clobber previous builds. Note that the path is not currently cleaned up before rerunning the install script, so manually cleaning may still be desired.
 
