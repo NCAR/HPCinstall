@@ -36,7 +36,8 @@ def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
     if len(sw_structure) !=3:
         print "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
-        print "Maybe you meant build-" + filename +"?"
+        if len(sw_structure) == 2:
+            print "Maybe you meant build-" + filename +"?"
         sys.exit(1)
     return sw_structure[1] + "/" + sw_structure[2]
 
