@@ -78,10 +78,10 @@ total 384
 ```
 So `HPCinstall` has done the following:
  - created the four `log.*.txt` files in current directory:
-   - `log.env.txt` contains the list of all the environment variables in the system, right before the script started executing
-   - `log.modules.txt` contains the list of all the loaded modules, right before the script is executed
-   - `log.hpcinstall.txt` contains a log of what happened
-   - `log.build-zlib-1.2.8-3249.txt` contains the stdout and stderr produced by running `build-zlib-1.2.8` (in this case nothing)
+     - `log.env.txt` contains the list of all the environment variables in the system, right before the script started executing
+     - `log.modules.txt` contains the list of all the loaded modules, right before the script is executed
+     - `log.hpcinstall.txt` contains a log of what happened
+     - `log.build-zlib-1.2.8-3249.txt` contains the stdout and stderr produced by running `build-zlib-1.2.8` (in this case nothing)
  - made the `build-zlib-1.2.8` script executable (we did not make so in 3. when we created it)
  - created the directory `/glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5/` (and all the necessary parents)
  - copied in the directory of the previous bullet the four `log.*.txt` plus the `hpcinstall` and the `build-zlib-1.2.8` scripts for reproducibility
