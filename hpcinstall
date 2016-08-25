@@ -86,13 +86,17 @@ def get_variables(options, my_program, my_compiler):
     moduledir = os.path.dirname(modulefile)
     if not os.path.isdir(moduledir):
         os.makedirs(moduledir)
+
+    moduledir = os.path.dirname(moduledir) # remove the software name part for 'module use'
+    if moduledir in os.environ['MODULEPATH']:
+        moduledir = "" # no need to run 'module use' on this directory
     if os.path.exists(prefix) and not options.force:
         print "File already exists", prefix
         sys.exit(1)
     if os.path.exists(modulefile) and not options.force:
         print "File already exists", prefix
         sys.exit(1)
-    return prefix, modulefile
+    return prefix, modulefile, moduledir
 
 def set_variables_and_warn(prefix, modulefile, options, install_script):
     name = install_script.split("-")[1]       # 0 is build, 1 is software name
@@ -208,7 +212,9 @@ install_script, options = parse_command_line_arguments()
 my_program = parse_installscript_filename(install_script)
 modules_to_load = parse_installscript_for_modules(install_script)
 my_compiler = parse_compiler_and_log_full_env(modules_to_load)
-prefix, modulefile = get_variables(options, my_program, my_compiler)
+prefix, modulefile, moduledir = get_variables(options, my_program, my_compiler)
+if moduledir != "":
+    modules_to_load = "module use " + moduledir + "; " + modules_to_load
 start_logging_current_session()
 set_variables_and_warn(prefix, modulefile, options, install_script)
 execute_installscript(modules_to_load, install_script)
