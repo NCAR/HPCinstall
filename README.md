@@ -90,13 +90,16 @@ So `HPCinstall` has done the following:
 5. A real install will need to do something, so let's put the following into `build-zlib-1.2.8` (any language will work, using `bash` for this example):
  ```
 #!/bin/env bash
-# ml reset
-# ml sw intel gnu/4.8.2
-# ml remove netcdf
+#
+#HPCI ml reset
+#HPCI ml sw intel gnu/4.8.2
+#HPCI ml remove netcdf
 
 ./configure --prefix=$HPCI_SW_DIR
 make && make install
 ```
+
+6. Note the `#HPCI` directive which will execute (source) whatever instruction you have there, like `module load such-and-such` or `export THIS_AND_THAT`
 
 6. run `hpcinstall build-zlib-1.2.8` and [go playing in the hallway](http://www.xkcd.com/303/)
 
