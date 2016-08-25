@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import optparse # cruder than others, but compatible with older versions of python
-import os, stat, shutil, sys, subprocess, yaml
+import os, stat, shutil, sys, subprocess, yaml, datetime
 import tee
 
 compiler_modules = ["gnu", "intel", "pgi", "pathscale", "pgi", "cuda", "sun"]
@@ -198,7 +198,12 @@ if not moduledir in os.environ['MODULEPATH']:
     # run 'module use' on this directory, but only if needed
     modules_to_load = "module use " + moduledir + "; " + modules_to_load
 start_logging_current_session()
-print "Running HPCinstall as", os.path.realpath(__file__), "\n"
+if os.environ['USER'] == "csgteam":
+    running_user = "csgteam (invoked by " + os.environ['SUDO_USER'] + ")"
+else:
+    running_user = os.environ['USER']
+print "On", datetime.datetime.now().isoformat(), running_user
+print "called HPCinstall as", os.path.realpath(__file__), "\n"
 set_variables_and_warn(prefix, moduledir, options, install_script)
 execute_installscript(modules_to_load, install_script)
 stop_logging_current_session()
