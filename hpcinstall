@@ -194,8 +194,8 @@ my_program = parse_installscript_filename(install_script)
 modules_to_load = parse_installscript_for_modules(install_script)
 my_compiler = parse_compiler_and_log_full_env(modules_to_load)
 prefix, moduledir = get_variables(options, my_program, my_compiler)
-if moduledir in os.environ['MODULEPATH']:
-    # no need to run 'module use' on this directory
+if not moduledir in os.environ['MODULEPATH']:
+    # run 'module use' on this directory, but only if needed
     modules_to_load = "module use " + moduledir + "; " + modules_to_load
 start_logging_current_session()
 print "Running HPCinstall as", os.path.realpath(__file__), "\n"
