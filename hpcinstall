@@ -74,45 +74,35 @@ def get_variables(options, my_program, my_compiler):
         if os.environ['USER'] != "csgteam":
             ask_confirmation_for(options, "Should sudo into 'csgteam' to install as such. Continue anyway? ")
         prefix     = default_dirs["sw_install_dir"]  + my_program + "/" + my_compiler
-        modulefile = default_dirs["mod_install_dir"] + my_program + ".lua"
+        moduledir = default_dirs["mod_install_dir"]
     else:
         if "INSTALL_TEST_BASEPATH" in os.environ:
             basepath = os.environ['INSTALL_TEST_BASEPATH']
         else:
             basepath = default_dirs["scratch_tree"] + os.environ['USER'] + "/test_installs/"
         prefix = basepath + "/" + my_program + "/" + my_compiler
-        modulefile = basepath + "/modulefiles/" + my_program + ".lua"
+        moduledir = basepath + "/modulefiles/"
 
-    moduledir = os.path.dirname(modulefile)
-    if not os.path.isdir(moduledir):
-        os.makedirs(moduledir)
-
-    moduledir = os.path.dirname(moduledir) # remove the software name part for 'module use'
-    if moduledir in os.environ['MODULEPATH']:
-        moduledir = "" # no need to run 'module use' on this directory
     if os.path.exists(prefix) and not options.force:
         print "File already exists", prefix
         sys.exit(1)
-    if os.path.exists(modulefile) and not options.force:
-        print "File already exists", prefix
-        sys.exit(1)
-    return prefix, modulefile, moduledir
+    return prefix, moduledir
 
-def set_variables_and_warn(prefix, modulefile, options, install_script):
+def set_variables_and_warn(prefix, moduledir, options, install_script):
     name = install_script.split("-")[1]       # 0 is build, 1 is software name
     version = install_script.split("-")[2]    # 2 is software version
     print "Setting environmental variables:"
-    print "INSTALL_DIR        =", prefix
-    print "MODULE_FILENAME    =", modulefile
-    print "INSTALL_SW_NAME    =", name
-    print "INSTALL_SW_VERSION =", version
+    print "HPCI_SW_DIR     =", prefix
+    print "HPCI_SW_NAME    =", name
+    print "HPCI_SW_VERSION =", version
+    print "HPCI_MOD_DIR    =", moduledir
     print
     ask_confirmation_for(options, "This will attempt global install in " + prefix + 
                          " by running ./" + install_script + " as " + os.environ['USER'] + ". Continue? ")
-    os.environ['INSTALL_DIR'] = prefix
-    os.environ['MODULE_FILENAME'] = modulefile
-    os.environ['INSTALL_SW_NAME'] = name
-    os.environ['INSTALL_SW_VERSION'] = version
+    os.environ['HPCI_SW_DIR'] = prefix
+    os.environ['HPCI_SW_NAME'] = name
+    os.environ['HPCI_SW_VERSION'] = version
+    os.environ['HPCI_MOD_DIR'] = moduledir
 
 def start_logging_current_session(log=HPCi_log, continuation=False):
     if continuation:
@@ -212,11 +202,12 @@ install_script, options = parse_command_line_arguments()
 my_program = parse_installscript_filename(install_script)
 modules_to_load = parse_installscript_for_modules(install_script)
 my_compiler = parse_compiler_and_log_full_env(modules_to_load)
-prefix, modulefile, moduledir = get_variables(options, my_program, my_compiler)
-if moduledir != "":
+prefix, moduledir = get_variables(options, my_program, my_compiler)
+if moduledir in os.environ['MODULEPATH']:
+    # no need to run 'module use' on this directory
     modules_to_load = "module use " + moduledir + "; " + modules_to_load
 start_logging_current_session()
-set_variables_and_warn(prefix, modulefile, options, install_script)
+set_variables_and_warn(prefix, moduledir, options, install_script)
 execute_installscript(modules_to_load, install_script)
 print "Stupid git does not allow keyword expansion, cannot log which version of hpcinstall is running, copying the script itself instead..."
 stop_logging_current_session()
