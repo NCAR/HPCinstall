@@ -153,18 +153,9 @@ def parse_installscript_for_modules(install_script):
     warning = ""
     executing_lines = []
     for line in open(install_script):
-        if "module" in line or "ml" in line:
-            if line.startswith("#"):
-                exe_line = line.replace("#", "", 1).strip()
-                executing_lines.append(exe_line)
-            else:
-                warning += line
-    if warning != "":
-        separator(" POSSIBLY PROBLEMATIC COMMANDS IN ./" + install_script + " ")
-        print warning,
-        separator()
-        ask_confirmation_for(options, "Would you like to run anyway? ")
-        print
+        if line.startswith("#HPCI "):
+            exe_line = line.replace("#HPCI ", "", 1).strip()
+            executing_lines.append(exe_line)
     modules_to_run = "; ".join(executing_lines)
     if len(modules_to_run) > 0:
         modules_to_run += "; "
