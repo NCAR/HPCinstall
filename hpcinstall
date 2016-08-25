@@ -8,7 +8,7 @@ compiler_modules = ["gnu", "intel", "pgi", "pathscale", "pgi", "cuda", "sun"]
 
 use_parent_shell = os.environ['SHELL'] + " -c "    # workaround for fixing tcsh module problem, see https://github.com/NCAR/HPCinstall/issues/6
 files_to_archive = [os.path.realpath(__file__)]    # logs and other files to preserve, initialized with this script
-HPCi_log = "log.hpcinstall.txt"
+HPCi_log = "hpci.main.log"
 default_dirs = {}                                  # just make it global
 
 def parse_config_file():
@@ -123,13 +123,13 @@ def subcall(modules_to_load, command, log=None, use_popen = False):
         return subprocess.call(str_cmd, shell=True)
 
 def parse_compiler_and_log_full_env(modules_to_load):
-    env_log = "log.env.txt"
+    env_log = "hpci.env.log"
     print "Saving environment status in", env_log, "...",
     subcall(modules_to_load, "env", env_log)
     print "Done."
     files_to_archive.append(env_log)
 
-    module_log = "log.modules.txt"
+    module_log = "hpci.modules.log"
     print "Saving module list in", module_log, "...",
     subcall(modules_to_load, "module list", module_log)
     print "Done.\n"
@@ -166,7 +166,7 @@ def execute_installscript(modules_to_load, install_script):
     os.chmod(install_script, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + install_script, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
-    log = "log." + install_script  + "-" + str(os.getpid()) + ".txt"
+    log = "hpci." + install_script  + "-" + str(os.getpid()) + ".log"
     start_logging_current_session(log=log)
     p = subcall(modules_to_load, "./" + install_script, use_popen=True)
     process_output = " "
