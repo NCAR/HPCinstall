@@ -95,8 +95,8 @@ def get_variables(options, my_program, my_compiler):
     return prefix, modulefile
 
 def set_variables_and_warn(prefix, modulefile, options, install_script):
-    name = install_script.split("-")[0]
-    version = install_script.split("-")[1]
+    name = install_script.split("-")[1]       # 0 is build, 1 is software name
+    version = install_script.split("-")[2]    # 2 is software version
     print "Setting environmental variables:"
     print "INSTALL_DIR        =", prefix
     print "MODULE_FILENAME    =", modulefile
