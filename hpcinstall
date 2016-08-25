@@ -95,14 +95,20 @@ def get_variables(options, my_program, my_compiler):
     return prefix, modulefile
 
 def set_variables_and_warn(prefix, modulefile, options, install_script):
+    name = install_script.split("-")[0]
+    version = install_script.split("-")[1]
     print "Setting environmental variables:"
-    print "INSTALL_DIR     =", prefix
-    print "MODULE_FILENAME =", modulefile
+    print "INSTALL_DIR        =", prefix
+    print "MODULE_FILENAME    =", modulefile
+    print "INSTALL_SW_NAME    =", name
+    print "INSTALL_SW_VERSION =", version
     print
     ask_confirmation_for(options, "This will attempt global install in " + prefix + 
                          " by running ./" + install_script + " as " + os.environ['USER'] + ". Continue? ")
     os.environ['INSTALL_DIR'] = prefix
     os.environ['MODULE_FILENAME'] = modulefile
+    os.environ['INSTALL_SW_NAME'] = name
+    os.environ['INSTALL_SW_VERSION'] = version
 
 def start_logging_current_session(log=HPCi_log, continuation=False):
     if continuation:
