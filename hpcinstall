@@ -82,6 +82,9 @@ def get_variables(options, my_program, my_compiler):
         prefix = basepath + "/" + my_program + "/" + my_compiler
         modulefile = basepath + "/modulefiles/" + my_program + ".lua"
 
+    moduledir = os.path.dirname(modulefile)
+    if not os.path.isdir(moduledir):
+        os.makedirs(moduledir)
     if os.path.exists(prefix) and not options.force:
         print "File already exists", prefix
         sys.exit(1)
