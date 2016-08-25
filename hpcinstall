@@ -207,8 +207,8 @@ if moduledir in os.environ['MODULEPATH']:
     # no need to run 'module use' on this directory
     modules_to_load = "module use " + moduledir + "; " + modules_to_load
 start_logging_current_session()
+print "Running HPCinstall as", os.path.realpath(__file__)
 set_variables_and_warn(prefix, moduledir, options, install_script)
 execute_installscript(modules_to_load, install_script)
-print "Stupid git does not allow keyword expansion, cannot log which version of hpcinstall is running, copying the script itself instead..."
 stop_logging_current_session()
 archive_in(prefix)
