@@ -9,7 +9,7 @@ if [ -z "${branch}" ]; then
 fi
 
 # switching to desired version
-git checkout tags/v${HPCI_SW_VERSION}
+git checkout -q tags/v${HPCI_SW_VERSION}
 
 tag_checkedout=$?
 if [ $tag_checkedout -ne 0 ]; then
