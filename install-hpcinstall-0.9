@@ -1,5 +1,14 @@
 #!/bin/bash
+#HPCI ml rm intel
 
+# saving current status of the repo
+branch=$(git symbolic-ref --short -q HEAD)
+if [ -z "${branch}" ]; then
+  tag=$(git name-rev --name-only --tags --no-undefined HEAD 2>/dev/null | sed -n 's/^\([^^~]\{1,\}\)\(\^0\)\{0,1\}$/\1/p')
+  branch=tags/${tag}
+fi
+
+# switching to desired version
 git checkout tags/v${HPCI_SW_VERSION}
 
 tag_checkedout=$?
@@ -8,5 +17,11 @@ if [ $tag_checkedout -ne 0 ]; then
   exit $tag_checkedout
 fi
 
-cp * $HPCI_SW_DIR          # no -r, because I want to exclude directories, particularly .git one
-cp -r yaml $HPCI_SW_DIR    # yaml is a dependency directory which I want to use
+# if successfull, copy relevant files
+cp hpcinstall tee.py tee.pyc README.md config.hpcinstall.yaml $HPCI_SW_DIR
+
+# copy only this directory (library dependence)
+cp -r yaml $HPCI_SW_DIR
+
+echo You may restore the previous status of the repo with
+echo git checkout $branch
