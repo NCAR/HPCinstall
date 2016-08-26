@@ -7,3 +7,6 @@ if [ $tag_checkedout -ne 0 ]; then
   echo "Can't checkout version ${HPCI_SW_VERSION} aborting"
   exit $tag_checkedout
 fi
+
+cp * $HPCI_SW_DIR          # no -r, because I want to exclude directories, particularly .git one
+cp -r yaml $HPCI_SW_DIR    # yaml is a dependency directory which I want to use
