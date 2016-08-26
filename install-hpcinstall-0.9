@@ -17,10 +17,11 @@ if [ $tag_checkedout -ne 0 ]; then
   exit $tag_checkedout
 fi
 
-# if successfull, copy relevant files
+# if successfull, create directory and copy relevant files
+mkdir -p $HPCI_SW_DIR
 cp hpcinstall tee.py tee.pyc README.md config.hpcinstall.yaml $HPCI_SW_DIR
 
-# copy only this directory (library dependence)
+# copy also this directory (library dependence)
 cp -r yaml $HPCI_SW_DIR
 
 echo You may restore the previous status of the repo with
