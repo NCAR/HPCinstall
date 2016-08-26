@@ -1,0 +1,9 @@
+#!/bin/bash
+
+git checkout tags/v${HPCI_SW_VERSION}
+
+tag_checkedout=$?
+if [ $tag_checkedout -ne 0 ]; then
+  echo "Can't checkout version ${HPCI_SW_VERSION} aborting"
+  exit $tag_checkedout
+fi
