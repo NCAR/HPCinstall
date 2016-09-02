@@ -6,7 +6,7 @@ import tee
 
 compiler_modules = ["gnu", "intel", "pgi", "pathscale", "pgi", "cuda", "sun"]
 
-use_parent_shell = os.environ['SHELL'] + " -c "    # workaround for fixing tcsh module problem, see https://github.com/NCAR/HPCinstall/issues/6
+use_parent_shell = "ssh localhost 'ml purge; "     # Needs to reset the environment per issue #14
 files_to_archive = [os.path.realpath(__file__)]    # logs and other files to preserve, initialized with this script
 HPCi_log = "hpci.main.log"
 default_dirs = {}                                  # just make it global
@@ -114,7 +114,7 @@ def stop_logging_current_session():
     tee.close_all_files()
 
 def subcall(modules_to_load, command, log=None, use_popen = False):
-    str_cmd = use_parent_shell + "'" + modules_to_load + command + "'"
+    str_cmd = use_parent_shell + modules_to_load + command + "'"
     if log:
         str_cmd += " &> " + log
     if use_popen:
