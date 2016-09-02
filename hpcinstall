@@ -6,8 +6,15 @@ import tee
 
 compiler_modules = ["gnu", "intel", "pgi", "pathscale", "pgi", "cuda", "sun"]
 
-use_parent_shell = os.environ['SHELL'] + " -c "    # workaround for fixing tcsh module problem, see https://github.com/NCAR/HPCinstall/issues/6
-files_to_archive = [os.path.realpath(__file__)]    # logs and other files to preserve, initialized with this script
+current_directory = os.getcwd()                     # not necessarily where this script resides
+use_ssh = "ssh localhost 'ml purge; cd " + current_directory + "; "
+pass_env = ("env HPCI_SW_DIR=%(SW_DIR)s " +         # the "s" is crucial (!!)
+            "HPCI_SW_NAME=%(SW_NAME)s " +
+            "HPCI_SW_VERSION=%(SW_VERSION)s " +
+            "HPCI_MOD_DIR=%(MOD_DIR)s ")
+
+files_to_archive = []                               # logs and other files to preserve
+files_to_archive.append(os.path.realpath(__file__)) # preserve this script which is running
 HPCi_log = "hpci.main.log"
 default_dirs = {}                                  # just make it global
 
@@ -88,7 +95,7 @@ def get_variables(options, my_program, my_compiler):
         sys.exit(1)
     return prefix, moduledir
 
-def set_variables_and_warn(prefix, moduledir, options, install_script):
+def prepare_variables_and_warn(prefix, moduledir, options, install_script):
     name = install_script.split("-")[1]       # 0 is build, 1 is software name
     version = install_script.split("-")[2]    # 2 is software version
     print "Setting environmental variables:"
@@ -96,13 +103,18 @@ def set_variables_and_warn(prefix, moduledir, options, install_script):
     print "HPCI_SW_NAME    =", name
     print "HPCI_SW_VERSION =", version
     print "HPCI_MOD_DIR    =", moduledir
+    # if adding more, need to pass them in the environment at the beginning of this script
     print
     ask_confirmation_for(options, "This will attempt global install in " + prefix + 
                          " by running ./" + install_script + " as " + os.environ['USER'] + ". Continue? ")
-    os.environ['HPCI_SW_DIR'] = prefix
-    os.environ['HPCI_SW_NAME'] = name
-    os.environ['HPCI_SW_VERSION'] = version
-    os.environ['HPCI_MOD_DIR'] = moduledir
+
+    variables = {'SW_DIR': prefix,
+                 'SW_NAME': name,
+                 'SW_VERSION': version,
+                 'MOD_DIR': moduledir,
+                 # if adding more, need to pass them in the environment at the beginning of this script
+                 }
+    return variables
 
 def start_logging_current_session(log=HPCi_log, continuation=False):
     if continuation:
@@ -113,8 +125,11 @@ def start_logging_current_session(log=HPCi_log, continuation=False):
 def stop_logging_current_session():
     tee.close_all_files()
 
-def subcall(modules_to_load, command, log=None, use_popen = False):
-    str_cmd = use_parent_shell + "'" + modules_to_load + command + "'"
+def subcall(modules_to_load, command, log=None, use_popen = False, variables = False):
+    str_cmd = use_ssh + modules_to_load
+    if variables:
+        str_cmd += pass_env % variables
+    str_cmd += command + "'"
     if log:
         str_cmd += " &> " + log
     if use_popen:
@@ -161,14 +176,14 @@ def parse_installscript_for_modules(install_script):
         modules_to_run += "; "
     return modules_to_run
 
-def execute_installscript(modules_to_load, install_script):
+def execute_installscript(modules_to_load, install_script, variables):
     current_perm = os.stat(install_script)
     os.chmod(install_script, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + install_script, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "hpci." + install_script  + "-" + str(os.getpid()) + ".log"
     start_logging_current_session(log=log)
-    p = subcall(modules_to_load, "./" + install_script, use_popen=True)
+    p = subcall(modules_to_load, "./" + install_script, use_popen=True, variables=variables)
     process_output = " "
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
         process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
@@ -204,7 +219,7 @@ else:
     running_user = os.environ['USER']
 print "On", datetime.datetime.now().isoformat(), running_user
 print "called HPCinstall as", os.path.realpath(__file__), "\n"
-set_variables_and_warn(prefix, moduledir, options, install_script)
-execute_installscript(modules_to_load, install_script)
+variables = prepare_variables_and_warn(prefix, moduledir, options, install_script)
+execute_installscript(modules_to_load, install_script, variables)
 stop_logging_current_session()
 archive_in(prefix)
