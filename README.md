@@ -108,6 +108,6 @@ It is added to avoid deleting the log from previous attempts, so one can compare
 case of failures, to see if any progress has been made. To reduce clutter, the other logs (modules, env, etc) are clobbered
 because tend to have more obvious content and not error messages.
 
- 5. The csgteam install is interactive! It may ask a bunch of questions. We may need to discuss in the group meeting whether or not
-this is desired, it can be easily changed if appropriate, as well as if we want the script to know about picnic and whatsnot
+ 5. The csgteam install is interactive! It may ask a bunch of questions. We may need to discuss in the group meeting whether or not this is desired, it can be easily changed if appropriate, as well as if we want the script to know about picnic and whatsnot
+ 6. Per Sidd request in issue #14 *clean slate* state is enforced and any setting (e.g. environment variable) set in the shell are reset. Please include them in the build script
 
