@@ -16,14 +16,7 @@ It is easier to show how it achieves these goals with an example
 
 1. Download the software to be installed. I manually run `wget http://zlib.net/zlib-1.2.8.tar.gz`.
 2. Untar the tarball and go into the directory. Create a file named `build-name-version`. So in this case I run `touch build-zlib-1.2.8`.
-3. Run `hpcinstall build-zlib-1.2.8` or `/absolute/or/relative/path/hpcinstall build-zlib-1.2.8` (if `hpcinstall` is not in your path)
- - If this is the first time you use `hpcinstall`, this will fail with an error like
- ```
-[Errno 2] No such file or directory: '/some/absolute/path/config.hpcinstall.yaml'
-Cannot set ['scratch_tree', 'sw_install_dir', 'mod_install_dir'] -- ABORTING
-```
- - just link `config.hpcinstall.yellowstone.yaml` (or the appropriate one) into `config.hpcinstall.yaml`
- - if an appropriate one does not exits, create one, using another one as template: it's very simple
+3. Load the `hpcinstall` module and run `hpcinstall build-zlib-1.2.8` 
 4. The install script `build-zlib-1.2.8` we created in bullet 2 is empty, so it does nothing, but `HPCinstall` still does something with it. The output of running `hpcinstall build-zlib-1.2.8` should be something like:
  ```
 Saving environment status in hpci.env.log ... Done.
