@@ -1,18 +1,7 @@
 # HPCinstall
 
-## Goal and Vision
+`HPCinstall` is a piece of software used to install other software. What it does is simply to run a given install script, but it will help by automatize the stupid, clerical, tedious tasks, letting the script do only the complicated parts.
 
-`HPCinstall` is a piece of software used to install other software. It tries to not being in your way while 
-nudging you towards the practices our team agreed upon. It will help by automatize the stupid, clerical, tedious tasks.
-
-Some of the best practices we agreed and that `HPCinstall` tries to nudge you towards are:
-
-* Make the install process easily reproducible, i.e. use a script file instead of typing commands at the prompt.
-A different approach is possible, e.g. using the `script` typescript as described
-[here](stackoverflow.com/questions/5985060/5985255#5985255), but that is not what `HPCinstall` does.
-* Use environmental variables (which `HPCinstall` sets) to make the install script mentioned in above bullet independed from the particular version of the software you are installing, so you can reuse it
-* Test the installed software as yourself before installing as csgteam 
- 
 ## Features
  
 Some of the features of `HPCinstall` are: 
