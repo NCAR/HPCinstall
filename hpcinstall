@@ -7,7 +7,11 @@ import tee
 compiler_modules = ["gnu", "intel", "pgi", "pathscale", "pgi", "cuda", "sun"]
 
 current_directory = os.getcwd()                     # not necessarily where this script resides
-use_ssh = "ssh -t localhost 'ml purge; cd " + current_directory + "; "
+shell = os.environ['SHELL']
+if "bash" in shell:
+    shell += " -l"      # bash needs to be forced login, otherwise not setting proper environment
+shell += " -c "
+use_ssh = 'ssh -t localhost "' + shell + "'ml purge; cd " + current_directory + "; "
 pass_env = ("env HPCI_SW_DIR=%(SW_DIR)s " +         # the "s" is crucial (!!)
             "HPCI_SW_NAME=%(SW_NAME)s " +
             "HPCI_SW_VERSION=%(SW_VERSION)s " +
@@ -130,7 +134,7 @@ def subcall(modules_to_load, command, log=None, use_popen = False, variables = F
     str_cmd = use_ssh + modules_to_load
     if variables:
         str_cmd += pass_env % variables
-    str_cmd += command + "'"
+    str_cmd += command + """'" """
     if log:
         str_cmd += " &> " + log
     if debug:
