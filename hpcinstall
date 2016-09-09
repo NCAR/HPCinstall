@@ -57,6 +57,7 @@ def parse_command_line_arguments():
     parser = optparse.OptionParser(usage)
     parser.add_option("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
     parser.add_option("-f", "--force", action="store_true", default=False, help='Force overwrite of existing install (default: False)')
+    parser.add_option("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
@@ -125,13 +126,15 @@ def start_logging_current_session(log=HPCi_log, continuation=False):
 def stop_logging_current_session():
     tee.close_all_files()
 
-def subcall(modules_to_load, command, log=None, use_popen = False, variables = False):
+def subcall(modules_to_load, command, log=None, use_popen = False, variables = False, debug=False):
     str_cmd = use_ssh + modules_to_load
     if variables:
         str_cmd += pass_env % variables
     str_cmd += command + "'"
     if log:
         str_cmd += " &> " + log
+    if debug:
+        print str_cmd
     if use_popen:
         return subprocess.Popen(str_cmd, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
     else:
@@ -176,14 +179,14 @@ def parse_installscript_for_modules(install_script):
         modules_to_run += "; "
     return modules_to_run
 
-def execute_installscript(modules_to_load, install_script, variables):
+def execute_installscript(modules_to_load, install_script, variables, debug=False):
     current_perm = os.stat(install_script)
     os.chmod(install_script, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + install_script, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "hpci." + install_script  + "-" + str(os.getpid()) + ".log"
     start_logging_current_session(log=log)
-    p = subcall(modules_to_load, "./" + install_script, use_popen=True, variables=variables)
+    p = subcall(modules_to_load, "./" + install_script, use_popen=True, variables=variables, debug=debug)
     process_output = " "
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
         process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
@@ -220,6 +223,6 @@ else:
 print "On", datetime.datetime.now().isoformat(), running_user
 print "called HPCinstall as", os.path.realpath(__file__), "\n"
 variables = prepare_variables_and_warn(prefix, moduledir, options, install_script)
-execute_installscript(modules_to_load, install_script, variables)
+execute_installscript(modules_to_load, install_script, variables, options)
 stop_logging_current_session()
 archive_in(prefix)
