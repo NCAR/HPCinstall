@@ -109,5 +109,6 @@ case of failures, to see if any progress has been made. To reduce clutter, the o
 because tend to have more obvious content and not error messages.
 
  5. The csgteam install is interactive! It may ask a bunch of questions. We may need to discuss in the group meeting whether or not this is desired, it can be easily changed if appropriate, as well as if we want the script to know about picnic and whatsnot
- 6. Per Sidd request in issue #14 *clean slate* state is enforced and any setting (e.g. environment variable) set in the shell are reset. Please include them in the build script
+ 6. Per Sidd request in issue #14 *clean slate* state is enforced and any setting (e.g. environment variable) set in the shell are reset. Also, the modules are purged,
+your script will need to load any that are needed. Include any module or environmental variable setting in the build script
 
