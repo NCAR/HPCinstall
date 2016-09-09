@@ -22,6 +22,24 @@ files_to_archive.append(os.path.realpath(__file__)) # preserve this script which
 HPCi_log = "hpci.main.log"
 default_dirs = {}                                  # just make it global
 
+def print_invocation_info():
+    if os.environ['USER'] == "csgteam":
+        running_user = "csgteam (invoked by " + os.environ['SUDO_USER'] + ")"
+    else:
+        running_user = os.environ['USER']
+    print "On", datetime.datetime.now().isoformat(), running_user
+    print "called HPCinstall from", os.path.realpath(__file__)
+    print "invoked as",
+    simple = True
+    for arg in sys.argv:
+        if " " in arg or "'" in arg or '"' in arg or "\\" in arg:
+            simple = False
+    if simple:
+        print " ".join(sys.argv)
+    else:
+        print sys.argv
+    print # emtpy line
+
 def parse_config_file():
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
@@ -220,12 +238,7 @@ if not moduledir in os.environ['MODULEPATH']:
     # run 'module use' on this directory, but only if needed
     modules_to_load = "module use " + moduledir + "; " + modules_to_load
 start_logging_current_session()
-if os.environ['USER'] == "csgteam":
-    running_user = "csgteam (invoked by " + os.environ['SUDO_USER'] + ")"
-else:
-    running_user = os.environ['USER']
-print "On", datetime.datetime.now().isoformat(), running_user
-print "called HPCinstall as", os.path.realpath(__file__), "\n"
+print_invocation_info()
 variables = prepare_variables_and_warn(prefix, moduledir, options, install_script)
 execute_installscript(modules_to_load, install_script, variables, options.debug)
 stop_logging_current_session()
