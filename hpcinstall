@@ -223,6 +223,6 @@ else:
 print "On", datetime.datetime.now().isoformat(), running_user
 print "called HPCinstall as", os.path.realpath(__file__), "\n"
 variables = prepare_variables_and_warn(prefix, moduledir, options, install_script)
-execute_installscript(modules_to_load, install_script, variables, options)
+execute_installscript(modules_to_load, install_script, variables, options.debug)
 stop_logging_current_session()
 archive_in(prefix)
