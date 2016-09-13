@@ -40,12 +40,10 @@ def print_invocation_info():
         print sys.argv
     print # emtpy line
 
-def parse_config_file():
-    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
-                        "/config.hpcinstall.yaml" )
+def parse_config_data(yaml_data):
     list_of_dirs =['scratch_tree', 'sw_install_dir', 'mod_install_dir' ]
     try:
-        config = yaml.safe_load(open(config_filename))
+        config = yaml.safe_load(yaml_data)
         if not config:
             raise AttributeError()
         for dirname in list_of_dirs:
@@ -229,7 +227,9 @@ def archive_in(prefix):
 
 # execution starts here
 if __name__ == "__main__":
-    parse_config_file()
+    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
+                        "/config.hpcinstall.yaml" )
+    parse_config_data(open(config_filename))
     install_script, options = parse_command_line_arguments()
     my_program = parse_installscript_filename(install_script)
     modules_to_load = parse_installscript_for_modules(install_script)
