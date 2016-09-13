@@ -57,9 +57,6 @@ def parse_config_data(yaml_data):
         sys.exit(1)
     return default_dirs
 
-def separator(msg=""):
-    print msg.center(80,"-")
-
 def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
     if len(sw_structure) !=3:
