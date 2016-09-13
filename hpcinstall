@@ -44,7 +44,7 @@ def parse_config_data(yaml_data):
     default_dirs = {}
     config = yaml.safe_load(yaml_data)
     if not config:
-        raise KeyError()
+        raise KeyError(list_of_dirs)
     for dirname in list_of_dirs:
         default_dirs[dirname] = config[dirname] + "/"
     return default_dirs
