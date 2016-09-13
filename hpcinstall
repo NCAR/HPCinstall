@@ -20,6 +20,7 @@ pass_env = ("env HPCI_SW_DIR=%(SW_DIR)s " +         # the "s" is crucial (!!)
 files_to_archive = []                               # logs and other files to preserve
 files_to_archive.append(os.path.realpath(__file__)) # preserve this script which is running
 HPCi_log = "hpci.main.log"
+list_of_dirs =['scratch_tree', 'sw_install_dir', 'mod_install_dir' ]
 
 def print_invocation_info():
     if os.environ['USER'] == "csgteam":
@@ -41,20 +42,11 @@ def print_invocation_info():
 
 def parse_config_data(yaml_data):
     default_dirs = {}
-    list_of_dirs =['scratch_tree', 'sw_install_dir', 'mod_install_dir' ]
-    try:
-        config = yaml.safe_load(yaml_data)
-        if not config:
-            raise AttributeError()
-        for dirname in list_of_dirs:
-            default_dirs[dirname] = config[dirname] + "/"
-    except KeyError:
-        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
-        sys.exit(1)
-    except IOError as e:
-        print >> sys.stderr, e
-        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
-        sys.exit(1)
+    config = yaml.safe_load(yaml_data)
+    if not config:
+        raise AttributeError()
+    for dirname in list_of_dirs:
+        default_dirs[dirname] = config[dirname] + "/"
     return default_dirs
 
 def parse_installscript_filename(filename):
@@ -227,7 +219,15 @@ def archive_in(prefix):
 if __name__ == "__main__":
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
-    defaults = parse_config_data(open(config_filename))
+    try:
+        defaults = parse_config_data(open(config_filename))
+    except KeyError:
+        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
+        sys.exit(1)
+    except IOError as e:
+        print >> sys.stderr, e
+        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
+        sys.exit(1)
     install_script, options = parse_command_line_arguments()
     my_program = parse_installscript_filename(install_script)
     modules_to_load = parse_installscript_for_modules(install_script)
