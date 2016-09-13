@@ -18,3 +18,6 @@ mod_install_dir: /glade/apps/opt/modulefiles"""
     with pytest.raises(KeyError):
         data = ""
         hpcinstall.parse_config_data(data)
+
+def test_parse_installscript_filename():
+    raise Exception("Not implemented")
