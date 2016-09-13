@@ -228,18 +228,19 @@ def archive_in(prefix):
     	shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
 
 # execution starts here
-parse_config_file()
-install_script, options = parse_command_line_arguments()
-my_program = parse_installscript_filename(install_script)
-modules_to_load = parse_installscript_for_modules(install_script)
-my_compiler = parse_compiler_and_log_full_env(modules_to_load)
-prefix, moduledir = get_variables(options, my_program, my_compiler)
-if not moduledir in os.environ['MODULEPATH']:
-    # run 'module use' on this directory, but only if needed
-    modules_to_load = "module use " + moduledir + "; " + modules_to_load
-start_logging_current_session()
-print_invocation_info()
-variables = prepare_variables_and_warn(prefix, moduledir, options, install_script)
-execute_installscript(modules_to_load, install_script, variables, options.debug)
-stop_logging_current_session()
-archive_in(prefix)
+if __name__ == "__main__":
+    parse_config_file()
+    install_script, options = parse_command_line_arguments()
+    my_program = parse_installscript_filename(install_script)
+    modules_to_load = parse_installscript_for_modules(install_script)
+    my_compiler = parse_compiler_and_log_full_env(modules_to_load)
+    prefix, moduledir = get_variables(options, my_program, my_compiler)
+    if not moduledir in os.environ['MODULEPATH']:
+        # run 'module use' on this directory, but only if needed
+        modules_to_load = "module use " + moduledir + "; " + modules_to_load
+    start_logging_current_session()
+    print_invocation_info()
+    variables = prepare_variables_and_warn(prefix, moduledir, options, install_script)
+    execute_installscript(modules_to_load, install_script, variables, options.debug)
+    stop_logging_current_session()
+    archive_in(prefix)
