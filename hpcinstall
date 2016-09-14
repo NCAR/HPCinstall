@@ -117,16 +117,13 @@ def get_variables(options, my_program, my_compiler, default_dirs):
 def justify(stuff):
     max_len = 0
     for line in stuff.split("\n"):
-        max_len = max(max_len, len(line))
+        left = line.split("=")[0]
+        max_len = max(max_len, len(left))
 
     new_stuff = ""
     for line in stuff.split("\n"):
-        to_be_added = max_len - len(line)
-        if to_be_added > 0:
-            half = int(to_be_added/2)
-            new_line = line.replace("=", " " * half + "=" + " " * (to_be_added - half))
-        else:
-            new_line = line
+        to_be_added = max_len - len(line.split("=")[0]) + 1
+        new_line = line.replace("=", " " * to_be_added + "= ")
         new_stuff += new_line + "\n"
     return new_stuff
 
