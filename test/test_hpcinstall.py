@@ -20,4 +20,11 @@ mod_install_dir: /glade/apps/opt/modulefiles"""
         hpcinstall.parse_config_data(data)
 
 def test_parse_installscript_filename():
-    raise Exception("Not implemented")
+    sw = hpcinstall.parse_installscript_filename("build-mysoftware-3.2.6")
+    assert sw == "mysoftware/3.2.6"
+    with pytest.raises(SystemExit):
+        hpcinstall.parse_installscript_filename("build-mysoftware-v3.2.6")
+    with pytest.raises(SystemExit):
+        hpcinstall.parse_installscript_filename("incorrect_name")
+    with pytest.raises(SystemExit):
+        hpcinstall.parse_installscript_filename("incorrect_name-version")
