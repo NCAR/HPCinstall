@@ -56,6 +56,14 @@ def parse_installscript_filename(filename):
         if len(sw_structure) == 2:
             print "Maybe you meant build-" + filename +"?"
         sys.exit(1)
+    try:
+        version = int(sw_structure[2].replace(".", ""))
+        if version < 0:
+            raise ValueError()
+    except ValueError:
+        print "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
+        print "The version must be in i[.j[.k[...]]] format"
+        sys.exit(1)
     return sw_structure[1] + "/" + sw_structure[2]
 
 def parse_command_line_arguments():
