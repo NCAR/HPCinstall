@@ -44,3 +44,11 @@ def test_prepare_variables_and_warn():
     vars = hpcinstall.prepare_variables_and_warn("/glade/apps/opt", "/glade/apps/modulefiles", None, "build-mysoftware-1.2.3")
     for var in vars:
         assert "(" + var + ")s" in hpcinstall.pass_env, "to pass " + var + " to the environemnt, it needs to be included in hpcinstall.pass_env"
+
+# not testing "start_logging_current_session" and "stop_logging_current_session" since it's trivial and hard to test
+
+def test_subcall():
+    raise Exception("Too complicated method to test. Simplify?")
+
+def test_parse_compiler_and_log_full_env():
+    raise Exception("Too complicated method to test. Simplify?")
