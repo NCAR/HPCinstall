@@ -39,9 +39,8 @@ def test_get_variables():
     raise Exception("Too complicated method to test. Simplify?")
 
 def test_prepare_variables_and_warn():
-    # this method is trivial, the only things to test are:
-    # 1. make sure that what it prints is what it sets (just refactoring may suffice, no testing)
-    # 2. making sure the pass_env has it all
+    # this method is trivial, the only thing to test is that pass_env has all the variables needed
     hpcinstall.ask_confirmation_for = lambda x, y: str(x) + str(y)
-    hpcinstall.prepare_variables_and_warn("/glade/apps/opt", "/glade/apps/modulefiles", None, "build-mysoftware-1.2.3")
-    raise Exception()
+    vars = hpcinstall.prepare_variables_and_warn("/glade/apps/opt", "/glade/apps/modulefiles", None, "build-mysoftware-1.2.3")
+    for var in vars:
+        assert "(" + var + ")s" in hpcinstall.pass_env, "to pass " + var + " to the environemnt, it needs to be included in hpcinstall.pass_env"
