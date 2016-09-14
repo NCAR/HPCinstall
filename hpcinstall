@@ -114,18 +114,25 @@ def get_variables(options, my_program, my_compiler, default_dirs):
         sys.exit(1)
     return prefix, moduledir
 
+def justify(stuff):
+    max_len = 0
+    for line in stuff.split("\n"):
+        max_len = max(max_len, len(line))
+
+    new_stuff = ""
+    for line in stuff.split("\n"):
+        to_be_added = max_len - len(line)
+        if to_be_added > 0:
+            half = int(to_be_added/2)
+            new_line = line.replace("=", " " * half + "=" + " " * (to_be_added - half))
+        else:
+            new_line = line
+        new_stuff += new_line + "\n"
+    return new_stuff
+
 def prepare_variables_and_warn(prefix, moduledir, options, install_script):
     name = install_script.split("-")[1]       # 0 is build, 1 is software name
     version = install_script.split("-")[2]    # 2 is software version
-    print "Setting environmental variables:"
-    print "HPCI_SW_DIR     =", prefix
-    print "HPCI_SW_NAME    =", name
-    print "HPCI_SW_VERSION =", version
-    print "HPCI_MOD_DIR    =", moduledir
-    # if adding more, need to pass them in the environment at the beginning of this script
-    print
-    ask_confirmation_for(options, "This will attempt global install in " + prefix + 
-                         " by running ./" + install_script + " as " + os.environ['USER'] + ". Continue? ")
 
     variables = {'SW_DIR': prefix,
                  'SW_NAME': name,
@@ -133,6 +140,12 @@ def prepare_variables_and_warn(prefix, moduledir, options, install_script):
                  'MOD_DIR': moduledir,
                  # if adding more, need to pass them in the environment at the beginning of this script
                  }
+
+    print "Setting environmental variables:"
+    env_settings = (pass_env.replace(" ", "\n") % variables).replace("env\n", "")
+    print justify(env_settings)
+    ask_confirmation_for(options, "This will attempt global install in " + prefix +
+                         " by running ./" + install_script + " as " + os.environ['USER'] + ". Continue? ")
     return variables
 
 def start_logging_current_session(log=HPCi_log, continuation=False):
