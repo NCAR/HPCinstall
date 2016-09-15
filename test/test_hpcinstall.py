@@ -73,6 +73,7 @@ def test_parse_installscript_filename():
 # not testing "ask_confirmation_for" since it's trivial and hard to test
 
 def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
+    # not testing file_already_exist and corresponding forcing
     hpcinstall.os = stub_os
     prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
     assert prefix    == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3") + "/"
@@ -85,6 +86,7 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     assert moduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles") + "/"
 
 def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
+    # not testing file_already_exist and corresponding forcing
     stub_os.environ["USER"] = "csgteam"
     opt.csgteam = True
     hpcinstall.os = stub_os
