@@ -106,12 +106,22 @@ def test_prepare_variables_and_warn():
 # not testing "start_logging_current_session" and "stop_logging_current_session" since it's trivial and hard to test
 
 def test_subcall_helper(stub_os):
-    stub_os.environ['SHELL'] = 'bash'
+    stub_os.environ['SHELL'] = '/q/bash'
     stub_os.getcwd = lambda: "current_dir"
     hpcinstall.os = stub_os
-    #hpcinstall._subcall_helper(modules_to_load, command, variables, log)
-    actual = hpcinstall._subcall_helper("module load foo/1.2.3; ml bar/4.5.6;", "./install-crap-7.8.9", False, False)
-    expected = '''ssh -t localhost "bash -l -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
+    actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3; ml bar/4.5.6;",
+                                        command = "./install-crap-7.8.9",
+                                        variables = False,
+                                        log = False)
+    expected = '''ssh -t localhost "/q/bash -l -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
+    assert actual == expected
+
+    stub_os.environ['SHELL'] = 'tcsh'
+    actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3; ml bar/4.5.6;",
+                                        command = "./install-crap-7.8.9",
+                                        variables = False,
+                                        log = False)
+    expected = '''ssh -t localhost "tcsh -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
     assert actual == expected
 
 def test_parse_compiler_and_log_full_env():
