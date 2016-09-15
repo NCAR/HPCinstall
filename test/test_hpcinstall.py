@@ -35,7 +35,7 @@ def test_parse_installscript_filename():
 # note below the
 #    hpcinstall.ask_confirmation_for = lambda x, y: str(x) + str(y)
 
-def test_get_variables():
+def test_get_prefix_and_moduledir():
     raise Exception("Too complicated method to test. Simplify?")
 
 def test_prepare_variables_and_warn():

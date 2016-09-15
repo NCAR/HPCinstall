@@ -95,18 +95,18 @@ def ask_confirmation_for(options, msg):
             print "You did not say an ethusiastic 'yes', aborting..."
             sys.exit(1)
 
-def get_variables(options, my_program, my_compiler, default_dirs):
+def get_prefix_and_moduledir(options, my_path, default_dirs):
     if options.csgteam:
         if os.environ['USER'] != "csgteam":
             ask_confirmation_for(options, "Should sudo into 'csgteam' to install as such. Continue anyway? ")
-        prefix     = default_dirs["sw_install_dir"]  + my_program + "/" + my_compiler
+        prefix     = default_dirs["sw_install_dir"]  + my_path
         moduledir = default_dirs["mod_install_dir"]
     else:
         if "INSTALL_TEST_BASEPATH" in os.environ:
             basepath = os.environ['INSTALL_TEST_BASEPATH']
         else:
             basepath = default_dirs["scratch_tree"] + os.environ['USER'] + "/test_installs/"
-        prefix = basepath + "/" + my_program + "/" + my_compiler
+        prefix = basepath + "/" + my_path
         moduledir = basepath + "/modulefiles/"
 
     if os.path.exists(prefix) and not options.force:
@@ -250,7 +250,7 @@ if __name__ == "__main__":
     my_program = parse_installscript_filename(install_script)
     modules_to_load = parse_installscript_for_modules(install_script)
     my_compiler = parse_compiler_and_log_full_env(modules_to_load)
-    prefix, moduledir = get_variables(options, my_program, my_compiler, defaults)
+    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + my_compiler, defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
         modules_to_load = "module use " + moduledir + "; " + modules_to_load
