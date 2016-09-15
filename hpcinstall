@@ -187,8 +187,13 @@ def log_full_env(modules_to_load):
     files_to_archive.append(module_log)
 
 def parse_compiler(loaded_modules):
+    try:
+        lines = loaded_modules.splitlines(True)   # a string
+    except AttributeError:
+        lines = loaded_modules                    # a file
+
     loaded_compiler = []
-    for line in loaded_modules:
+    for line in lines:
         for c in compiler_modules:
             if c in line:
                 for single_module in line.split():
