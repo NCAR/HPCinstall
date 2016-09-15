@@ -14,6 +14,29 @@ def run_before_after():
     hpcinstall.os = old_os
     hpcinstall.ask_confirmation_for = old_ask
 
+@pytest.fixture
+def dirs():                    # stub dirs
+    dirs = {}
+    dirs["sw_install_dir"]  = "/glade/apps"
+    dirs["mod_install_dir"] = "/glade/mods"
+    dirs["scratch_tree"]    = "/glade/scra"
+    return dirs
+
+@pytest.fixture
+def opt():                  # stub options
+    opt = lambda: None
+    opt.csgteam = False     # not csgteam
+    opt.force = True        # ignore actual paths on the filesystems
+    return opt
+
+@pytest.fixture
+def stub_os():              # stub os, replacing "import os"
+    stub_os = lambda: None
+    stub_env = {}
+    stub_env["USER"] = "somebody"
+    stub_os.environ = stub_env
+    return stub_os
+
 # not testing "print_invocation_info" since it's harmless and hard to test
 
 def test_parse_config_data():
@@ -46,23 +69,7 @@ def test_parse_installscript_filename():
 
 # not testing "ask_confirmation_for" since it's trivial and hard to test
 
-def test_get_prefix_and_moduledir():
-
-    # stub options
-    opt = lambda: None
-    opt.csgteam = False     # not csgteam
-    opt.force = True        # ignore actual paths on the filesystems
-
-    # stub dirs
-    dirs = {}
-    dirs["sw_install_dir"]  = "/glade/apps"
-    dirs["mod_install_dir"] = "/glade/mods"
-    dirs["scratch_tree"]    = "/glade/scra"
-
-    # stub os
-    stub_os = lambda: None
-    stub_env = {}
-    stub_env["USER"] = "somebody"
+def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
 
     prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
 
