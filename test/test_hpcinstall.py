@@ -40,10 +40,11 @@ def stub_os():              # stub os, replacing "import os"
 # not testing "print_invocation_info" since it's harmless and hard to test
 
 def test_parse_config_data():
-    data = """scratch_tree: /glade/scratch
-sw_install_dir: /glade/apps/opt/
-mod_install_dir: /glade/apps/opt/modulefiles"""
-    expected = {"scratch_tree": "/glade/scratch", "sw_install_dir": "/glade/apps/opt", "mod_install_dir": "/glade/apps/opt/modulefiles"}
+    # note some dirs have the slash some don't and the expected ones do not match
+    data = ( "scratch_tree: /glade/scratch\n"
+             "sw_install_dir: /glade/apps/opt/\n"
+             "mod_install_dir: /glade/apps/opt/modulefiles\n")
+    expected = {"scratch_tree": "/glade/scratch/", "sw_install_dir": "/glade/apps/opt", "mod_install_dir": "/glade/apps/opt/modulefiles"}
     parsed = hpcinstall.parse_config_data(data)
     for key in parsed:
         assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
