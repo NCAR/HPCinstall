@@ -75,16 +75,16 @@ def test_parse_installscript_filename():
 def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     hpcinstall.os = stub_os
     prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
-    assert prefix    == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3")
-    assert moduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modules")
+    assert prefix    == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3") + "/"
+    assert moduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
 
 def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
     stub_os.environ["USER"] = "csgteam"
     opt.csgteam = True
     hpcinstall.os = stub_os
     prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
-    assert prefix    == os.path.abspath(dirs["sw_install_dir"] + "/foo/1.2.3")
-    assert moduledir ==                 dirs["mod_install_dir"]
+    assert prefix    == os.path.abspath(dirs["sw_install_dir"] + "/foo/1.2.3/") + "/"
+    assert moduledir == os.path.abspath(dirs["mod_install_dir"]) + "/"
 
 def test_prepare_variables_and_warn():
     # this method is trivial, the only thing to test is that pass_env has all the variables needed
