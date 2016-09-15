@@ -105,8 +105,17 @@ def test_prepare_variables_and_warn():
 
 # not testing "start_logging_current_session" and "stop_logging_current_session" since it's trivial and hard to test
 
-def test_subcall():
-    raise Exception("Too complicated method to test. Simplify?")
+def test_subcall_helper(stub_os):
+    stub_os.environ['SHELL'] = 'bash'
+    stub_os.getcwd = lambda: "current_dir"
+    hpcinstall.os = stub_os
+    #hpcinstall._subcall_helper(modules_to_load, command, variables, log)
+    actual = hpcinstall._subcall_helper("module load foo/1.2.3; ml bar/4.5.6;", "./install-crap-7.8.9", False, False)
+    expected = '''ssh -t localhost "bash -l -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
+    assert actual == expected
 
 def test_parse_compiler_and_log_full_env():
     raise Exception("Too complicated method to test. Simplify?")
+
+def test_parse_installscript_for_modules():
+    raise Exception("Make sure the modules are returned in the form 'module load foo/1.2.3; ml bar/4.5.6; ' (notice the comma and space at the end)")
