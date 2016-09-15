@@ -94,6 +94,8 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
     assert prefix    == os.path.abspath(dirs["sw_install_dir"] + "/foo/1.2.3/") + "/"
     assert moduledir == os.path.abspath(dirs["mod_install_dir"]) + "/"
 
+# not testing "justify" since it's only pretty-printing (no need to test behavior)
+
 def test_prepare_variables_and_warn():
     # this method is trivial, the only thing to test is that pass_env has all the variables needed
     hpcinstall.ask_confirmation_for = lambda x, y: str(x) + str(y)
