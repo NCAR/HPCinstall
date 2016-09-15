@@ -17,9 +17,9 @@ def run_before_after():
 @pytest.fixture
 def dirs():                    # stub dirs
     dirs = {}
-    dirs["sw_install_dir"]  = "/glade/apps"
-    dirs["mod_install_dir"] = "/glade/mods"
-    dirs["scratch_tree"]    = "/glade/scra"
+    dirs["sw_install_dir"]  = "/glade/apps/"
+    dirs["mod_install_dir"] = "/glade/mods/"
+    dirs["scratch_tree"]    = "/glade/scra/"
     return dirs
 
 @pytest.fixture
@@ -35,6 +35,7 @@ def stub_os():              # stub os, replacing "import os"
     stub_env = {}
     stub_env["USER"] = "somebody"
     stub_os.environ = stub_env
+    stub_os.path = os.path
     return stub_os
 
 # not testing "print_invocation_info" since it's harmless and hard to test
@@ -72,9 +73,19 @@ def test_parse_installscript_filename():
 # not testing "ask_confirmation_for" since it's trivial and hard to test
 
 def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
+    hpcinstall.os = stub_os
     prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
     assert os.path.abspath(prefix)    == "/glade/apps/foo/1.2.3"
     assert os.path.abspath(moduledir) == "/glade/mods/foo"
+
+def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
+    stub_os.environ["USER"] = "csgteam"
+    opt.csgteam = True
+    hpcinstall.os = stub_os
+    prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
+    assert prefix    == os.path.abspath(dirs["sw_install_dir"] + "/foo/1.2.3")
+    assert moduledir ==                 dirs["mod_install_dir"]
+
 
 def test_prepare_variables_and_warn():
     # this method is trivial, the only thing to test is that pass_env has all the variables needed
