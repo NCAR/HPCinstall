@@ -45,8 +45,6 @@ def test_parse_installscript_filename():
 # not testing "parse_command_line_arguments" since it's harmless and hard to test
 
 # not testing "ask_confirmation_for" since it's trivial and hard to test
-# note below the
-#    hpcinstall.ask_confirmation_for = lambda x, y: str(x) + str(y)
 
 def test_get_prefix_and_moduledir():
     raise Exception("Too complicated method to test. Simplify?")
