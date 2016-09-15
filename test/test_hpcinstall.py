@@ -114,7 +114,7 @@ def test_subcall_helper(stub_os):
                                         variables = False,
                                         log = False)
     expected = '''ssh -t localhost "/q/bash -l -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
-    assert actual == expected
+    assert actual == expected, "Failed environment setting for bash"
 
     stub_os.environ['SHELL'] = 'tcsh'
     actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3; ml bar/4.5.6;",
@@ -122,14 +122,17 @@ def test_subcall_helper(stub_os):
                                         variables = False,
                                         log = False)
     expected = '''ssh -t localhost "tcsh -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
-    assert actual == expected
+    assert actual == expected, "Failed environment setting for tcsh"
 
     actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3;",
                                         command = "./use-crap-7.8.9",
-                                        variables = {"FOO":"bar"},
-                                        log = True)
-    expected = '''ssh -t localhost "tcsh -c 'ml purge; cd current_dir; module load foo/1.2.3; ./use-crap-7.8.9'"'''
+                                        variables = False,
+                                        log = "random_file.log")
+    expected = '''ssh -t localhost "tcsh -c 'ml purge; cd current_dir; module load foo/1.2.3; ./use-crap-7.8.9'" &> random_file.log'''
     assert actual == expected
+
+    # not testing the variables because that is complicated and would simply test the correctness of hpcinstall.pass_env,
+    # which is already tested in test_prepare_variables_and_warn()
 
 def test_parse_compiler_and_log_full_env():
     raise Exception("Too complicated method to test. Simplify?")
