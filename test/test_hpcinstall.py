@@ -1,5 +1,5 @@
 import hpcinstall
-import pytest
+import pytest, os
 
 @pytest.yield_fixture(autouse = True) # call this method around each test method
 def run_before_after():
@@ -70,12 +70,9 @@ def test_parse_installscript_filename():
 # not testing "ask_confirmation_for" since it's trivial and hard to test
 
 def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
-
     prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
-
-    assert prefix    == "/glade/apps/foo/1.2.3"
-    assert moduledir == "/glade/mods/foo"
-    raise Exception("Too complicated method to test. Simplify?")
+    assert os.path.abspath(prefix)    == "/glade/apps/foo/1.2.3"
+    assert os.path.abspath(moduledir) == "/glade/mods/foo"
 
 def test_prepare_variables_and_warn():
     # this method is trivial, the only thing to test is that pass_env has all the variables needed
