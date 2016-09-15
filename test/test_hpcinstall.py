@@ -41,11 +41,12 @@ def stub_os():              # stub os, replacing "import os"
 
 def test_parse_config_data():
     data = """scratch_tree: /glade/scratch
-sw_install_dir: /glade/apps/opt
+sw_install_dir: /glade/apps/opt/
 mod_install_dir: /glade/apps/opt/modulefiles"""
-    expected = {"scratch_tree": "/glade/scratch/", "sw_install_dir": "/glade/apps/opt/", "mod_install_dir": "/glade/apps/opt/modulefiles/"}
+    expected = {"scratch_tree": "/glade/scratch", "sw_install_dir": "/glade/apps/opt", "mod_install_dir": "/glade/apps/opt/modulefiles"}
     parsed = hpcinstall.parse_config_data(data)
-    assert expected == parsed
+    for key in parsed:
+        assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
 
     with pytest.raises(KeyError):
         data = "useless_stuff: something"
