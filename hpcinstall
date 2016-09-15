@@ -112,7 +112,7 @@ def get_prefix_and_moduledir(options, my_path, default_dirs):
     if os.path.exists(prefix) and not options.force:
         print "File already exists", prefix
         sys.exit(1)
-    return prefix, moduledir
+    return os.path.abspath(prefix) + "/", os.path.abspath(moduledir) + "/"
 
 def justify(stuff):
     max_len = 0
