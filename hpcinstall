@@ -156,10 +156,10 @@ def _subcall_helper(modules_to_load, command, variables, log):
     str_cmd = ('ssh -t localhost "' +     # to reset environment
                shell + "'ml purge; cd " + # remove all modules
                os.getcwd() + "; " +       # **not** where this script resides
-               modules_to_load)           # load specified modules
+               modules_to_load + " ")     # load specified modules
     if variables:
         str_cmd += pass_env % variables
-    str_cmd += command + """'" """
+    str_cmd += command + "'\""
     if log:
         str_cmd += " &> " + log
     return str_cmd
