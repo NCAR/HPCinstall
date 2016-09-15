@@ -124,6 +124,13 @@ def test_subcall_helper(stub_os):
     expected = '''ssh -t localhost "tcsh -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
     assert actual == expected
 
+    actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3;",
+                                        command = "./use-crap-7.8.9",
+                                        variables = {"FOO":"bar"},
+                                        log = True)
+    expected = '''ssh -t localhost "tcsh -c 'ml purge; cd current_dir; module load foo/1.2.3; ./use-crap-7.8.9'"'''
+    assert actual == expected
+
 def test_parse_compiler_and_log_full_env():
     raise Exception("Too complicated method to test. Simplify?")
 
