@@ -186,9 +186,9 @@ def log_full_env(modules_to_load):
     print "Done.\n"
     files_to_archive.append(module_log)
 
-def parse_compiler(modules_to_load):
+def parse_compiler(loaded_modules):
     loaded_compiler = []
-    for line in open(module_log):
+    for line in loaded_modules:
         for c in compiler_modules:
             if c in line:
                 for single_module in line.split():
@@ -257,7 +257,7 @@ if __name__ == "__main__":
     my_program = parse_installscript_filename(install_script)
     modules_to_load = parse_installscript_for_modules(install_script)
     log_full_env(modules_to_load)
-    my_compiler = parse_compiler(modules_to_load)
+    my_compiler = parse_compiler(open(module_log))
     prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + my_compiler, defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
