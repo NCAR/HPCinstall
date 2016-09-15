@@ -1,6 +1,19 @@
 import hpcinstall
 import pytest
 
+@pytest.yield_fixture(autouse = True) # call this method around each test method
+def run_before_after():
+    # before part -- save the stuff that I'll be stubbing out
+    old_os = hpcinstall.os
+    old_ask = hpcinstall.ask_confirmation_for
+
+    # run tests
+    yield
+
+    # after part - restore the original stuff
+    hpcinstall.os = old_os
+    hpcinstall.ask_confirmation_for = old_ask
+
 # not testing "print_invocation_info" since it's harmless and hard to test
 
 def test_parse_config_data():
