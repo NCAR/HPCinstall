@@ -220,6 +220,12 @@ def parse_installscript_for_modules(install_script):
         modules_to_run += ";"
     return modules_to_run
 
+def verify_modules_are_loadable(modules_to_load, installscript_name):
+    if (subcall(modules_to_load, "") != 0):
+        print >> sys.stderr, "Modules from", installscript_name, "are not loadable:"
+        print >> sys.stderr, modules_to_load
+        sys.exit(1)
+
 def execute_installscript(modules_to_load, install_script, variables, debug=False):
     current_perm = os.stat(install_script)
     os.chmod(install_script, current_perm.st_mode | stat.S_IEXEC)
@@ -262,6 +268,7 @@ if __name__ == "__main__":
     install_script, options = parse_command_line_arguments()
     my_program = parse_installscript_filename(install_script)
     modules_to_load = parse_installscript_for_modules(open(install_script))
+    verify_modules_are_loadable(modules_to_load, install_script)
     log_full_env(modules_to_load)
     my_compiler = identify_loaded_compiler_module(open(module_log))
     prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + my_compiler, defaults)
