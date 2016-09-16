@@ -215,6 +215,11 @@ def test_parse_installscript_for_modules_comments():
     actual = hpcinstall.parse_installscript_for_modules(data)
     assert actual == expected
 
+def test_verify_modules_are_loadable():
+    hpcinstall.verify_modules_are_loadable("ml reset;")
+    with pytest.raises(SystemExit):
+        hpcinstall.verify_modules_are_loadable("ml nonexistingmodule;")
+
 # not testing archive_in() since it's simple and hard to test
 # actually all the methods which append files_to_archive[] are the trival or simple ones
 # which I did not test
