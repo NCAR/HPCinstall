@@ -213,7 +213,7 @@ def parse_installscript_for_modules(install_script):
     executing_lines = []
     for line in string_or_file(install_script):
         if line.startswith("#HPCI "):
-            exe_line = line.replace("#HPCI ", "", 1).strip()
+            exe_line = line.replace("#HPCI ", "", 1).split(" #")[0].strip()
             executing_lines.append(exe_line)
     modules_to_run = "; ".join(executing_lines)
     if len(modules_to_run) > 0:
