@@ -208,7 +208,6 @@ def identify_loaded_compiler_module(loaded_modules):
     return compiler
 
 def parse_installscript_for_modules(install_script):
-    warning = ""
     executing_lines = []
     for line in open(install_script):
         if line.startswith("#HPCI "):
