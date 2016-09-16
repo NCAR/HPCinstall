@@ -215,7 +215,7 @@ def parse_installscript_for_modules(install_script):
             executing_lines.append(exe_line)
     modules_to_run = "; ".join(executing_lines)
     if len(modules_to_run) > 0:
-        modules_to_run += "; "
+        modules_to_run += ";"
     return modules_to_run
 
 def execute_installscript(modules_to_load, install_script, variables, debug=False):

@@ -176,4 +176,4 @@ def test_identify_compiler_multiple(capfd):
     assert "warning" in err.lower()
 
 def test_parse_installscript_for_modules():
-    raise Exception("Make sure the modules are returned in the form 'module load foo/1.2.3; ml bar/4.5.6; ' (notice the comma and space at the end)")
+    raise Exception("Make sure the modules are returned in the form 'module load foo/1.2.3; ml bar/4.5.6; ' (notice the comma at the end)")
