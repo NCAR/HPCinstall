@@ -215,9 +215,9 @@ def test_parse_installscript_for_modules_comments():
     actual = hpcinstall.parse_installscript_for_modules(data)
     assert actual == expected
 
-# not testing archive_in() since it's hard to test -- putting this placeholder to test that each needed thing is added to the list though
-def test_archive_in():
-    raise Exception("Can't test this method. Verify instead that each needed file is added to files_to_archive[] when appropriate")
+# not testing archive_in() since it's simple and hard to test
+# actually all the methods which append files_to_archive[] are the trival or simple ones
+# which I did not test
 
 # not testing execute_installscript() since it's very hard to test, and relatively simple
 # only simple part that is testable in execute_installscript() is it has two logs to append to files_to_archive[]
