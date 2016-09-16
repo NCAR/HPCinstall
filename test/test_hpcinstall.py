@@ -136,12 +136,14 @@ def test_subcall_helper(stub_os):
 
 # not testing log_full_env since it's trivial and hard to test
 
-def test_identify_loaded_compiler_module(capfd):
+def test_identify_compiler_intel(capfd):
     mods = "Currently Loaded Modules:\n  1) ncarenv/1.0    2) ncarbinlibs/1.1    3) intel/12.1.5    4) ncarcompilers/1.0    5) netcdf/4.3.0    6) git/2.3.0    7) python/2.7.7    8) py.test/2.9.2"
     expected = "intel/12.1.5"
     actual = hpcinstall.identify_loaded_compiler_module(mods)
     assert actual == expected
+    assert capfd.readouterr() == ("", "") # no warnings or errors
 
+def test_identify_compiler_gnu(capfd):
     mods = ("Currently Loaded Modules:\n  1) ncarenv/1.0 \n" +
             "2) ncarbinlibs/1.1    3) gnu/5.1.5       \n" +
             "4) ncarcompilers/1.0    5) netcdf/4.3.0     \n" +
@@ -150,17 +152,27 @@ def test_identify_loaded_compiler_module(capfd):
     expected = "gnu/5.1.5"
     actual = hpcinstall.identify_loaded_compiler_module(mods)
     assert actual == expected
+    assert capfd.readouterr() == ("", "") # no warnings or errors
 
+def test_identify_compiler_pgi(capfd):
     mods = ("Currently Loaded Modules:\n  1) ncarenv/1.0 \n" +
             "2) ncarbinlibs/1.1    3) pgi/14.1.5       \n" +
-            "4) ncarcompilers/1.0    5) netcdf/4.3.0     \n" +
-            "6) git/2.3.0    7) python/2.7.7             \n" +
-            "8) gnu/4.9.2")
-    outmsg, errmsg = capfd.readouterr()
+            "8) ncl/4.9.2")
     expected = "pgi/14.1.5"
     actual = hpcinstall.identify_loaded_compiler_module(mods)
     assert actual == expected
-    assert errmsg == "Two compilers loaded"
+    assert capfd.readouterr() == ("", "") # no warnings or errors
+
+def test_identify_compiler_multiple(capfd):
+    mods = ("Currently Loaded Modules:\n  1) ncarenv/1.0 \n" +
+            "2) ncarbinlibs/1.1    3) pgi/14.1.5       \n" +
+            "4) gnu/4.9.2")
+    expected = "pgi/14.1.5"
+    actual = hpcinstall.identify_loaded_compiler_module(mods)
+    assert actual == expected
+    out, err = capfd.readouterr()
+    assert out == ""
+    assert err == "Two compilers loaded"
 
 def test_parse_installscript_for_modules():
     raise Exception("Make sure the modules are returned in the form 'module load foo/1.2.3; ml bar/4.5.6; ' (notice the comma and space at the end)")
