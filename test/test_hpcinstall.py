@@ -177,8 +177,29 @@ def test_identify_compiler_multiple(capfd):
     assert "['pgi/14.1.5', 'gnu/4.9.2']" in err
     assert "warning" in err.lower()
 
-def test_parse_installscript_for_modules():
-    raise Exception("Make sure the modules are returned in the form 'module load foo/1.2.3; ml bar/4.5.6; ' (notice the comma at the end)")
+def test_parse_installscript_for_modules_single():
+    data = ("#!/bin/bash\n"
+            "#\n"
+            "#HPCI module load gnu\n"
+            "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
+            "echo Just kidding, done nothing\n")
+    print data
+    expected = "module load gnu;"
+    actual = hpcinstall.parse_installscript_for_modules(data)
+    assert actual == expected
+
+def test_parse_installscript_for_modules_multiple():
+    data = ("#!/bin/bash\n"
+            "#\n"
+            "#HPCI module use /my/cool/directory/\n"
+            "#HPCI ml gnu\n"
+            "#HPCI ml python py.test\n"
+            "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
+            "echo Just kidding, done nothing\n")
+    print data
+    expected = "module use /my/cool/directory/; ml gnu; ml python py.test;"
+    actual = hpcinstall.parse_installscript_for_modules(data)
+    assert actual == expected
 
 # not testing archive_in() since it's hard to test -- putting this placeholder to test that each needed thing is added to the list though
 def test_archive_in():
