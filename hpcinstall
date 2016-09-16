@@ -169,7 +169,7 @@ def _subcall_helper(modules_to_load, command, variables, log):
 def subcall(modules_to_load, command, log=None, use_popen = False, variables = False, debug=False):
     str_cmd = _subcall_helper(modules_to_load, command, variables, log)
     if debug:
-        print "DEBUG:", str_cmd
+        print >> sys.stderr, "DEBUG:", str_cmd
     if use_popen:
         return subprocess.Popen(str_cmd, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
     else:
