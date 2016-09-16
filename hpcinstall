@@ -48,17 +48,17 @@ def parse_config_data(yaml_data):
 def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
     if len(sw_structure) !=3:
-        print "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
+        print >> sys.stderr, "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
         if len(sw_structure) == 2:
-            print "Maybe you meant build-" + filename +"?"
+            print >> sys.stderr, "Maybe you meant build-" + filename +"?"
         sys.exit(1)
     try:
         version = int(sw_structure[2].replace(".", ""))
         if version < 0:
             raise ValueError()
     except ValueError:
-        print "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
-        print "The version must be in i[.j[.k[...]]] format"
+        print >> sys.stderr, "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
+        print >> sys.stderr, "The version must be in i[.j[.k[...]]] format"
         sys.exit(1)
     return sw_structure[1] + "/" + sw_structure[2]
 
@@ -88,7 +88,7 @@ def ask_confirmation_for(options, msg):
         answer = sys.stdin.readline()
         print
         if answer.lower().strip() != "yes":
-            print "You did not say an ethusiastic 'yes', aborting..."
+            print >> sys.stderr, "You did not say an ethusiastic 'yes', aborting..."
             sys.exit(1)
 
 def get_prefix_and_moduledir(options, my_path, default_dirs):
@@ -106,7 +106,7 @@ def get_prefix_and_moduledir(options, my_path, default_dirs):
         moduledir = basepath + "/modulefiles/"
 
     if os.path.exists(prefix) and not options.force:
-        print "File already exists", prefix
+        print >> sys.stderr, "File already exists", prefix
         sys.exit(1)
     return os.path.abspath(prefix) + "/", os.path.abspath(moduledir) + "/"
 
@@ -169,7 +169,7 @@ def _subcall_helper(modules_to_load, command, variables, log):
 def subcall(modules_to_load, command, log=None, use_popen = False, variables = False, debug=False):
     str_cmd = _subcall_helper(modules_to_load, command, variables, log)
     if debug:
-        print str_cmd
+        print "DEBUG:", str_cmd
     if use_popen:
         return subprocess.Popen(str_cmd, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
     else:
@@ -204,7 +204,7 @@ def identify_loaded_compiler_module(loaded_modules):
         compiler = loaded_compiler[0]
     elif len(loaded_compiler) > 1:
         compiler = loaded_compiler[0]
-        print "Warning, more than one compiler found:", loaded_compiler, "-- Using only the first."
+        print >> sys.stderr, "Warning, more than one compiler found:", loaded_compiler, "-- Using only the first."
     return compiler
 
 def parse_installscript_for_modules(install_script):
