@@ -136,17 +136,17 @@ def test_subcall_helper(stub_os):
 
 # not testing log_full_env since it's trivial and hard to test
 
-def test_parse_compiler():
+def test_identify_loaded_compiler_module():
     mods = "Currently Loaded Modules:\n  1) ncarenv/1.0    2) ncarbinlibs/1.1    3) intel/12.1.5    4) ncarcompilers/1.0    5) netcdf/4.3.0    6) git/2.3.0    7) python/2.7.7    8) py.test/2.9.2"
     expected = "intel"
-    actual = hpcinstall.parse_compiler(mods)
-    #assert actual == expected
+    actual = hpcinstall.identify_loaded_compiler_module(mods)
+    assert actual == expected
     mods = ("Currently Loaded Modules:\n  1) ncarenv/1.0 \n" +
             "2) ncarbinlibs/1.1    3) intel/12.1.5       \n" +
             "4) ncarcompilers/1.0    5) netcdf/4.3.0     \n" +
             "6) git/2.3.0    7) python/2.7.7             \n" +
             "8) py.test/2.9.2")
-    actual = hpcinstall.parse_compiler(mods)
+    actual = hpcinstall.identify_loaded_compiler_module(mods)
     assert actual == expected
 
 def test_parse_installscript_for_modules():
