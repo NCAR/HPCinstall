@@ -211,7 +211,7 @@ def identify_loaded_compiler_module(loaded_modules):
 
 def parse_installscript_for_modules(install_script):
     executing_lines = []
-    for line in open(install_script):
+    for line in string_or_file(install_script):
         if line.startswith("#HPCI "):
             exe_line = line.replace("#HPCI ", "", 1).strip()
             executing_lines.append(exe_line)
@@ -261,7 +261,7 @@ if __name__ == "__main__":
         sys.exit(1)
     install_script, options = parse_command_line_arguments()
     my_program = parse_installscript_filename(install_script)
-    modules_to_load = parse_installscript_for_modules(install_script)
+    modules_to_load = parse_installscript_for_modules(open(install_script))
     log_full_env(modules_to_load)
     my_compiler = identify_loaded_compiler_module(open(module_log))
     prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + my_compiler, defaults)
