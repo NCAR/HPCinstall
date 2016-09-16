@@ -186,14 +186,16 @@ def log_full_env(modules_to_load):
     print "Done.\n"
     files_to_archive.append(module_log)
 
-def identify_loaded_compiler_module(loaded_modules):
+def string_or_file(stuff):
     try:
-        lines = loaded_modules.splitlines(True)   # a string
+        lines = stuff.splitlines(True)   # a string
     except AttributeError:
-        lines = loaded_modules                    # a file
+        lines = stuff                    # a file
+    return lines
 
+def identify_loaded_compiler_module(loaded_modules):
     loaded_compiler = []
-    for line in lines:
+    for line in string_or_file(loaded_modules):
         for c in compiler_modules:
             if c in line:
                 for single_module in line.split():
