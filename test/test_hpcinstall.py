@@ -183,3 +183,6 @@ def test_parse_installscript_for_modules():
 # not testing archive_in() since it's hard to test -- putting this placeholder to test that each needed thing is added to the list though
 def test_archive_in():
     raise Exception("Can't test this method. Verify instead that each needed file is added to files_to_archive[] when appropriate")
+
+# not testing execute_installscript() since it's very hard to test, and relatively simple
+# only simple part that is testable in execute_installscript() is it has two logs to append to files_to_archive[]
