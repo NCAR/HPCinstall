@@ -179,3 +179,7 @@ def test_identify_compiler_multiple(capfd):
 
 def test_parse_installscript_for_modules():
     raise Exception("Make sure the modules are returned in the form 'module load foo/1.2.3; ml bar/4.5.6; ' (notice the comma at the end)")
+
+# not testing archive_in() since it's hard to test -- putting this placeholder to test that each needed thing is added to the list though
+def test_archive_in():
+    raise Exception("Can't test this method. Verify instead that each needed file is added to files_to_archive[] when appropriate")
