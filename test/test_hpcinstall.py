@@ -38,7 +38,7 @@ def stub_os():              # stub os, replacing "import os"
     stub_os.path = os.path
     return stub_os
 
-# not testing "print_invocation_info" since it's harmless and hard to test
+# not testing print_invocation_info() since it's harmless and hard to test
 
 def test_parse_config_data():
     # note some dirs have the slash some don't and the expected ones do not match
@@ -68,12 +68,12 @@ def test_parse_installscript_filename():
     with pytest.raises(SystemExit):
         hpcinstall.parse_installscript_filename("incorrect_name-version")
 
-# not testing "parse_command_line_arguments" since it's harmless and hard to test
+# not testing parse_command_line_arguments() since it's harmless and hard to test
 
-# not testing "ask_confirmation_for" since it's trivial and hard to test
+# not testing ask_confirmation_for() since it's trivial and hard to test
 
 def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
-    # not testing file_already_exist and corresponding forcing
+    # not testing file_already_exist() and corresponding forcing
     hpcinstall.os = stub_os
     prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
     assert prefix    == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3") + "/"
@@ -86,7 +86,7 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     assert moduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles") + "/"
 
 def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
-    # not testing file_already_exist and corresponding forcing
+    # not testing file_already_exist() and corresponding forcing
     stub_os.environ["USER"] = "csgteam"
     opt.csgteam = True
     hpcinstall.os = stub_os
@@ -94,7 +94,7 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
     assert prefix    == os.path.abspath(dirs["sw_install_dir"] + "/foo/1.2.3/") + "/"
     assert moduledir == os.path.abspath(dirs["mod_install_dir"]) + "/"
 
-# not testing "justify" since it's only pretty-printing (no need to test behavior)
+# not testing justify() since it's only pretty-printing (no need to test behavior)
 
 def test_prepare_variables_and_warn():
     # this method is trivial, the only thing to test is that pass_env has all the variables needed
@@ -103,7 +103,7 @@ def test_prepare_variables_and_warn():
     for var in vars:
         assert "(" + var + ")s" in hpcinstall.pass_env, "to pass " + var + " to the environemnt, it needs to be included in hpcinstall.pass_env"
 
-# not testing "start_logging_current_session" and "stop_logging_current_session" since it's trivial and hard to test
+# not testing start_logging_current_session() and stop_logging_current_session() since it's trivial and hard to test
 
 def test_subcall_helper(stub_os):
     stub_os.environ['SHELL'] = '/q/bash'
@@ -134,7 +134,9 @@ def test_subcall_helper(stub_os):
     # not testing the variables because that is complicated and would simply test the correctness of hpcinstall.pass_env,
     # which is already tested in test_prepare_variables_and_warn()
 
-# not testing log_full_env since it's trivial and hard to test
+# not testing log_full_env() since it's trivial and hard to test
+
+# not testing string_or_file() since it's trivial and hard to test
 
 def test_identify_compiler_intel(capfd):
     mods = "Currently Loaded Modules:\n  1) ncarenv/1.0    2) ncarbinlibs/1.1    3) intel/12.1.5    4) ncarcompilers/1.0    5) netcdf/4.3.0    6) git/2.3.0    7) python/2.7.7    8) py.test/2.9.2"
