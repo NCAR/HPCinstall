@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
-import optparse # cruder than others, but compatible with older versions of python
-import os, stat, shutil, sys, subprocess, yaml, datetime
+import argparse, os, stat, shutil, sys, subprocess, yaml, datetime
 import tee
 
 compiler_modules = ["gnu", "intel", "pgi", "pathscale", "cuda", "sun"]
@@ -63,24 +61,23 @@ def parse_installscript_filename(filename):
     return sw_structure[1] + "/" + sw_structure[2]
 
 def parse_command_line_arguments():
-    usage = ("usage: %prog [options] <software-version>\n" +
-             "Required:\n" +
-             "  <software-ver> script in the current directory which\n" +
-             "                 does the build and install (do not use\n" +
-             "                 './', relative nor fully qualified paths)")
-    parser = optparse.OptionParser(usage)
-    parser.add_option("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
-    parser.add_option("-f", "--force", action="store_true", default=False, help='Force overwrite of existing install (default: False)')
-    parser.add_option("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
-    (options, args) = parser.parse_args()
-    if len(args) != 1:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("install-software-ver", type=file, help="script in the current directory which\n" +
+                                                                    "                 does the build and install (do not use\n" +
+                                                                    "                 './', relative nor fully qualified paths)")
+    parser.add_argument("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
+    parser.add_argument("-f", "--force", action="store_true", default=False, help='Force overwrite of existing install (default: False)')
+    parser.add_argument("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
+
+    try:
+        args = parser.parse_args()
+    except IOError, e:
+        print >> sys.stderr, "Troubles accessing <install-software-ver> file"
+        print >> sys.stderr, e
+        print
         parser.print_help()
         sys.exit(1)
-    install_script = args[0]
-    if not os.path.isfile(install_script) or "/" in install_script:
-        parser.print_help()
-        sys.exit(1)
-    return install_script, options
+    return args
 
 def ask_confirmation_for(options, msg):
     if options.csgteam:
