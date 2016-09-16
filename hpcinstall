@@ -62,7 +62,8 @@ def parse_installscript_filename(filename):
 
 def parse_command_line_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("install-software-ver", type=file, help="script in the current directory which\n" +
+    parser.add_argument("install_script", metavar="install-software-ver", type=argparse.FileType('r'),
+                                                               help="script in the current directory which\n" +
                                                                     "                 does the build and install (do not use\n" +
                                                                     "                 './', relative nor fully qualified paths)")
     parser.add_argument("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
@@ -262,10 +263,10 @@ if __name__ == "__main__":
         print >> sys.stderr, e
         print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
         sys.exit(1)
-    install_script, options = parse_command_line_arguments()
-    my_program = parse_installscript_filename(install_script)
-    modules_to_load = parse_installscript_for_modules(open(install_script))
-    verify_modules_are_loadable(modules_to_load, install_script)
+    options = parse_command_line_arguments()
+    my_program = parse_installscript_filename(options.install_script.name)
+    modules_to_load = parse_installscript_for_modules(options.install_script)
+    verify_modules_are_loadable(modules_to_load, options.install_script.name)
     log_full_env(modules_to_load)
     my_compiler = identify_loaded_compiler_module(open(module_log))
     prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + my_compiler, defaults)
