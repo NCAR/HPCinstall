@@ -194,10 +194,11 @@ def test_parse_installscript_for_modules_multiple():
             "#HPCI module use /my/cool/directory/\n"
             "#HPCI ml gnu\n"
             "#HPCI ml python py.test\n"
+            "#HPCI  export FOO=bar\n"
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
     print data
-    expected = "module use /my/cool/directory/; ml gnu; ml python py.test;"
+    expected = "module use /my/cool/directory/; ml gnu; ml python py.test; export FOO=bar;"
     actual = hpcinstall.parse_installscript_for_modules(data)
     assert actual == expected
 
