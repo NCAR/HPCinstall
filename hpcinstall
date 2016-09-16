@@ -186,7 +186,7 @@ def log_full_env(modules_to_load):
     print "Done.\n"
     files_to_archive.append(module_log)
 
-def parse_compiler(loaded_modules):
+def identify_loaded_compiler_module(loaded_modules):
     try:
         lines = loaded_modules.splitlines(True)   # a string
     except AttributeError:
@@ -262,7 +262,7 @@ if __name__ == "__main__":
     my_program = parse_installscript_filename(install_script)
     modules_to_load = parse_installscript_for_modules(install_script)
     log_full_env(modules_to_load)
-    my_compiler = parse_compiler(open(module_log))
+    my_compiler = identify_loaded_compiler_module(open(module_log))
     prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + my_compiler, defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
