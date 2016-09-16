@@ -4,7 +4,7 @@ import optparse # cruder than others, but compatible with older versions of pyth
 import os, stat, shutil, sys, subprocess, yaml, datetime
 import tee
 
-compiler_modules = ["gnu", "intel", "pgi", "pathscale", "pgi", "cuda", "sun"]
+compiler_modules = ["gnu", "intel", "pgi", "pathscale", "cuda", "sun"]
 
 pass_env = ("env HPCI_SW_DIR=%(SW_DIR)s " +         # the "s" is crucial (!!)
             "HPCI_SW_NAME=%(SW_NAME)s " +
