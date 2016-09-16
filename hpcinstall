@@ -121,9 +121,9 @@ def justify(stuff):
         new_stuff += new_line + "\n"
     return new_stuff
 
-def prepare_variables_and_warn(prefix, moduledir, options, install_script):
-    name = install_script.split("-")[1]       # 0 is build, 1 is software name
-    version = install_script.split("-")[2]    # 2 is software version
+def prepare_variables_and_warn(prefix, moduledir, options):
+    name = options.install_script.name.split("-")[1]       # 0 is build, 1 is software name
+    version = options.install_script.name.split("-")[2]    # 2 is software version
 
     variables = {'SW_DIR': prefix,
                  'SW_NAME': name,
@@ -136,7 +136,7 @@ def prepare_variables_and_warn(prefix, moduledir, options, install_script):
     env_settings = (pass_env.replace(" ", "\n") % variables).replace("env\n", "")
     print justify(env_settings)
     ask_confirmation_for(options, "This will attempt global install in " + prefix +
-                         " by running ./" + install_script + " as " + os.environ['USER'] + ". Continue? ")
+                         " by running ./" + options.install_script.name + " as " + os.environ['USER'] + ". Continue? ")
     return variables
 
 def start_logging_current_session(log=HPCi_log, continuation=False):
@@ -224,14 +224,14 @@ def verify_modules_are_loadable(modules_to_load, installscript_name):
         print >> sys.stderr, modules_to_load
         sys.exit(1)
 
-def execute_installscript(modules_to_load, install_script, variables, debug=False):
-    current_perm = os.stat(install_script)
-    os.chmod(install_script, current_perm.st_mode | stat.S_IEXEC)
-    print "Running ./" + install_script, "..."
+def execute_installscript(options, modules_to_load, variables):
+    current_perm = os.stat(options.install_script.name)
+    os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
+    print "Running ./" + options.install_script.name, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
-    log = "hpci." + install_script  + "-" + str(os.getpid()) + ".log"
+    log = "hpci." + options.install_script.name  + "-" + str(os.getpid()) + ".log"
     start_logging_current_session(log=log)
-    p = subcall(modules_to_load, "./" + install_script, use_popen=True, variables=variables, debug=debug)
+    p = subcall(modules_to_load, "./" + options.install_script.name, use_popen=True, variables=variables, debug=options.debug)
     process_output = " "
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
         process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
@@ -240,8 +240,8 @@ def execute_installscript(modules_to_load, install_script, variables, debug=Fals
     stop_logging_current_session()
     files_to_archive.append(log)
     start_logging_current_session(continuation=True)
-    print "Done running ./" + install_script, "- exited with code", p.returncode
-    files_to_archive.append(install_script)
+    print "Done running ./" + options.install_script.name, "- exited with code", p.returncode
+    files_to_archive.append(options.install_script.name)
 
 def archive_in(prefix):
     build_dir = prefix + "/BUILD_DIR/"
@@ -275,7 +275,7 @@ if __name__ == "__main__":
         modules_to_load = "module use " + moduledir + "; " + modules_to_load
     start_logging_current_session()
     print_invocation_info()
-    variables = prepare_variables_and_warn(prefix, moduledir, options, install_script)
-    execute_installscript(modules_to_load, install_script, variables, options.debug)
+    variables = prepare_variables_and_warn(prefix, moduledir, options)
+    execute_installscript(options, modules_to_load, variables)
     stop_logging_current_session()
     archive_in(prefix)
