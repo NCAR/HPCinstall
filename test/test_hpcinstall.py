@@ -202,6 +202,19 @@ def test_parse_installscript_for_modules_multiple():
     actual = hpcinstall.parse_installscript_for_modules(data)
     assert actual == expected
 
+def test_parse_installscript_for_modules_comments():
+    data = ("#!/bin/bash\n"
+            "#\n"
+            "#HPCI module use /my/cool/directory/ # I need this to load a special version of python\n"
+            "#HPCI ml python py.test              # this is my special version of python \n"
+            "#HPCI  export FOO=bar                # Other things\n"
+            "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
+            "echo Just kidding, done nothing\n")
+    print data
+    expected = "module use /my/cool/directory/; ml python py.test; export FOO=bar;"
+    actual = hpcinstall.parse_installscript_for_modules(data)
+    assert actual == expected
+
 # not testing archive_in() since it's hard to test -- putting this placeholder to test that each needed thing is added to the list though
 def test_archive_in():
     raise Exception("Can't test this method. Verify instead that each needed file is added to files_to_archive[] when appropriate")
