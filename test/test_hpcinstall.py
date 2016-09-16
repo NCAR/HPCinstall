@@ -172,7 +172,8 @@ def test_identify_compiler_multiple(capfd):
     assert actual == expected
     out, err = capfd.readouterr()
     assert out == ""
-    assert err == "Two compilers loaded"
+    assert "['pgi/14.1.5', 'gnu/4.9.2']" in err
+    assert "warning" in err.lower()
 
 def test_parse_installscript_for_modules():
     raise Exception("Make sure the modules are returned in the form 'module load foo/1.2.3; ml bar/4.5.6; ' (notice the comma and space at the end)")
