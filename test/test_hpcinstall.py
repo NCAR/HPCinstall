@@ -23,10 +23,13 @@ def dirs():                    # stub dirs
     return dirs
 
 @pytest.fixture
-def opt():                  # stub options
+def opt():                                                          # stub options
     opt = lambda: None
-    opt.csgteam = False     # not csgteam
-    opt.force = True        # ignore actual paths on the filesystems
+    opt.csgteam = False                                             # not csgteam
+    opt.force = True                                                # ignore actual paths on the filesystems
+    install_script = lambda : None                                  # fake file object
+    install_script.name = "build-mysoftware-1.2.3"                  # with this filename
+    opt.install_script = install_script                             # stuffed as an option
     return opt
 
 @pytest.fixture
@@ -96,10 +99,10 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
 
 # not testing justify() since it's only pretty-printing (no need to test behavior)
 
-def test_prepare_variables_and_warn():
+def test_prepare_variables_and_warn(opt):
     # this method is trivial, the only thing to test is that pass_env has all the variables needed
     hpcinstall.ask_confirmation_for = lambda x, y: str(x) + str(y)
-    vars = hpcinstall.prepare_variables_and_warn("/glade/apps/opt", "/glade/apps/modulefiles", None, "build-mysoftware-1.2.3")
+    vars = hpcinstall.prepare_variables_and_warn("/glade/apps/opt", "/glade/apps/modulefiles", opt)
     for var in vars:
         assert "(" + var + ")s" in hpcinstall.pass_env, "to pass " + var + " to the environemnt, it needs to be included in hpcinstall.pass_env"
 
