@@ -10,7 +10,6 @@ pass_env = ("env HPCI_SW_DIR=%(SW_DIR)s " +         # the "s" is crucial (!!)
             "HPCI_MOD_DIR=%(MOD_DIR)s ")
 
 files_to_archive = []                               # logs and other files to preserve
-files_to_archive.append(os.path.realpath(__file__)) # preserve this script which is running
 HPCi_log = "hpci.main.log"
 env_log = "hpci.env.log"
 module_log = "hpci.modules.log"
