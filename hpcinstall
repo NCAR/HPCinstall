@@ -330,6 +330,7 @@ if __name__ == "__main__":
             files_to_archive.append(f)
             print "Storing source archive", f
     if options.archive_url:
-        print "Not storing source archive, see instead", options.archive_url
+        for u in options.archive_url:
+            print "Not storing source archive, see instead", u
     stop_logging_current_session()
     archive_in(prefix)
