@@ -291,5 +291,17 @@ if __name__ == "__main__":
     print_invocation_info()
     variables = prepare_variables_and_warn(prefix, moduledir, options)
     execute_installscript(options, modules_to_load, variables)
+    if options.archive:
+        for tarball in options.archive:
+            files_to_archive.append(tarball.name)
+            print "Storing source archive", tarball.name
+    if options.archive_list:
+        for archive in options.archive_list:
+            with open(archive) as f:
+                for line in f:
+                    files_to_archive.append(line)
+                    print "Storing source archive", line
+    if options.archive_url:
+        print "Not storing source archive, see instead", options.archive_url
     stop_logging_current_session()
     archive_in(prefix)
