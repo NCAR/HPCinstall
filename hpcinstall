@@ -78,8 +78,8 @@ def parse_command_line_arguments():
     parser.add_argument("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
     source_code = parser.add_mutually_exclusive_group(required=True)
     source_code.add_argument("-a", "--archive", action='append', nargs='*', type=argparse.FileType('r'), help='Store the provided source archive(s)')
-    source_code.add_argument("-l", "--archive-list", action='append', metavar='FILE', help='Store the source archive(s) provided in FILE')
-    source_code.add_argument("-u", "--archive-url", action='append', metavar='URL', help='Store URL instead of source archive')
+    source_code.add_argument("-l", "--archive-list", action='append', nargs='*', metavar='FILE', type=argparse.FileType('r'), help='Store the source archive(s) provided in FILE')
+    source_code.add_argument("-u", "--archive-url", action='append', nargs='*', metavar='URL', help='Store URL instead of source archive')
 
     try:
         args = parser.parse_args()
@@ -92,6 +92,21 @@ def parse_command_line_arguments():
     args.archive      = flatten_argument(args.archive)
     args.archive_list = flatten_argument(args.archive_list)
     args.archive_url  = flatten_argument(args.archive_url)
+    should_exit = False
+    if args.archive_list:
+        list_of_files = []
+        for f in args.archive_list:
+            for line in f:
+                archive_file = os.path.abspath(os.path.expanduser(line.strip()))
+                if not os.access(archive_file, os.R_OK):
+                    print >> sys.stderr, "Troubles opening file", line.strip(), "specified in", f.name
+                    should_exit = True
+                else:
+                    list_of_files.append(archive_file)
+        args.archive_list = list_of_files
+    if should_exit:
+        parser.print_help()
+        sys.exit(1)
     return args
 
 def ask_confirmation_for(options, msg):
@@ -296,11 +311,9 @@ if __name__ == "__main__":
             files_to_archive.append(tarball.name)
             print "Storing source archive", tarball.name
     if options.archive_list:
-        for archive in options.archive_list:
-            with open(archive) as f:
-                for line in f:
-                    files_to_archive.append(line)
-                    print "Storing source archive", line
+        for f in options.archive_list:
+            files_to_archive.append(f)
+            print "Storing source archive", f
     if options.archive_url:
         print "Not storing source archive, see instead", options.archive_url
     stop_logging_current_session()
