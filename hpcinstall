@@ -68,6 +68,10 @@ def parse_command_line_arguments():
     parser.add_argument("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
     parser.add_argument("-f", "--force", action="store_true", default=False, help='Force overwrite of existing install (default: False)')
     parser.add_argument("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
+    source_code = parser.add_mutually_exclusive_group(required=True)
+    source_code.add_argument("-a", "--archive", help='Store the provided source archive(s)')
+    source_code.add_argument("-l", "--archive-list", metavar='FILE', help='Store the source archive(s) provided in FILE')
+    source_code.add_argument("-u", "--archive-url", metavar='URL', help='Store URL instead of source archive')
 
     try:
         args = parser.parse_args()
