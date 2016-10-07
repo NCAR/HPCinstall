@@ -241,8 +241,13 @@ def string_or_file(stuff):
 def identify_compiler_mpi():
     compiler = os.environ.get('LMOD_FAMILY_COMPILER','').strip()
     mpi = ""
-    if compiler:
-        compiler += "/" + os.environ.get('LMOD_COMPILER_VERSION','').strip()
+    try:
+        if compiler:
+            compiler += "/" + os.environ['LMOD_COMPILER_VERSION'].strip()
+    except KeyError, ke:
+        for broken_key in ke.args:
+            print >> sys.stderr, "Error:", broken_key, "not set"
+        sys.exit(1)
     return compiler + mpi
 
 def parse_installscript_for_modules(install_script):
