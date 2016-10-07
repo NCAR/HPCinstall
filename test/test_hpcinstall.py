@@ -141,7 +141,9 @@ def test_subcall_helper(stub_os):
 
 # not testing string_or_file() since it's trivial and hard to test
 
-# not testing identify_loaded_compiler_module() anymore since it will become trivial for https://github.com/NCAR/HPCinstall/issues/28
+def test_identify_compiler_mpi():
+    a = hpcinstall.identify_compiler_mpi()
+    assert a == 'broken'
 
 def test_parse_installscript_for_modules_single():
     data = ("#!/bin/bash\n"
