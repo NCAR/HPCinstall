@@ -13,10 +13,14 @@ def hash(directory, verbose=False):
                 # Read file in as little chunks
                     buf = f1.read(4096)
                     if not buf : break
-                    SHAhash.update(hashlib.md5(buf).hexdigest())
+                    SHAhash.update(hashlib.md5(buf).hexdigest())        # file content
 
             finally:
               f1.close()
-              SHAhash.update(hashlib.md5(filepath).hexdigest())
+              SHAhash.update(hashlib.md5(filepath).hexdigest())         # filename
+              md = os.lstat(filepath)                                   # metadata
+              SHAhash.update(hashlib.md5(str(md.st_mode)).hexdigest())  # permissions
+              SHAhash.update(hashlib.md5(str(md.st_uid)).hexdigest())   # user
+              SHAhash.update(hashlib.md5(str(md.st_gid)).hexdigest())   # group
 
     return SHAhash.hexdigest()
