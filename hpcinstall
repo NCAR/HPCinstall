@@ -238,21 +238,8 @@ def string_or_file(stuff):
         lines = stuff                    # a file
     return lines
 
-def identify_loaded_compiler_module(loaded_modules):
-    loaded_compiler = []
-    for line in string_or_file(loaded_modules):
-        for c in compiler_modules:
-            if c in line:
-                for single_module in line.split():
-                    if single_module.startswith(c + "/"):
-                        loaded_compiler.append(single_module)
-    compiler = ""
-    if len(loaded_compiler) == 1:
-        compiler = loaded_compiler[0]
-    elif len(loaded_compiler) > 1:
-        compiler = loaded_compiler[0]
-        print >> sys.stderr, "Warning, more than one compiler found:", loaded_compiler, "-- Using only the first."
-    return compiler
+def identify_compiler_mpi():
+    return 'samba'
 
 def parse_installscript_for_modules(install_script):
     executing_lines = []
