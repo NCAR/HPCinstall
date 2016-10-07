@@ -15,7 +15,7 @@ def hashdir(directory, verbose=False):
         for names in files:
             filepath = os.path.abspath(os.path.expanduser(os.path.join(root, names)))
             if verbose:
-                print 'Hashing', filepath
+                print 'Hashing', filepath,
             try:
                 f1 = open(filepath, 'rb')
                 while 1:
@@ -31,16 +31,21 @@ def hashdir(directory, verbose=False):
               SHAhash.update(hashlib.md5(str(md.st_mode)).hexdigest())  # permissions
               SHAhash.update(hashlib.md5(str(md.st_uid)).hexdigest())   # user
               SHAhash.update(hashlib.md5(str(md.st_gid)).hexdigest())   # group
+              if verbose:
+                  print "\tperm =", oct(md.st_mode),
+                  print "UID =", md.st_uid, "GID =", md.st_gid,
+                  print "size (bytes) =", md.st_size
 
     return SHAhash.hexdigest()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--directory", action='append', nargs='*', help="directory(-ies) to hash", required=True)
+    parser.add_argument("-v", "--verbose", action='store_true', default=False, help="provide details of each file")
     args = parser.parse_args()
     dirs = flatten_argument(args.directory)
     for mydir in dirs:
         if os.path.isdir(mydir):
-            print hashdir(mydir), os.path.abspath(os.path.expanduser(mydir))
+            print hashdir(mydir, args.verbose), os.path.abspath(os.path.expanduser(mydir))
         else:
             print "No such directory:", os.path.abspath(mydir)
