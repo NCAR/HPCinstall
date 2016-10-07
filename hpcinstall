@@ -314,8 +314,8 @@ if __name__ == "__main__":
     modules_to_load = parse_installscript_for_modules(options.install_script)
     verify_modules_are_loadable(modules_to_load, options.install_script.name)
     log_full_env(modules_to_load)
-    my_compiler = identify_loaded_compiler_module(open(module_log))
-    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + my_compiler, defaults)
+    comp_mpi = identify_compiler_mpi()
+    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
         modules_to_load = "module use " + moduledir + "; " + modules_to_load
