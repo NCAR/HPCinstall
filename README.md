@@ -9,6 +9,7 @@ Some of the features of `HPCinstall` are:
 * automatic archive of the logs in the install directory
 * automatic generation of the install directory name (and module name) from the name and version of the software to be compiled and the loaded compiler module
 * automatic similar things
+* :+1: checksum verification of the installation (at install time and post-mortem with `hashdir`)
  
 It is easier to show how it achieves these goals with an example
 
@@ -98,6 +99,13 @@ hpcinstall -c build-zlib-1.2.8
 ```
  If you are running this as a test, beware! **THIS WILL INSTALL in /glade/apps/opt !!!!!** (or wherever the default, user-visible install directory is on that system -- this is chosen at install time with a line in `config.hpcinstall.yaml`)
  So do it for a piece of software for which is appropriate (if directory exists, `HPCinstall` will not clobber, but you might want to play safe and use a strange name instead)
+ 
+10. :fire: To verify the hash of an installation, checking if anybody has changed anything, run
+ ```
+hashdir -d /path/to/installed/directory
+```
+and compare its output to the one in `/path/to/installed/directory/BUILD_DIR/hpci.main.log`. The `BUILD_DIR` directory is by default ignored by `hashdir` (and by `hpcinstall` at install time). If the hashes differ, you may run hashdir with the `-v` option to investigate further. It will output details about each single file, which you can diff from the ones obtained at install time, which are stored in `/path/to/installed/directory/BUILD_DIR/hpci.fileinfo.log`. You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
+
 
 # Notes
  1. The install directory is automatically generated and contains the name and version of the compiler module loaded, per our policies. If no compiler is loaded, only software name and version would be used, such in `/glade/apps/opt/zlib/1.2.8/`, which is the policy for non-compiled stuff, such as pure-python (non compiled) libraries. It is now possible to change the base path of test installs from `/glade/scratch/$USER/test_installs` to a custom path by setting the `INSTALL_TEST_BASEPATH` environment variable before running `HPCinstall`.
