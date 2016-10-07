@@ -324,6 +324,6 @@ if __name__ == "__main__":
     if options.archive_url:
         for u in options.archive_url:
             print "Not storing source archive, see instead", u
-    hashdir.hashdir(prefix)
+    print hashdir.hashdir(prefix), os.path.abspath(os.path.expanduser(prefix))
     stop_logging_current_session()
     archive_in(prefix)
