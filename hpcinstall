@@ -239,7 +239,11 @@ def string_or_file(stuff):
     return lines
 
 def identify_compiler_mpi():
-    return ''
+    compiler = os.environ.get('LMOD_FAMILY_COMPILER','').strip()
+    mpi = ""
+    if compiler:
+        compiler += "/" + os.environ.get('LMOD_COMPILER_VERSION','').strip()
+    return compiler + mpi
 
 def parse_installscript_for_modules(install_script):
     executing_lines = []
