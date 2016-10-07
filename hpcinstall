@@ -239,7 +239,7 @@ def string_or_file(stuff):
     return lines
 
 def identify_compiler_mpi():
-    return 'samba'
+    return ''
 
 def parse_installscript_for_modules(install_script):
     executing_lines = []
