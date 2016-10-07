@@ -177,6 +177,7 @@ def prepare_variables_and_warn(prefix, moduledir, options):
 
 real_stdout = None
 def redirect_output(log):
+    global real_stdout
     if real_stdout == None:
         real_stdout = sys.stdout
     sys.stdout = open(log, 'w')
