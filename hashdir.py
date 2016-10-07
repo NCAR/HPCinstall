@@ -4,7 +4,7 @@ def hash(directory, verbose=False):
     SHAhash = hashlib.md5()
     for root, dirs, files in os.walk(directory):
         for names in files:
-            filepath = os.path.join(root, names)
+            filepath = os.path.abspath(os.path.expanduser(os.path.join(root, names)))
             if verbose:
                 print 'Hashing', filepath
             try:
