@@ -244,6 +244,9 @@ def identify_compiler_mpi():
     try:
         if compiler:
             compiler += "/" + os.environ['LMOD_COMPILER_VERSION'].strip()
+            mpi = os.environ.get('LMOD_FAMILY_MPI','').strip()
+            if mpi:
+                mpi = "/" + mpi + "/" + os.environ.get('LMOD_MPI_VERSION','').strip()
     except KeyError, ke:
         for broken_key in ke.args:
             print >> sys.stderr, "Error:", broken_key, "not set"
