@@ -15,7 +15,8 @@ def hashdir(directory, verbose=False, to_be_excluded=["BUILD_DIR"]):
         for tbe in to_be_excluded:
             if tbe in dirs:
                 dirs.remove(tbe)
-        for names in files:
+        dirs.sort()                      # guarantee an order for further steps
+        for names in sorted(files):      # guarantee an order for current step
             filepath = os.path.abspath(os.path.expanduser(os.path.join(root, names)))
             if verbose:
                 print 'Hashing', filepath,
