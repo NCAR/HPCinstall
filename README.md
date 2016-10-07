@@ -17,69 +17,80 @@ It is easier to show how it achieves these goals with an example
 
 1. Download the software to be installed. I manually run `wget http://zlib.net/zlib-1.2.8.tar.gz`.
 2. Untar the tarball and go into the directory. Create a file named `build-name-version`. So in this case I run `touch build-zlib-1.2.8`.
-3. Load the `hpcinstall` module and run `hpcinstall build-zlib-1.2.8` 
+3. Load the `hpcinstall` module and run `hpcinstall build-zlib-1.2.8 -a zlib-1.2.8.tar.gz` :collision: You now you **must** specify one of
+the `-a`, `-l` or `-u` options to document which source code you are using (`-u` is recommended *only* for software that you did not manually
+download a source archive, such as ones that you install with `pip install` or `git clone`)
 4. The install script `build-zlib-1.2.8` we created in bullet 2 is empty, so it does nothing, but `HPCinstall` still does something with it. The output of running `hpcinstall build-zlib-1.2.8` should be something like:
  ```
 Saving environment status in hpci.env.log ... Done.
 Saving module list in hpci.modules.log ... Done.
 
-On 2016-08-25T14:25:51.690300 ddvento
-called HPCinstall as /glade/u/home/ddvento/github/HPCinstall/HPCinstall-v1.0/hpcinstall 
+On 2016-10-07T10:48:04.840039 ddvento
+called HPCinstall from /picnic/u/home/ddvento/github/HPCinstall/trunk/hpcinstall
+invoked as ../hpcinstall build-zlib-1.2.8 -a zlib-1.2.8.tar.gz
 
 Setting environmental variables:
-HPCI_SW_DIR     = /glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5
+HPCI_SW_DIR     = /picnic/scratch/ddvento/test_installs/zlib/1.2.8/
 HPCI_SW_NAME    = zlib
 HPCI_SW_VERSION = 1.2.8
-HPCI_MOD_DIR    = /glade/scratch/ddvento/test_installs//modulefiles/
+HPCI_MOD_DIR    = /picnic/scratch/ddvento/test_installs/modulefiles/
+
 
 Running ./build-zlib-1.2.8 ...
 Done running ./build-zlib-1.2.8 - exited with code 0
+Storing source archive zlib-1.2.8.tar.gz
+d41d8cd98f00b204e9800998ecf8427e /picnic/scratch/ddvento/test_installs/zlib/1.2.8
 ```
  Let's look at what `HPCinstall` has done in the current directory:
  ```
-ddvento@yslogin6 /glade/scratch/ddvento/build/zlib-1.2.8 $ ls -lt | head
-total 1104
--rw-rw-r--  1 ddvento consult    451 Aug 25 14:25 hpci.main.log
--rw-rw-r--  1 ddvento consult    162 Aug 25 14:25 hpci.build-example-1.2.3-7629.log
--rw-rw-r--  1 ddvento consult    280 Aug 25 14:25 hpci.modules.log
--rw-rw-r--  1 ddvento consult   8152 Aug 25 14:25 hpci.env.log
--rwxrw-r--  1 ddvento consult      0 Aug 25 11:36 build-zlib-1.2.8
+ddvento@laramie1 zlib $ ls -lt
+total 560
+-rw-rw-r-- 1 ddvento consult      0 Oct  7 10:48 hpci.fileinfo.log
+-rw-rw-r-- 1 ddvento consult    609 Oct  7 10:48 hpci.main.log
+-rw-rw-r-- 1 ddvento consult    209 Oct  7 10:48 hpci.build-zlib-1.2.8-14743.log
+-rw-rw-r-- 1 ddvento consult    250 Oct  7 10:48 hpci.modules.log
+-rw-rw-r-- 1 ddvento consult   3853 Oct  7 10:48 hpci.env.log
+-rwxrw-r-- 1 ddvento consult      0 Oct  7 10:45 build-zlib-1.2.8
+-rw-rw-r-- 1 ddvento consult 571091 Apr 28  2013 zlib-1.2.8.tar.gz
 ```
- :new: Now it also create a `hpci.fileinfo.log` with some information about the files it installed.
+ :new: Now it also create a `hpci.fileinfo.log` with some information about the files it installed (in this case it's empty because it did not
+install any file, since our test scritp `build-zlib-1.2.8` does nothing).
  
- and also let's look at `/glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5` (value of `$HPCI_SW_DIR` mentioned above):
+ and also let's look at `/picnic/scratch/ddvento/test_installs/zlib/1.2.8/` (value of `$HPCI_SW_DIR` mentioned above):
  ```
-ddvento@yslogin1 $ ls -l /glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5/
+ddvento@laramie1 zlib $ ls -l /picnic/scratch/ddvento/test_installs/zlib/1.2.8/
 total 0
-drwxrwxr-x 2 ddvento consult 512 Aug 25 11:36 BUILD_DIR
+drwxrwxr-x 2 ddvento consult 4096 Oct  7 10:48 BUILD_DIR
 
-ddvento@yslogin1 $ ls -l /glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5/BUILD_DIR/
-total 384
--rw-rw-r-- 1 ddvento consult  161 Aug 25 14:25 build-zlib-1.2.8
--rw-rw-r-- 1 ddvento consult  162 Aug 25 14:25 hpci.build-zlib-1.2.8-3249.txt
--rw-rw-r-- 1 ddvento consult 8152 Aug 25 14:25 hpci.env.log
--rw-rw-r-- 1 ddvento consult  451 Aug 25 14:25 hpci.main.log
--rw-rw-r-- 1 ddvento consult  280 Aug 25 14:25 hpci.modules.log
--rw-rw-r-- 1 ddvento consult 9140 Aug 25 14:25 hpcinstall
+ddvento@laramie1 zlib $ ls -l /picnic/scratch/ddvento/test_installs/zlib/1.2.8/BUILD_DIR/
+total 768
+-rw-rw-r-- 1 ddvento consult      0 Oct  7 10:48 build-zlib-1.2.8
+-rw-rw-r-- 1 ddvento consult    209 Oct  7 10:48 hpci.build-zlib-1.2.8-14743.log
+-rw-rw-r-- 1 ddvento consult   3853 Oct  7 10:48 hpci.env.log
+-rw-rw-r-- 1 ddvento consult      0 Oct  7 10:48 hpci.fileinfo.log
+-rw-rw-r-- 1 ddvento consult    609 Oct  7 10:48 hpci.main.log
+-rw-rw-r-- 1 ddvento consult    250 Oct  7 10:48 hpci.modules.log
+-rw-rw-r-- 1 ddvento consult 571091 Oct  7 10:48 zlib-1.2.8.tar.gz
 ```
 So `HPCinstall` has done the following:
- - created the four `hpci.*.log` files in current directory:
+ - created the five `hpci.*.log` files in current directory:
      - `hpci.env.log` contains the list of all the environment variables in the system, right before the script started executing
      - `hpci.modules.log` contains the list of all the loaded modules, right before the script is executed
      - `hpci.main.log` contains a log of what happened, including the checksum of the installed directory
      - :star: `hpci.fileinfo.log` with some information about the files it installed
-     - `hpci.build-zlib-1.2.8-3249.txt` contains the stdout and stderr produced by running `build-zlib-1.2.8` (in this case nothing)
+     - `hpci.build-zlib-1.2.8-14743.txt` contains the stdout and stderr produced by running `build-zlib-1.2.8` (in this case nothing)
  - made the `build-zlib-1.2.8` script executable (we did not make so in 3. when we created it)
- - created the directory `/glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5/` (and all the necessary parents)
- - copied in the directory of the previous bullet the four `hpci.*.log` plus the `hpcinstall` and the `build-zlib-1.2.8` scripts for reproducibility
- - note that it has not done anything with `/glade/scratch/ddvento/test_installs//modulefiles/` (other than setting the env var)
+ - created the directory `/picnic/scratch/ddvento/test_installs/zlib/1.2.8/BUILD_DIR/` (and all the necessary parents)
+ - copied in the directory of the previous bullet the five `hpci.*.log` plus the source archive and the `build-zlib-1.2.8` scripts for reproducibility
+ - note that it has not done anything with `/glade/scratch/ddvento/test_installs/modulefiles/` (other than setting the env var)
 5. A real install will need to do something, so let's put the following into `build-zlib-1.2.8` (any language will work, using `bash` for this example):
  ```
-#!/bin/env bash
+#!/usr/bin/env bash
 #
-#HPCI ml reset
-#HPCI ml sw intel gnu/4.8.2
-#HPCI ml remove netcdf
+# Loading the latest GNU compiler and our wrappers
+# No other (default or otherwise) modules are loaded
+#HPCI ml gnu
+#HPCI module load ncarcompilers
 
 ./configure --prefix=$HPCI_SW_DIR
 make && make install
@@ -87,15 +98,18 @@ make && make install
 
 6. Note the `#HPCI` directive which will execute (source) whatever instruction you have there, like `module load such-and-such` or `export THIS_AND_THAT`
 
-6. run `hpcinstall build-zlib-1.2.8` and [go playing in the hallway](http://www.xkcd.com/303/)
+6. run `hpcinstall build-zlib-1.2.8  -a ../zlib-1.2.8.tar.gz` and [go playing in the hallway](http://www.xkcd.com/303/)
 
-7. If the last line of the log is different from `Done running ./build-zlib-1.2.8 - exited with code 0`, figure out what was wrong, and go back to previous bullet.
+7. If the third last line of the log is different from `Done running ./build-zlib-1.2.8 - exited with code 0`, figure out what was wrong, and go back to previous bullet.
 
-8. Run  `cat hpci.main.log` and look at the content of `$HPCI_SW_DIR` directory, which for me is `/glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5` (this is where everything should be installed, but **only** if the build script described at the bullet 5. uses `$HPCI_SW_DIR` as prefix)
+8. Run  `cat hpci.main.log` and look at the content of `$HPCI_SW_DIR` directory, which for me on Laramie is
+`/picnic/scratch/ddvento/test_installs/zlib/1.2.8/gnu/6.2.0/` (this is where everything should be installed,
+but **only** if the build script described at the bullet 5. uses `$HPCI_SW_DIR` as prefix)
 
-9. Run some program using this version of zlib (ideally making that program a test case for [shark](https://github.com/NCAR/shark/)). If everything is fine, you may install globally by running `HPCinstall` as csgteam (or as yourself, if you have writing permissions) by using the `--csgteam` option:
+9. Run some program using this version of zlib (ideally making that program a test case for [shark](https://github.com/NCAR/shark/)).
+If everything is fine, you may install globally by running `HPCinstall` as csgteam (or as yourself, if you have writing permissions) by using the `--csgteam` option:
  ```
-hpcinstall -c build-zlib-1.2.8
+hpcinstall -c build-zlib-1.2.8 -a ../zlib-1.2.8.tar.gz
 ```
  If you are running this as a test, beware! **THIS WILL INSTALL in /glade/apps/opt !!!!!** (or wherever the default, user-visible install directory is on that system -- this is chosen at install time with a line in `config.hpcinstall.yaml`)
  So do it for a piece of software for which is appropriate (if directory exists, `HPCinstall` will not clobber, but you might want to play safe and use a strange name instead)
