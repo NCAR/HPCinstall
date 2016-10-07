@@ -175,6 +175,16 @@ def prepare_variables_and_warn(prefix, moduledir, options):
                          " by running ./" + options.install_script.name + " as " + os.environ['USER'] + ". Continue? ")
     return variables
 
+real_stdout = None
+def redirect_output(log):
+    if real_stdout == None:
+        real_stdout = sys.stdout
+    sys.stdout = open(log, 'w')
+
+def restore_output():
+    if not real_stdout == None:
+        sys.stdout = real_stdout
+
 def start_logging_current_session(log=HPCi_log, continuation=False):
     if continuation:
         tee.append_out_to(log)
@@ -326,4 +336,9 @@ if __name__ == "__main__":
             print "Not storing source archive, see instead", u
     print hashdir.hashdir(prefix), os.path.abspath(os.path.expanduser(prefix))
     stop_logging_current_session()
+    hashlog = "hpci.fileinfo.log"
+    redirect_output(hashlog)
+    hashdir.hashdir(prefix, verbose=True)
+    restore_output()
+    files_to_archive.append(hashlog)
     archive_in(prefix)
