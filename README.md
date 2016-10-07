@@ -44,6 +44,8 @@ total 1104
 -rw-rw-r--  1 ddvento consult   8152 Aug 25 14:25 hpci.env.log
 -rwxrw-r--  1 ddvento consult      0 Aug 25 11:36 build-zlib-1.2.8
 ```
+ :new: Now it also create a `hpci.fileinfo.log` with some information about the files it installed.
+ 
  and also let's look at `/glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5` (value of `$HPCI_SW_DIR` mentioned above):
  ```
 ddvento@yslogin1 $ ls -l /glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5/
@@ -63,7 +65,8 @@ So `HPCinstall` has done the following:
  - created the four `hpci.*.log` files in current directory:
      - `hpci.env.log` contains the list of all the environment variables in the system, right before the script started executing
      - `hpci.modules.log` contains the list of all the loaded modules, right before the script is executed
-     - `hpci.main.log` contains a log of what happened
+     - `hpci.main.log` contains a log of what happened, including the checksum of the installed directory
+     - :star: `hpci.fileinfo.log` with some information about the files it installed
      - `hpci.build-zlib-1.2.8-3249.txt` contains the stdout and stderr produced by running `build-zlib-1.2.8` (in this case nothing)
  - made the `build-zlib-1.2.8` script executable (we did not make so in 3. when we created it)
  - created the directory `/glade/scratch/ddvento/test_installs//zlib/1.2.8/intel/12.1.5/` (and all the necessary parents)
