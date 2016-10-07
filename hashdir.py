@@ -9,9 +9,12 @@ def flatten_argument(a):
         b = a
     return b
 
-def hashdir(directory, verbose=False):
+def hashdir(directory, verbose=False, to_be_excluded=["BUILD_DIR"]):
     SHAhash = hashlib.md5()
     for root, dirs, files in os.walk(directory):
+        for tbe in to_be_excluded:
+            if tbe in dirs:
+                dirs.remove(tbe)
         for names in files:
             filepath = os.path.abspath(os.path.expanduser(os.path.join(root, names)))
             if verbose:
@@ -42,10 +45,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--directory", action='append', nargs='*', help="directory(-ies) to hash", required=True)
     parser.add_argument("-v", "--verbose", action='store_true', default=False, help="provide details of each file")
+    parser.add_argument("-e", "--exclude", action='append', nargs='*', help="subdirectory(-ies) to exclude, in addition to BUILD_DIR", default=[])
+    parser.add_argument("-i", "--include-build-dir", action="store_true", default=False, help="Do not exclude BUILD_DIR")
     args = parser.parse_args()
     dirs = flatten_argument(args.directory)
+    to_be_excluded = flatten_argument(args.exclude)
+    if not args.include_build_dir:
+        to_be_excluded.append("BUILD_DIR")
     for mydir in dirs:
         if os.path.isdir(mydir):
-            print hashdir(mydir, args.verbose), os.path.abspath(os.path.expanduser(mydir))
+            print hashdir(mydir, args.verbose, to_be_excluded), os.path.abspath(os.path.expanduser(mydir))
         else:
             print "No such directory:", os.path.abspath(mydir)
