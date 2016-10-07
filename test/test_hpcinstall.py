@@ -153,6 +153,12 @@ def test_identify_compiler_only(stub_os):
     comp_mpi = hpcinstall.identify_compiler_mpi()
     assert comp_mpi == 'intel/1.2.3'
 
+def test_identify_compiler_no_version(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    with pytest.raises(SystemExit):
+        comp_mpi = hpcinstall.identify_compiler_mpi()
+
 def test_parse_installscript_for_modules_single():
     data = ("#!/bin/bash\n"
             "#\n"
