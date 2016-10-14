@@ -295,13 +295,25 @@ def archive_in(prefix):
     for somefile in files_to_archive:
     	shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
 
+def how_to_call_yourself(args, yourself):
+    shell = [os.environ['SHELL']]
+    if "bash" in shell[0]:
+        shell.append('-l')
+    shell.append('-c')
+    new_invocation = ['ssh', '-t', 'localhost']
+    new_invocation += shell
+    args_copy = list(args)
+    args_copy[0] = yourself + "/hpcinstall"
+    args_copy.append("--nossh")
+    new_invocation.append("'" + " ".join(args_copy) + "'")
+    return new_invocation
+
 # execution starts here
 if __name__ == "__main__":
     options = parse_command_line_arguments()
+    script_dir = os.path.dirname(os.path.realpath(__file__)) # directory where this script is
     if not options.nossh:
-        new_invocation = list(sys.argv)
-        new_invocation.append("--nossh")
-        subprocess.call(new_invocation)
+        subprocess.call(how_to_call_yourself(sys.argv, script_dir))
         sys.exit(0)
 
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
