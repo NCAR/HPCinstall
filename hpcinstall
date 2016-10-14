@@ -303,7 +303,7 @@ def how_to_call_yourself(args, yourself):
     new_invocation = ['ssh', '-t', 'localhost']
     new_invocation += shell
     args_copy = list(args)
-    args_copy[0] = yourself + "/hpcinstall"
+    args_copy[0] = os.path.abspath(yourself + "/hpcinstall")
     args_copy.append("--nossh")
     new_invocation.append("'" + " ".join(args_copy) + "'")
     return new_invocation
