@@ -99,43 +99,9 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
 
 # not testing justify() since it's only pretty-printing (no need to test behavior)
 
-def test_prepare_variables_and_warn(opt):
-    # this method is trivial, the only thing to test is that pass_env has all the variables needed
-    hpcinstall.ask_confirmation_for = lambda x, y: str(x) + str(y)
-    vars = hpcinstall.prepare_variables_and_warn("/glade/apps/opt", "/glade/apps/modulefiles", opt)
-    for var in vars:
-        assert "(" + var + ")s" in hpcinstall.pass_env, "to pass " + var + " to the environemnt, it needs to be included in hpcinstall.pass_env"
+# not testing prepare_variables_and_warn() since it's trivial
 
 # not testing start_logging_current_session() and stop_logging_current_session() since it's trivial and hard to test
-
-def test_subcall_helper(stub_os):
-    stub_os.environ['SHELL'] = '/q/bash'
-    stub_os.getcwd = lambda: "current_dir"
-    hpcinstall.os = stub_os
-    actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3; ml bar/4.5.6;",
-                                        command = "./install-crap-7.8.9",
-                                        variables = False,
-                                        log = False)
-    expected = '''ssh -t localhost "/q/bash -l -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
-    assert actual == expected, "Failed environment setting for bash"
-
-    stub_os.environ['SHELL'] = 'tcsh'
-    actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3; ml bar/4.5.6;",
-                                        command = "./install-crap-7.8.9",
-                                        variables = False,
-                                        log = False)
-    expected = '''ssh -t localhost "tcsh -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
-    assert actual == expected, "Failed environment setting for tcsh"
-
-    actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3;",
-                                        command = "./use-crap-7.8.9",
-                                        variables = False,
-                                        log = "random_file.log")
-    expected = '''ssh -t localhost "tcsh -c 'ml purge; cd current_dir; module load foo/1.2.3; ./use-crap-7.8.9'" &> random_file.log'''
-    assert actual == expected
-
-    # not testing the variables because that is complicated and would simply test the correctness of hpcinstall.pass_env,
-    # which is already tested in test_prepare_variables_and_warn()
 
 # not testing log_full_env() since it's trivial and hard to test
 
