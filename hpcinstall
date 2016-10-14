@@ -305,7 +305,7 @@ def how_to_call_yourself(args, yourself, pwd):
     args_copy = list(args)
     args_copy[0] = os.path.abspath(yourself + "/hpcinstall")
     args_copy.append("--nossh")
-    new_invocation.append("'" + "cd " + pwd + "; " +
+    new_invocation.append("'" + "ml purge; cd " + pwd + "; " +
                                 " ".join(args_copy) +
                           "'")
     return new_invocation
