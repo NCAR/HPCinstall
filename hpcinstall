@@ -238,21 +238,20 @@ def string_or_file(stuff):
         lines = stuff                    # a file
     return lines
 
-def identify_loaded_compiler_module(loaded_modules):
-    loaded_compiler = []
-    for line in string_or_file(loaded_modules):
-        for c in compiler_modules:
-            if c in line:
-                for single_module in line.split():
-                    if single_module.startswith(c + "/"):
-                        loaded_compiler.append(single_module)
-    compiler = ""
-    if len(loaded_compiler) == 1:
-        compiler = loaded_compiler[0]
-    elif len(loaded_compiler) > 1:
-        compiler = loaded_compiler[0]
-        print >> sys.stderr, "Warning, more than one compiler found:", loaded_compiler, "-- Using only the first."
-    return compiler
+def identify_compiler_mpi():
+    compiler = os.environ.get('LMOD_FAMILY_COMPILER','').strip()
+    mpi = ""
+    try:
+        if compiler:
+            compiler += "/" + os.environ['LMOD_COMPILER_VERSION'].strip()
+            mpi = os.environ.get('LMOD_FAMILY_MPI','').strip()
+            if mpi:
+                mpi = "/" + mpi + "/" + os.environ['LMOD_MPI_VERSION'].strip()
+    except KeyError, ke:
+        for broken_key in ke.args:
+            print >> sys.stderr, "Error:", broken_key, "not set"
+        sys.exit(1)
+    return compiler + mpi
 
 def parse_installscript_for_modules(install_script):
     executing_lines = []
@@ -315,8 +314,8 @@ if __name__ == "__main__":
     modules_to_load = parse_installscript_for_modules(options.install_script)
     verify_modules_are_loadable(modules_to_load, options.install_script.name)
     log_full_env(modules_to_load)
-    my_compiler = identify_loaded_compiler_module(open(module_log))
-    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + my_compiler, defaults)
+    comp_mpi = identify_compiler_mpi()
+    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
         modules_to_load = "module use " + moduledir + "; " + modules_to_load

@@ -141,44 +141,42 @@ def test_subcall_helper(stub_os):
 
 # not testing string_or_file() since it's trivial and hard to test
 
-def test_identify_compiler_intel(capfd):
-    mods = "Currently Loaded Modules:\n  1) ncarenv/1.0    2) ncarbinlibs/1.1    3) intel/12.1.5    4) ncarcompilers/1.0    5) netcdf/4.3.0    6) git/2.3.0    7) python/2.7.7    8) py.test/2.9.2"
-    expected = "intel/12.1.5"
-    actual = hpcinstall.identify_loaded_compiler_module(mods)
-    assert actual == expected
-    assert capfd.readouterr() == ("", "") # no warnings or errors
+def test_identify_compiler_mpi_none(stub_os):
+    hpcinstall.os = stub_os                          # no environmental variables
+    comp_mpi = hpcinstall.identify_compiler_mpi()
+    assert comp_mpi == ''
 
-def test_identify_compiler_gnu(capfd):
-    mods = ("Currently Loaded Modules:\n  1) ncarenv/1.0 \n" +
-            "2) ncarbinlibs/1.1    3) gnu/5.1.5       \n" +
-            "4) ncarcompilers/1.0    5) netcdf/4.3.0     \n" +
-            "6) git/2.3.0    7) python/2.7.7             \n" +
-            "8) py.test/2.9.2")
-    expected = "gnu/5.1.5"
-    actual = hpcinstall.identify_loaded_compiler_module(mods)
-    assert actual == expected
-    assert capfd.readouterr() == ("", "") # no warnings or errors
+def test_identify_compiler_only(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
+    comp_mpi = hpcinstall.identify_compiler_mpi()
+    assert comp_mpi == 'intel/1.2.3'
 
-def test_identify_compiler_pgi(capfd):
-    mods = ("Currently Loaded Modules:\n  1) ncarenv/1.0 \n" +
-            "2) ncarbinlibs/1.1    3) pgi/14.1.5       \n" +
-            "8) ncl/4.9.2")
-    expected = "pgi/14.1.5"
-    actual = hpcinstall.identify_loaded_compiler_module(mods)
-    assert actual == expected
-    assert capfd.readouterr() == ("", "") # no warnings or errors
+def test_identify_compiler_no_version(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    with pytest.raises(SystemExit):
+        comp_mpi = hpcinstall.identify_compiler_mpi()
 
-def test_identify_compiler_multiple(capfd):
-    mods = ("Currently Loaded Modules:\n  1) ncarenv/1.0 \n" +
-            "2) ncarbinlibs/1.1    3) pgi/14.1.5       \n" +
-            "4) gnu/4.9.2")
-    expected = "pgi/14.1.5"
-    actual = hpcinstall.identify_loaded_compiler_module(mods)
-    assert actual == expected
-    out, err = capfd.readouterr()
-    assert out == ""
-    assert "['pgi/14.1.5', 'gnu/4.9.2']" in err
-    assert "warning" in err.lower()
+def test_identify_compiler_and_mpi(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
+    stub_os.environ['LMOD_FAMILY_MPI'] = "mpt"
+    stub_os.environ['LMOD_MPI_VERSION'] = "4.5.6"
+    comp_mpi = hpcinstall.identify_compiler_mpi()
+    assert comp_mpi == 'intel/1.2.3/mpt/4.5.6'
+
+def test_identify_compiler_and_mpi_no_version(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    stub_os.environ['LMOD_FAMILY_MPI'] = "mpt"
+    with pytest.raises(SystemExit):
+        comp_mpi = hpcinstall.identify_compiler_mpi()
+    stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
+    with pytest.raises(SystemExit):
+        comp_mpi = hpcinstall.identify_compiler_mpi()
 
 def test_parse_installscript_for_modules_single():
     data = ("#!/bin/bash\n"
