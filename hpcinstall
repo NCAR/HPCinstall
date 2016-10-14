@@ -2,11 +2,6 @@
 import argparse, os, stat, shutil, sys, subprocess, yaml, datetime, re
 import tee, hashdir
 
-pass_env = ("env HPCI_SW_DIR=%(SW_DIR)s " +         # the "s" is crucial (!!)
-            "HPCI_SW_NAME=%(SW_NAME)s " +
-            "HPCI_SW_VERSION=%(SW_VERSION)s " +
-            "HPCI_MOD_DIR=%(MOD_DIR)s ")
-
 files_to_archive = []                               # logs and other files to preserve
 HPCi_log = "hpci.main.log"
 env_log = "hpci.env.log"
@@ -143,33 +138,24 @@ def get_prefix_and_moduledir(options, my_path, default_dirs):
         sys.exit(1)
     return os.path.abspath(prefix) + "/", os.path.abspath(moduledir) + "/"
 
-def justify(stuff):
-    max_len = 0
-    for line in stuff.split("\n"):
-        left = line.split("=")[0]
-        max_len = max(max_len, len(left))
-
-    new_stuff = ""
-    for line in stuff.split("\n"):
-        to_be_added = max_len - len(line.split("=")[0]) + 1
-        new_line = line.replace("=", " " * to_be_added + "= ")
-        new_stuff += new_line + "\n"
-    return new_stuff
-
 def prepare_variables_and_warn(prefix, moduledir, options):
     name = options.install_script.name.split("-")[1]       # 0 is build, 1 is software name
     version = options.install_script.name.split("-")[2]    # 2 is software version
 
-    variables = {'SW_DIR': prefix,
-                 'SW_NAME': name,
-                 'SW_VERSION': version,
-                 'MOD_DIR': moduledir,
-                 # if adding more, need to pass them in the environment at the beginning of this script
+    variables = {'HPCI_SW_DIR': prefix,
+                 'HPCI_SW_NAME': name,
+                 'HPCI_SW_VERSION': version,
+                 'HPCI_MOD_DIR': moduledir,
                  }
 
+    for key in variables:
+        os.environ[key] = variables[key]
+
     print "Setting environmental variables:"
-    env_settings = (pass_env.replace(" ", "\n") % variables).replace("env\n", "")
-    print justify(env_settings)
+    print 'HPCI_SW_DIR     =', prefix
+    print 'HPCI_SW_NAME    =', name
+    print 'HPCI_SW_VERSION =', version
+    print 'HPCI_MOD_DIR    =', moduledir
     ask_confirmation_for(options, "This will attempt global install in " + prefix +
                          " by running ./" + options.install_script.name + " as " + os.environ['USER'] + ". Continue? ")
     return variables
@@ -194,24 +180,10 @@ def start_logging_current_session(log=HPCi_log, continuation=False):
 def stop_logging_current_session():
     tee.close_all_files()
 
-def _subcall_helper(modules_to_load, command, variables, log):
-    shell = os.environ['SHELL']
-    if "bash" in shell:
-        shell += " -l"    # bash needs to be forced login, otherwise not setting proper env
-    shell += " -c "       # all shells need to be asked to run commands
-    str_cmd = ('ssh -t localhost "' +     # to reset environment
-               shell + "'ml purge; cd " + # remove all modules
-               os.getcwd() + "; " +       # **not** where this script resides
-               modules_to_load + " ")     # load specified modules
-    if variables:
-        str_cmd += pass_env % variables
-    str_cmd += command + "'\""
+def subcall(modules_to_load, command, log=None, use_popen = False, variables = False, debug=False):
+    str_cmd = modules_to_load + " " + command
     if log:
         str_cmd += " &> " + log
-    return str_cmd
-
-def subcall(modules_to_load, command, log=None, use_popen = False, variables = False, debug=False):
-    str_cmd = _subcall_helper(modules_to_load, command, variables, log)
     if debug:
         print >> sys.stderr, "DEBUG:", str_cmd
     if use_popen:
