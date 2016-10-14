@@ -80,6 +80,7 @@ def parse_command_line_arguments():
     source_code.add_argument("-a", "--archive", action='append', nargs='*', type=argparse.FileType('r'), help='Store the provided source archive(s)')
     source_code.add_argument("-l", "--archive-list", action='append', nargs='*', metavar='FILE', type=argparse.FileType('r'), help='Store the source archive(s) provided in FILE')
     source_code.add_argument("-u", "--archive-url", action='append', nargs='*', metavar='URL', help='Store URL instead of source archive')
+    parser.add_argument("--nossh", action="store_true", default=False, help=argparse.SUPPRESS) # Don't manually invoke this
 
     try:
         args = parser.parse_args()
@@ -296,6 +297,13 @@ def archive_in(prefix):
 
 # execution starts here
 if __name__ == "__main__":
+    options = parse_command_line_arguments()
+    if not options.nossh:
+        new_invocation = list(sys.argv)
+        new_invocation.append("--nossh")
+        subprocess.call(new_invocation)
+        sys.exit(0)
+
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
     try:
@@ -307,7 +315,6 @@ if __name__ == "__main__":
         print >> sys.stderr, e
         print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
         sys.exit(1)
-    options = parse_command_line_arguments()
     my_program = parse_installscript_filename(options.install_script.name)
     modules_to_load = parse_installscript_for_modules(options.install_script)
     verify_modules_are_loadable(modules_to_load, options.install_script.name)
