@@ -226,7 +226,7 @@ def test_how_to_call_yourself(stub_os):
     stub_os.environ['SHELL'] = "/bin/bash"
     args = ['./hpcinstall', 'build-example-1.2.3', '-u', 'http://example.com']
     expected = ['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
-                "'cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -u http://example.com --nossh'"]
+                "'ml purge; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -u http://example.com --nossh'"]
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/")
     assert actual == expected
 
