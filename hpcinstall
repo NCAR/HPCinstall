@@ -295,7 +295,7 @@ def archive_in(prefix):
     for somefile in files_to_archive:
     	shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
 
-def how_to_call_yourself(args, yourself):
+def how_to_call_yourself(args, yourself, pwd):
     shell = [os.environ['SHELL']]
     if "bash" in shell[0]:
         shell.append('-l')
@@ -305,7 +305,9 @@ def how_to_call_yourself(args, yourself):
     args_copy = list(args)
     args_copy[0] = os.path.abspath(yourself + "/hpcinstall")
     args_copy.append("--nossh")
-    new_invocation.append("'" + " ".join(args_copy) + "'")
+    new_invocation.append("'" + "cd " + pwd + "; " +
+                                " ".join(args_copy) +
+                          "'")
     return new_invocation
 
 # execution starts here
