@@ -221,6 +221,15 @@ def test_verify_modules_are_loadable():
     with pytest.raises(SystemExit):
         hpcinstall.verify_modules_are_loadable("ml nonexistingmodule;", "no file")
 
+def test_how_to_call_yourself(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['SHELL'] = "/bin/bash"
+    args = ['./hpcinstall', 'build-example-1.2.3', '-u', 'http://example.com']
+    expected = ['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
+                "'/some/strange/dir/hpcinstall build-example-1.2.3 -u http://example.com --nossh'"]
+    actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/")
+    assert actual == expected
+
 # not testing archive_in() since it's simple and hard to test
 # actually all the methods which append files_to_archive[] are the trival or simple ones
 # which I did not test
