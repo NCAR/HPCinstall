@@ -99,86 +99,50 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
 
 # not testing justify() since it's only pretty-printing (no need to test behavior)
 
-def test_prepare_variables_and_warn(opt):
-    # this method is trivial, the only thing to test is that pass_env has all the variables needed
-    hpcinstall.ask_confirmation_for = lambda x, y: str(x) + str(y)
-    vars = hpcinstall.prepare_variables_and_warn("/glade/apps/opt", "/glade/apps/modulefiles", opt)
-    for var in vars:
-        assert "(" + var + ")s" in hpcinstall.pass_env, "to pass " + var + " to the environemnt, it needs to be included in hpcinstall.pass_env"
+# not testing prepare_variables_and_warn() since it's trivial
 
 # not testing start_logging_current_session() and stop_logging_current_session() since it's trivial and hard to test
-
-def test_subcall_helper(stub_os):
-    stub_os.environ['SHELL'] = '/q/bash'
-    stub_os.getcwd = lambda: "current_dir"
-    hpcinstall.os = stub_os
-    actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3; ml bar/4.5.6;",
-                                        command = "./install-crap-7.8.9",
-                                        variables = False,
-                                        log = False)
-    expected = '''ssh -t localhost "/q/bash -l -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
-    assert actual == expected, "Failed environment setting for bash"
-
-    stub_os.environ['SHELL'] = 'tcsh'
-    actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3; ml bar/4.5.6;",
-                                        command = "./install-crap-7.8.9",
-                                        variables = False,
-                                        log = False)
-    expected = '''ssh -t localhost "tcsh -c 'ml purge; cd current_dir; module load foo/1.2.3; ml bar/4.5.6; ./install-crap-7.8.9'"'''
-    assert actual == expected, "Failed environment setting for tcsh"
-
-    actual = hpcinstall._subcall_helper(modules_to_load = "module load foo/1.2.3;",
-                                        command = "./use-crap-7.8.9",
-                                        variables = False,
-                                        log = "random_file.log")
-    expected = '''ssh -t localhost "tcsh -c 'ml purge; cd current_dir; module load foo/1.2.3; ./use-crap-7.8.9'" &> random_file.log'''
-    assert actual == expected
-
-    # not testing the variables because that is complicated and would simply test the correctness of hpcinstall.pass_env,
-    # which is already tested in test_prepare_variables_and_warn()
 
 # not testing log_full_env() since it's trivial and hard to test
 
 # not testing string_or_file() since it's trivial and hard to test
 
-def test_identify_compiler_intel(capfd):
-    mods = "Currently Loaded Modules:\n  1) ncarenv/1.0    2) ncarbinlibs/1.1    3) intel/12.1.5    4) ncarcompilers/1.0    5) netcdf/4.3.0    6) git/2.3.0    7) python/2.7.7    8) py.test/2.9.2"
-    expected = "intel/12.1.5"
-    actual = hpcinstall.identify_loaded_compiler_module(mods)
-    assert actual == expected
-    assert capfd.readouterr() == ("", "") # no warnings or errors
+def test_identify_compiler_mpi_none(stub_os):
+    hpcinstall.os = stub_os                          # no environmental variables
+    comp_mpi = hpcinstall.identify_compiler_mpi()
+    assert comp_mpi == ''
 
-def test_identify_compiler_gnu(capfd):
-    mods = ("Currently Loaded Modules:\n  1) ncarenv/1.0 \n" +
-            "2) ncarbinlibs/1.1    3) gnu/5.1.5       \n" +
-            "4) ncarcompilers/1.0    5) netcdf/4.3.0     \n" +
-            "6) git/2.3.0    7) python/2.7.7             \n" +
-            "8) py.test/2.9.2")
-    expected = "gnu/5.1.5"
-    actual = hpcinstall.identify_loaded_compiler_module(mods)
-    assert actual == expected
-    assert capfd.readouterr() == ("", "") # no warnings or errors
+def test_identify_compiler_only(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
+    comp_mpi = hpcinstall.identify_compiler_mpi()
+    assert comp_mpi == 'intel/1.2.3'
 
-def test_identify_compiler_pgi(capfd):
-    mods = ("Currently Loaded Modules:\n  1) ncarenv/1.0 \n" +
-            "2) ncarbinlibs/1.1    3) pgi/14.1.5       \n" +
-            "8) ncl/4.9.2")
-    expected = "pgi/14.1.5"
-    actual = hpcinstall.identify_loaded_compiler_module(mods)
-    assert actual == expected
-    assert capfd.readouterr() == ("", "") # no warnings or errors
+def test_identify_compiler_no_version(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    with pytest.raises(SystemExit):
+        comp_mpi = hpcinstall.identify_compiler_mpi()
 
-def test_identify_compiler_multiple(capfd):
-    mods = ("Currently Loaded Modules:\n  1) ncarenv/1.0 \n" +
-            "2) ncarbinlibs/1.1    3) pgi/14.1.5       \n" +
-            "4) gnu/4.9.2")
-    expected = "pgi/14.1.5"
-    actual = hpcinstall.identify_loaded_compiler_module(mods)
-    assert actual == expected
-    out, err = capfd.readouterr()
-    assert out == ""
-    assert "['pgi/14.1.5', 'gnu/4.9.2']" in err
-    assert "warning" in err.lower()
+def test_identify_compiler_and_mpi(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
+    stub_os.environ['LMOD_FAMILY_MPI'] = "mpt"
+    stub_os.environ['LMOD_MPI_VERSION'] = "4.5.6"
+    comp_mpi = hpcinstall.identify_compiler_mpi()
+    assert comp_mpi == 'intel/1.2.3/mpt/4.5.6'
+
+def test_identify_compiler_and_mpi_no_version(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    stub_os.environ['LMOD_FAMILY_MPI'] = "mpt"
+    with pytest.raises(SystemExit):
+        comp_mpi = hpcinstall.identify_compiler_mpi()
+    stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
+    with pytest.raises(SystemExit):
+        comp_mpi = hpcinstall.identify_compiler_mpi()
 
 def test_parse_installscript_for_modules_single():
     data = ("#!/bin/bash\n"
@@ -222,6 +186,15 @@ def test_verify_modules_are_loadable():
     hpcinstall.verify_modules_are_loadable("ml reset;", "no file")
     with pytest.raises(SystemExit):
         hpcinstall.verify_modules_are_loadable("ml nonexistingmodule;", "no file")
+
+def test_how_to_call_yourself(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['SHELL'] = "/bin/bash"
+    args = ['./hpcinstall', 'build-example-1.2.3', '-u', 'http://example.com']
+    expected = ['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
+                "'ml purge; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -u http://example.com --nossh'"]
+    actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/")
+    assert actual == expected
 
 # not testing archive_in() since it's simple and hard to test
 # actually all the methods which append files_to_archive[] are the trival or simple ones

@@ -2,13 +2,6 @@
 import argparse, os, stat, shutil, sys, subprocess, yaml, datetime, re
 import tee, hashdir
 
-compiler_modules = ["gnu", "intel", "pgi", "pathscale", "cuda", "sun"]
-
-pass_env = ("env HPCI_SW_DIR=%(SW_DIR)s " +         # the "s" is crucial (!!)
-            "HPCI_SW_NAME=%(SW_NAME)s " +
-            "HPCI_SW_VERSION=%(SW_VERSION)s " +
-            "HPCI_MOD_DIR=%(MOD_DIR)s ")
-
 files_to_archive = []                               # logs and other files to preserve
 HPCi_log = "hpci.main.log"
 env_log = "hpci.env.log"
@@ -82,6 +75,7 @@ def parse_command_line_arguments():
     source_code.add_argument("-a", "--archive", action='append', nargs='*', type=argparse.FileType('r'), help='Store the provided source archive(s)')
     source_code.add_argument("-l", "--archive-list", action='append', nargs='*', metavar='FILE', type=argparse.FileType('r'), help='Store the source archive(s) provided in FILE')
     source_code.add_argument("-u", "--archive-url", action='append', nargs='*', metavar='URL', help='Store URL instead of source archive')
+    parser.add_argument("--nossh", action="store_true", default=False, help=argparse.SUPPRESS) # Don't manually invoke this
 
     try:
         args = parser.parse_args()
@@ -144,33 +138,24 @@ def get_prefix_and_moduledir(options, my_path, default_dirs):
         sys.exit(1)
     return os.path.abspath(prefix) + "/", os.path.abspath(moduledir) + "/"
 
-def justify(stuff):
-    max_len = 0
-    for line in stuff.split("\n"):
-        left = line.split("=")[0]
-        max_len = max(max_len, len(left))
-
-    new_stuff = ""
-    for line in stuff.split("\n"):
-        to_be_added = max_len - len(line.split("=")[0]) + 1
-        new_line = line.replace("=", " " * to_be_added + "= ")
-        new_stuff += new_line + "\n"
-    return new_stuff
-
 def prepare_variables_and_warn(prefix, moduledir, options):
     name = options.install_script.name.split("-")[1]       # 0 is build, 1 is software name
     version = options.install_script.name.split("-")[2]    # 2 is software version
 
-    variables = {'SW_DIR': prefix,
-                 'SW_NAME': name,
-                 'SW_VERSION': version,
-                 'MOD_DIR': moduledir,
-                 # if adding more, need to pass them in the environment at the beginning of this script
+    variables = {'HPCI_SW_DIR': prefix,
+                 'HPCI_SW_NAME': name,
+                 'HPCI_SW_VERSION': version,
+                 'HPCI_MOD_DIR': moduledir,
                  }
 
+    for key in variables:
+        os.environ[key] = variables[key]
+
     print "Setting environmental variables:"
-    env_settings = (pass_env.replace(" ", "\n") % variables).replace("env\n", "")
-    print justify(env_settings)
+    print 'HPCI_SW_DIR     =', prefix
+    print 'HPCI_SW_NAME    =', name
+    print 'HPCI_SW_VERSION =', version
+    print 'HPCI_MOD_DIR    =', moduledir
     ask_confirmation_for(options, "This will attempt global install in " + prefix +
                          " by running ./" + options.install_script.name + " as " + os.environ['USER'] + ". Continue? ")
     return variables
@@ -195,24 +180,10 @@ def start_logging_current_session(log=HPCi_log, continuation=False):
 def stop_logging_current_session():
     tee.close_all_files()
 
-def _subcall_helper(modules_to_load, command, variables, log):
-    shell = os.environ['SHELL']
-    if "bash" in shell:
-        shell += " -l"    # bash needs to be forced login, otherwise not setting proper env
-    shell += " -c "       # all shells need to be asked to run commands
-    str_cmd = ('ssh -t localhost "' +     # to reset environment
-               shell + "'ml purge; cd " + # remove all modules
-               os.getcwd() + "; " +       # **not** where this script resides
-               modules_to_load + " ")     # load specified modules
-    if variables:
-        str_cmd += pass_env % variables
-    str_cmd += command + "'\""
+def subcall(modules_to_load, command, log=None, use_popen = False, variables = False, debug=False):
+    str_cmd = modules_to_load + " " + command
     if log:
         str_cmd += " &> " + log
-    return str_cmd
-
-def subcall(modules_to_load, command, log=None, use_popen = False, variables = False, debug=False):
-    str_cmd = _subcall_helper(modules_to_load, command, variables, log)
     if debug:
         print >> sys.stderr, "DEBUG:", str_cmd
     if use_popen:
@@ -238,21 +209,20 @@ def string_or_file(stuff):
         lines = stuff                    # a file
     return lines
 
-def identify_loaded_compiler_module(loaded_modules):
-    loaded_compiler = []
-    for line in string_or_file(loaded_modules):
-        for c in compiler_modules:
-            if c in line:
-                for single_module in line.split():
-                    if single_module.startswith(c + "/"):
-                        loaded_compiler.append(single_module)
-    compiler = ""
-    if len(loaded_compiler) == 1:
-        compiler = loaded_compiler[0]
-    elif len(loaded_compiler) > 1:
-        compiler = loaded_compiler[0]
-        print >> sys.stderr, "Warning, more than one compiler found:", loaded_compiler, "-- Using only the first."
-    return compiler
+def identify_compiler_mpi():
+    compiler = os.environ.get('LMOD_FAMILY_COMPILER','').strip()
+    mpi = ""
+    try:
+        if compiler:
+            compiler += "/" + os.environ['LMOD_COMPILER_VERSION'].strip()
+            mpi = os.environ.get('LMOD_FAMILY_MPI','').strip()
+            if mpi:
+                mpi = "/" + mpi + "/" + os.environ['LMOD_MPI_VERSION'].strip()
+    except KeyError, ke:
+        for broken_key in ke.args:
+            print >> sys.stderr, "Error:", broken_key, "not set"
+        sys.exit(1)
+    return compiler + mpi
 
 def parse_installscript_for_modules(install_script):
     executing_lines = []
@@ -297,8 +267,29 @@ def archive_in(prefix):
     for somefile in files_to_archive:
     	shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
 
+def how_to_call_yourself(args, yourself, pwd):
+    shell = [os.environ['SHELL']]
+    if "bash" in shell[0]:
+        shell.append('-l')
+    shell.append('-c')
+    new_invocation = ['ssh', '-t', 'localhost']
+    new_invocation += shell
+    args_copy = list(args)
+    args_copy[0] = os.path.abspath(yourself + "/hpcinstall")
+    args_copy.append("--nossh")
+    new_invocation.append("'" + "ml purge; cd " + pwd + "; " +
+                                " ".join(args_copy) +
+                          "'")
+    return new_invocation
+
 # execution starts here
 if __name__ == "__main__":
+    options = parse_command_line_arguments()
+    script_dir = os.path.dirname(os.path.realpath(__file__)) # directory where this script is
+    if not options.nossh:
+        subprocess.call(how_to_call_yourself(sys.argv, script_dir, os.getcwd()))
+        sys.exit(0)
+
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
     try:
@@ -310,13 +301,12 @@ if __name__ == "__main__":
         print >> sys.stderr, e
         print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
         sys.exit(1)
-    options = parse_command_line_arguments()
     my_program = parse_installscript_filename(options.install_script.name)
     modules_to_load = parse_installscript_for_modules(options.install_script)
     verify_modules_are_loadable(modules_to_load, options.install_script.name)
     log_full_env(modules_to_load)
-    my_compiler = identify_loaded_compiler_module(open(module_log))
-    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + my_compiler, defaults)
+    comp_mpi = identify_compiler_mpi()
+    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
         modules_to_load = "module use " + moduledir + "; " + modules_to_load
