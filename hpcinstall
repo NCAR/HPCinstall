@@ -2,8 +2,6 @@
 import argparse, os, stat, shutil, sys, subprocess, yaml, datetime, re
 import tee, hashdir
 
-compiler_modules = ["gnu", "intel", "pgi", "pathscale", "cuda", "sun"]
-
 pass_env = ("env HPCI_SW_DIR=%(SW_DIR)s " +         # the "s" is crucial (!!)
             "HPCI_SW_NAME=%(SW_NAME)s " +
             "HPCI_SW_VERSION=%(SW_VERSION)s " +
