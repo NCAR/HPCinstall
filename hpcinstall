@@ -236,11 +236,12 @@ def identify_compiler_mpi():
         sys.exit(1)
     return compiler + mpi
 
-def parse_installscript_for_modules(install_script):
+def parse_installscript_for_directives(install_script, argument = ""):
+    directive = "#HPCI " + argument
     executing_lines = []
     for line in string_or_file(install_script):
-        if line.startswith("#HPCI "):
-            exe_line = line.replace("#HPCI ", "", 1).split(" #")[0].strip()
+        if line.startswith(directive):
+            exe_line = line.replace(directive, "", 1).split(" #")[0].strip()
             executing_lines.append(exe_line)
     modules_to_run = "; ".join(executing_lines)
     if len(modules_to_run) > 0:
