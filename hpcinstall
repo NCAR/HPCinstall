@@ -124,6 +124,28 @@ def parse_command_line_arguments():
     # something  like `if not args.defaults:` since the following would break a command line argument named defaults, if ever added
     args.defaults = defaults
 
+    install_script_str = args.install_script.read()
+    ## This explictly overrides args content, maybe a dict copy as described above?
+    #args.install_script = install_script_str
+
+    legacy_stuff = parse_installscript_for_directives(install_script_str)
+    stuff        = parse_installscript_for_directives(install_script_str, "-")
+    if len(stuff) == 0:
+        if len(legacy_stuff) > 0:
+            print >> sys.stderr, "Deprecation warning: the anonymous '#HPCI foo'    directive is deprecated"
+            print >> sys.stderr, "                     use the named '#HPCI -x foo' directive is recommended."
+            modules_to_load = legacy_stuff
+        else:
+            modules_to_load = ""
+    else:
+        if len(legacy_stuff) != len(stuff):
+            print >> sys.stderr, "ERROR: can't mix anoymous '#HPCI foo' and named '#HPCI -? bar' directives."
+            sys.exit(1)
+        modules_to_load = parse_installscript_for_directives(install_script_str, "-x")
+
+    # something  like `if not args.modules_to_load:` since the following would break a command line argument named modules-to-load, if ever added
+    args.modules_to_load = modules_to_load
+
     return args
 
 def ask_confirmation_for(options, msg):
@@ -307,15 +329,15 @@ if __name__ == "__main__":
         sys.exit(subprocess.call(how_to_call_yourself(sys.argv, script_dir, os.getcwd())))
 
     my_program = parse_installscript_filename(options.install_script.name)
-    modules_to_load = parse_installscript_for_directives(options.install_script)
-    verify_modules_are_loadable(modules_to_load, options.install_script.name)
+    verify_modules_are_loadable(options.modules_to_load, options.install_script.name)
     files_to_archive = []
     log_full_env(files_to_archive)
     comp_mpi = identify_compiler_mpi()
     prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, options.defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
-        modules_to_load = "module use " + moduledir + "; " + modules_to_load
+        # modules_to_load = "module use " + moduledir + "; " + modules_to_load
+        print "WARNING: Needs to figure out 'module use' business"
     start_logging_current_session(files_to_archive)
     print_invocation_info()
     variables = prepare_variables_and_warn(prefix, moduledir, options)
