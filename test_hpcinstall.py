@@ -152,7 +152,7 @@ def test_parse_installscript_for_modules_single():
             "echo Just kidding, done nothing\n")
     print data
     expected = "module load gnu;"
-    actual = hpcinstall.parse_installscript_for_modules(data)
+    actual = hpcinstall.parse_installscript_for_directives(data)
     assert actual == expected
 
 def test_parse_installscript_for_modules_multiple():
@@ -166,7 +166,7 @@ def test_parse_installscript_for_modules_multiple():
             "echo Just kidding, done nothing\n")
     print data
     expected = "module use /my/cool/directory/; ml gnu; ml python py.test; export FOO=bar;"
-    actual = hpcinstall.parse_installscript_for_modules(data)
+    actual = hpcinstall.parse_installscript_for_directives(data)
     assert actual == expected
 
 def test_parse_installscript_for_modules_comments():
@@ -179,7 +179,7 @@ def test_parse_installscript_for_modules_comments():
             "echo Just kidding, done nothing\n")
     print data
     expected = "module use /my/cool/directory/; ml python py.test; export FOO=bar;"
-    actual = hpcinstall.parse_installscript_for_modules(data)
+    actual = hpcinstall.parse_installscript_for_directives(data)
     assert actual == expected
 
 def test_verify_modules_are_loadable():
