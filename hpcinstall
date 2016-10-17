@@ -264,10 +264,10 @@ def parse_installscript_for_directives(install_script, argument = ""):
         if line.startswith(directive):
             exe_line = line.replace(directive, "", 1).split(" #")[0].strip()
             executing_lines.append(exe_line)
-    modules_to_run = "; ".join(executing_lines)
-    if len(modules_to_run) > 0:
-        modules_to_run += ";"
-    return modules_to_run
+#    modules_to_run = "; ".join(executing_lines)
+#    if len(modules_to_run) > 0:
+#        modules_to_run += ";"
+    return executing_lines
 
 def verify_modules_are_loadable(modules_to_load, installscript_name):
     if (subcall(modules_to_load) != 0):
