@@ -128,12 +128,12 @@ def parse_command_line_arguments():
 
     for u in urls:
         if not validate_url(u):
-            print >> sys.stderr, "Not a valid URL", u
+            print >> sys.stderr, "Not a valid URL:", u
             should_exit = True
     for t in tarballs:
         tarball = os.path.abspath(os.path.expanduser(t))
         if not os.access(tarball, os.R_OK):
-            print >> sys.stderr, "Troubles accessing file", tarball
+            print >> sys.stderr, "Troubles accessing file:", tarball
             should_exit = True
         else:
             list_of_files.append(tarball)
