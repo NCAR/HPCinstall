@@ -193,11 +193,6 @@ def test_parse_installscript_for_modules_comments():
     actual = hpcinstall.parse_installscript_for_directives(data, "-x")
     assert actual == expected
 
-def test_verify_modules_are_loadable():
-    hpcinstall.verify_modules_are_loadable("ml reset;", "no file")
-    with pytest.raises(SystemExit):
-        hpcinstall.verify_modules_are_loadable("ml nonexistingmodule;", "no file")
-
 def test_how_to_call_yourself(stub_os):
     hpcinstall.os = stub_os
     stub_os.environ['SHELL'] = "/bin/bash"

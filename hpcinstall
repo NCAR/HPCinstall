@@ -115,6 +115,11 @@ def parse_command_line_arguments():
             should_exit = True
         modules_to_load = parse_installscript_for_directives(install_script_str, "-x")
 
+    if (subcall(modules_to_load) != 0):
+        print >> sys.stderr, "Modules from", args.install_script.name, "are not loadable:"
+        print >> sys.stderr, modules_to_load
+        should_exit = True
+
     args.modules_to_load = modules_to_load
 
     urls     = parse_installscript_for_directives(install_script_str, "-u")
@@ -262,12 +267,6 @@ def parse_installscript_for_directives(install_script_str, argument = ""):
 #        modules_to_run += ";"
     return executing_lines
 
-def verify_modules_are_loadable(modules_to_load, installscript_name):
-    if (subcall(modules_to_load) != 0):
-        print >> sys.stderr, "Modules from", installscript_name, "are not loadable:"
-        print >> sys.stderr, modules_to_load
-        sys.exit(1)
-
 def execute_installscript(options, variables, files_to_archive):
     current_perm = os.stat(options.install_script.name)
     os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
@@ -323,7 +322,6 @@ if __name__ == "__main__":
                 )
 
     my_program = parse_installscript_filename(options.install_script.name)
-    verify_modules_are_loadable(options.modules_to_load, options.install_script.name)
     files_to_archive = []
     log_full_env(files_to_archive)
     comp_mpi = identify_compiler_mpi()
