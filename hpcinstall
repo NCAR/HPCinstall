@@ -70,7 +70,11 @@ def parse_command_line_arguments():
     parser.add_argument("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
     parser.add_argument("-f", "--force", action="store_true", default=False, help='Force overwrite of existing install (default: False)')
     parser.add_argument("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
-    parser.add_argument("--nossh", action="store_true", default=False, help=argparse.SUPPRESS) # Don't manually invoke this
+    parser.add_argument("--nossh", action="store_true", default=False, help=argparse.SUPPRESS) # Never manually invoke this
+    # do not add a command line argument named defaults, because it will be overridden (see below)
+    # do not add a command line argument named modules-to-load or modules_to_load, because it will be overridden (see below)
+    # do not add a command line argument named urls, because it will be overridden (see below)
+    # do not add a command line argument named tarballs, because it will be overridden (see below)
 
     should_exit = False
     try:
@@ -86,6 +90,7 @@ def parse_command_line_arguments():
                         "/config.hpcinstall.yaml" )
     try:
         defaults = parse_config_data(open(config_filename))
+        args.defaults = defaults
     except KeyError:
         print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
         should_exit = True
@@ -94,20 +99,14 @@ def parse_command_line_arguments():
         print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
         should_exit = True
 
-    # something  like `if not args.defaults:` since the following would break a command line argument named defaults, if ever added
-    args.defaults = defaults
-
     install_script_str = args.install_script.read()
-    ## This explictly overrides args content, maybe a dict copy as described above?
-    #args.install_script = install_script_str
-
     legacy_stuff = parse_installscript_for_directives(install_script_str)
     stuff        = parse_installscript_for_directives(install_script_str, "-")
     if len(stuff) == 0:
         if len(legacy_stuff) > 0:
             print >> sys.stderr, "Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated."
             print >> sys.stderr, "                   Must use the named '#HPCI -x foo' directive instead."
-            modules_to_load = legacy_stuff
+            should_exit = True
         else:
             modules_to_load = ""
     else:
@@ -115,19 +114,15 @@ def parse_command_line_arguments():
             print >> sys.stderr, "ERROR: can't mix anoymous '#HPCI foo' and named '#HPCI -? bar' directives."
             should_exit = True
         modules_to_load = parse_installscript_for_directives(install_script_str, "-x")
-
-    # something  like `if not args.modules_to_load:` since the following would break a command line argument named modules-to-load, if ever added
     args.modules_to_load = modules_to_load
 
     urls     = parse_installscript_for_directives(install_script_str, "-u")
-    tarballs = parse_installscript_for_directives(install_script_str, "-a")
-
-    # something  like `if not args.foo:` since the following would break a command line argument named foo, if ever added
     args.urls = urls
+    tarballs = parse_installscript_for_directives(install_script_str, "-a")
     args.tarballs = tarballs
 
     if len(urls) == 0 and len(tarballs) == 0:
-        print >> sys.stderr, "ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' are needed"
+        print >> sys.stderr, "ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided"
         should_exit = True
 
     for u in urls:
@@ -239,13 +234,6 @@ def log_full_env(files_to_archive):
     print "Done.\n"
     files_to_archive.append(module_log)
 
-def string_or_file(stuff):
-    try:
-        lines = stuff.splitlines(True)   # a string
-    except AttributeError:
-        lines = stuff                    # a file
-    return lines
-
 def identify_compiler_mpi():
     compiler = os.environ.get('LMOD_FAMILY_COMPILER','').strip()
     mpi = ""
@@ -261,10 +249,10 @@ def identify_compiler_mpi():
         sys.exit(1)
     return compiler + mpi
 
-def parse_installscript_for_directives(install_script, argument = ""):
+def parse_installscript_for_directives(install_script_str, argument = ""):
     directive = "#HPCI " + argument
     executing_lines = []
-    for line in string_or_file(install_script):
+    for line in install_script_str.splitlines(True):
         if line.startswith(directive):
             exe_line = line.replace(directive, "", 1).split(" #")[0].strip()
             executing_lines.append(exe_line)
