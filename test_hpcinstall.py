@@ -151,7 +151,7 @@ def test_parse_installscript_for_modules_legacy():
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
     print data
-    expected = "module load gnu;"
+    expected = ["module load gnu"]
     actual = hpcinstall.parse_installscript_for_directives(data)
     assert actual == expected
 
@@ -162,7 +162,7 @@ def test_parse_installscript_for_modules_single():
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
     print data
-    expected = "module load gnu;"
+    expected = ["module load gnu"]
     actual = hpcinstall.parse_installscript_for_directives(data, "-x")
     assert actual == expected
 
@@ -176,7 +176,7 @@ def test_parse_installscript_for_modules_multiple():
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
     print data
-    expected = "module use /my/cool/directory/; ml gnu; ml python py.test; export FOO=bar;"
+    expected = ["module use /my/cool/directory/", "ml gnu", "ml python py.test", "export FOO=bar"]
     actual = hpcinstall.parse_installscript_for_directives(data, "-x")
     assert actual == expected
 
@@ -189,7 +189,7 @@ def test_parse_installscript_for_modules_comments():
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
     print data
-    expected = "module use /my/cool/directory/; ml python py.test; export FOO=bar;"
+    expected = ["module use /my/cool/directory/", "ml python py.test", "export FOO=bar"]
     actual = hpcinstall.parse_installscript_for_directives(data, "-x")
     assert actual == expected
 
