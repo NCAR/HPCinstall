@@ -287,8 +287,7 @@ if __name__ == "__main__":
     options = parse_command_line_arguments()
     script_dir = os.path.dirname(os.path.realpath(__file__)) # directory where this script is
     if not options.nossh:
-        subprocess.call(how_to_call_yourself(sys.argv, script_dir, os.getcwd()))
-        sys.exit(0)
+        sys.exit(subprocess.call(how_to_call_yourself(sys.argv, script_dir, os.getcwd())))
 
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
