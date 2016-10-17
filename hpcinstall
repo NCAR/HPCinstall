@@ -122,6 +122,11 @@ def parse_command_line_arguments():
 
     urls     = parse_installscript_for_directives(install_script_str, "-u")
     tarballs = parse_installscript_for_directives(install_script_str, "-a")
+
+    # something  like `if not args.foo:` since the following would break a command line argument named foo, if ever added
+    args.urls = urls
+    args.tarballs = tarballs
+
     if len(urls) == 0 and len(tarballs) == 0:
         print >> sys.stderr, "ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' are needed"
         should_exit = True
@@ -338,17 +343,11 @@ if __name__ == "__main__":
     print_invocation_info()
     variables = prepare_variables_and_warn(prefix, moduledir, options)
     execute_installscript(options, variables, files_to_archive)
-    if options.archive:
-        for tarball in options.archive:
-            files_to_archive.append(tarball.name)
-            print "Storing source archive", tarball.name
-    if options.archive_list:
-        for f in options.archive_list:
-            files_to_archive.append(f)
-            print "Storing source archive", f
-    if options.archive_url:
-        for u in options.archive_url:
-            print "Not storing source archive, see instead", u
+    for tarball in options.tarballs:
+        files_to_archive.append(tarball.name)
+        print "Storing source archive", tarball.name
+    for u in options.urls:
+        print "For more details about this code, see URL", u
     print hashdir.hashdir(prefix), os.path.abspath(os.path.expanduser(prefix))
     stop_logging_current_session()
     hashlog = "hpci.fileinfo.log"
