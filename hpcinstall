@@ -114,6 +114,7 @@ def parse_command_line_arguments():
             print >> sys.stderr, "ERROR: can't mix anoymous '#HPCI foo' and named '#HPCI -? bar' directives."
             should_exit = True
         modules_to_load = parse_installscript_for_directives(install_script_str, "-x")
+
     args.modules_to_load = modules_to_load
 
     urls     = parse_installscript_for_directives(install_script_str, "-u")
@@ -293,7 +294,7 @@ def archive_in(prefix, files_to_archive):
     for somefile in files_to_archive:
     	shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
 
-def how_to_call_yourself(args, yourself, pwd):
+def how_to_call_yourself(args, yourself, pwd, modules_to_load):
     shell = [os.environ['SHELL']]
     if "bash" in shell[0]:
         shell.append('-l')
@@ -303,7 +304,8 @@ def how_to_call_yourself(args, yourself, pwd):
     args_copy = list(args)
     args_copy[0] = os.path.abspath(yourself + "/hpcinstall")
     args_copy.append("--nossh")
-    new_invocation.append("'" + "ml purge; cd " + pwd + "; " +
+    new_invocation.append("'" + "ml purge; " + modules_to_load +
+                                " cd " + pwd + "; " +
                                 " ".join(args_copy) +
                           "'")
     return new_invocation
@@ -314,7 +316,11 @@ if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.realpath(__file__)) # directory where this script is
 
     if not options.nossh:
-        sys.exit(subprocess.call(how_to_call_yourself(sys.argv, script_dir, os.getcwd())))
+        sys.exit(
+            subprocess.call(
+                       how_to_call_yourself(sys.argv, script_dir, os.getcwd(), options.modules_to_load)
+                         )
+                )
 
     my_program = parse_installscript_filename(options.install_script.name)
     verify_modules_are_loadable(options.modules_to_load, options.install_script.name)
