@@ -192,25 +192,24 @@ def start_logging_current_session(files_to_archive, log=HPCi_log, continuation=F
 def stop_logging_current_session():
     tee.close_all_files()
 
-def subcall(modules_to_load, command, log=None, use_popen = False, variables = False, debug=False):
-    str_cmd = modules_to_load + " " + command
+def subcall(command, log=None, use_popen = False, variables = False, debug=False):
     if log:
-        str_cmd += " &> " + log
+        command += " &> " + log
     if debug:
         print >> sys.stderr, "DEBUG:", str_cmd
     if use_popen:
-        return subprocess.Popen(str_cmd, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
+        return subprocess.Popen(command, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
     else:
-        return subprocess.call(str_cmd, shell=True)
+        return subprocess.call(command, shell=True)
 
-def log_full_env(files_to_archive, modules_to_load):
+def log_full_env(files_to_archive):
     print "Saving environment status in", env_log, "...",
-    subcall(modules_to_load, "env", env_log)
+    subcall("env", env_log)
     print "Done."
     files_to_archive.append(env_log)
 
     print "Saving module list in", module_log, "...",
-    subcall(modules_to_load, "module list", module_log)
+    subcall("module list", module_log)
     print "Done.\n"
     files_to_archive.append(module_log)
 
@@ -249,19 +248,19 @@ def parse_installscript_for_directives(install_script, argument = ""):
     return modules_to_run
 
 def verify_modules_are_loadable(modules_to_load, installscript_name):
-    if (subcall(modules_to_load, "") != 0):
+    if (subcall(modules_to_load) != 0):
         print >> sys.stderr, "Modules from", installscript_name, "are not loadable:"
         print >> sys.stderr, modules_to_load
         sys.exit(1)
 
-def execute_installscript(options, modules_to_load, variables, files_to_archive):
+def execute_installscript(options, variables, files_to_archive):
     current_perm = os.stat(options.install_script.name)
     os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + options.install_script.name, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "hpci." + options.install_script.name  + "-" + str(os.getpid()) + ".log"
     start_logging_current_session(files_to_archive, log=log)
-    p = subcall(modules_to_load, "./" + options.install_script.name, use_popen=True, variables=variables, debug=options.debug)
+    p = subcall("./" + options.install_script.name, use_popen=True, variables=variables, debug=options.debug)
     process_output = " "
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
         process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
@@ -307,7 +306,7 @@ if __name__ == "__main__":
     modules_to_load = parse_installscript_for_directives(options.install_script)
     verify_modules_are_loadable(modules_to_load, options.install_script.name)
     files_to_archive = []
-    log_full_env(files_to_archive, modules_to_load)
+    log_full_env(files_to_archive)
     comp_mpi = identify_compiler_mpi()
     prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, defaults)
     if not moduledir in os.environ['MODULEPATH']:
@@ -316,7 +315,7 @@ if __name__ == "__main__":
     start_logging_current_session(files_to_archive)
     print_invocation_info()
     variables = prepare_variables_and_warn(prefix, moduledir, options)
-    execute_installscript(options, modules_to_load, variables, files_to_archive)
+    execute_installscript(options, variables, files_to_archive)
     if options.archive:
         for tarball in options.archive:
             files_to_archive.append(tarball.name)
