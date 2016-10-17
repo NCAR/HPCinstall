@@ -2,7 +2,6 @@
 import argparse, os, stat, shutil, sys, subprocess, yaml, datetime, re
 import tee, hashdir
 
-files_to_archive = []                               # logs and other files to preserve
 HPCi_log = "hpci.main.log"
 env_log = "hpci.env.log"
 module_log = "hpci.modules.log"
@@ -171,7 +170,7 @@ def restore_output():
     if not real_stdout == None:
         sys.stdout = real_stdout
 
-def start_logging_current_session(log=HPCi_log, continuation=False):
+def start_logging_current_session(files_to_archive, log=HPCi_log, continuation=False):
     if continuation:
         tee.append_out_to(log)
     else:
@@ -191,7 +190,7 @@ def subcall(modules_to_load, command, log=None, use_popen = False, variables = F
     else:
         return subprocess.call(str_cmd, shell=True)
 
-def log_full_env(modules_to_load):
+def log_full_env(files_to_archive, modules_to_load):
     print "Saving environment status in", env_log, "...",
     subcall(modules_to_load, "env", env_log)
     print "Done."
@@ -241,13 +240,13 @@ def verify_modules_are_loadable(modules_to_load, installscript_name):
         print >> sys.stderr, modules_to_load
         sys.exit(1)
 
-def execute_installscript(options, modules_to_load, variables):
+def execute_installscript(options, modules_to_load, variables, files_to_archive):
     current_perm = os.stat(options.install_script.name)
     os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + options.install_script.name, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "hpci." + options.install_script.name  + "-" + str(os.getpid()) + ".log"
-    start_logging_current_session(log=log)
+    start_logging_current_session(files_to_archive, log=log)
     p = subcall(modules_to_load, "./" + options.install_script.name, use_popen=True, variables=variables, debug=options.debug)
     process_output = " "
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
@@ -256,11 +255,11 @@ def execute_installscript(options, modules_to_load, variables):
     p.poll()
     stop_logging_current_session()
     files_to_archive.append(log)
-    start_logging_current_session(continuation=True)
+    start_logging_current_session(files_to_archive, continuation=True)
     print "Done running ./" + options.install_script.name, "- exited with code", p.returncode
     files_to_archive.append(options.install_script.name)
 
-def archive_in(prefix):
+def archive_in(prefix, files_to_archive):
     build_dir = prefix + "/BUILD_DIR/"
     if not os.path.exists(build_dir):
     	os.makedirs(build_dir)
@@ -303,16 +302,17 @@ if __name__ == "__main__":
     my_program = parse_installscript_filename(options.install_script.name)
     modules_to_load = parse_installscript_for_modules(options.install_script)
     verify_modules_are_loadable(modules_to_load, options.install_script.name)
-    log_full_env(modules_to_load)
+    files_to_archive = []
+    log_full_env(files_to_archive, modules_to_load)
     comp_mpi = identify_compiler_mpi()
     prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
         modules_to_load = "module use " + moduledir + "; " + modules_to_load
-    start_logging_current_session()
+    start_logging_current_session(files_to_archive)
     print_invocation_info()
     variables = prepare_variables_and_warn(prefix, moduledir, options)
-    execute_installscript(options, modules_to_load, variables)
+    execute_installscript(options, modules_to_load, variables, files_to_archive)
     if options.archive:
         for tarball in options.archive:
             files_to_archive.append(tarball.name)
@@ -331,4 +331,4 @@ if __name__ == "__main__":
     hashdir.hashdir(prefix, verbose=True)
     restore_output()
     files_to_archive.append(hashlog)
-    archive_in(prefix)
+    archive_in(prefix, files_to_archive)
