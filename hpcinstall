@@ -74,7 +74,6 @@ def parse_command_line_arguments():
 
     should_exit = False
     try:
-        # args = dict(vars(parser.parse_args())) maybe for later
         args = parser.parse_args()
     except IOError, e:
         print >> sys.stderr, "Troubles accessing <install-software-ver> file"
