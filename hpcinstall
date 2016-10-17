@@ -304,7 +304,7 @@ if __name__ == "__main__":
         sys.exit(subprocess.call(how_to_call_yourself(sys.argv, script_dir, os.getcwd())))
 
     my_program = parse_installscript_filename(options.install_script.name)
-    modules_to_load = parse_installscript_for_modules(options.install_script)
+    modules_to_load = parse_installscript_for_directives(options.install_script)
     verify_modules_are_loadable(modules_to_load, options.install_script.name)
     files_to_archive = []
     log_full_env(files_to_archive, modules_to_load)
