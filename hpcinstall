@@ -107,7 +107,20 @@ def parse_command_line_arguments():
     if should_exit:
         parser.print_help()
         sys.exit(1)
-    return args
+
+    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
+                        "/config.hpcinstall.yaml" )
+    try:
+        defaults = parse_config_data(open(config_filename))
+    except KeyError:
+        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
+        sys.exit(1)
+    except IOError as e:
+        print >> sys.stderr, e
+        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
+        sys.exit(1)
+
+    return args, defaults
 
 def ask_confirmation_for(options, msg):
     if options.csgteam:
@@ -283,22 +296,12 @@ def how_to_call_yourself(args, yourself, pwd):
 
 # execution starts here
 if __name__ == "__main__":
-    options = parse_command_line_arguments()
+    options, defaults = parse_command_line_arguments()
     script_dir = os.path.dirname(os.path.realpath(__file__)) # directory where this script is
+
     if not options.nossh:
         sys.exit(subprocess.call(how_to_call_yourself(sys.argv, script_dir, os.getcwd())))
 
-    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
-                        "/config.hpcinstall.yaml" )
-    try:
-        defaults = parse_config_data(open(config_filename))
-    except KeyError:
-        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
-        sys.exit(1)
-    except IOError as e:
-        print >> sys.stderr, e
-        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
-        sys.exit(1)
     my_program = parse_installscript_filename(options.install_script.name)
     modules_to_load = parse_installscript_for_modules(options.install_script)
     verify_modules_are_loadable(modules_to_load, options.install_script.name)
