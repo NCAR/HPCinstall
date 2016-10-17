@@ -113,9 +113,12 @@ def parse_command_line_arguments():
         if len(legacy_stuff) != len(stuff):
             print >> sys.stderr, "ERROR: can't mix anoymous '#HPCI foo' and named '#HPCI -? bar' directives."
             should_exit = True
-        modules_to_load = parse_installscript_for_directives(install_script_str, "-x")
+        mtl_list = parse_installscript_for_directives(install_script_str, "-x")
+        modules_to_load = "; ".join(mtl_list)
+        if len(mtl_list) > 0:
+            modules_to_load += ";"
 
-    if (subcall(modules_to_load) != 0):
+    if (subcall(modules_to_load, debug=args.debug) != 0):
         print >> sys.stderr, "Modules from", args.install_script.name, "are not loadable:"
         print >> sys.stderr, modules_to_load
         should_exit = True
@@ -223,7 +226,7 @@ def subcall(command, log=None, use_popen = False, variables = False, debug=False
     if log:
         command += " &> " + log
     if debug:
-        print >> sys.stderr, "DEBUG:", str_cmd
+        print >> sys.stderr, "DEBUG:", command
     if use_popen:
         return subprocess.Popen(command, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
     else:
