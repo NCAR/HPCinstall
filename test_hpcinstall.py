@@ -144,7 +144,7 @@ def test_identify_compiler_and_mpi_no_version(stub_os):
     with pytest.raises(SystemExit):
         comp_mpi = hpcinstall.identify_compiler_mpi()
 
-def test_parse_installscript_for_modules_single():
+def test_parse_installscript_for_modules_legacy():
     data = ("#!/bin/bash\n"
             "#\n"
             "#HPCI module load gnu\n"
@@ -155,31 +155,42 @@ def test_parse_installscript_for_modules_single():
     actual = hpcinstall.parse_installscript_for_directives(data)
     assert actual == expected
 
+def test_parse_installscript_for_modules_single():
+    data = ("#!/bin/bash\n"
+            "#\n"
+            "#HPCI -x module load gnu\n"
+            "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
+            "echo Just kidding, done nothing\n")
+    print data
+    expected = "module load gnu;"
+    actual = hpcinstall.parse_installscript_for_directives(data, "-x")
+    assert actual == expected
+
 def test_parse_installscript_for_modules_multiple():
     data = ("#!/bin/bash\n"
             "#\n"
-            "#HPCI module use /my/cool/directory/\n"
-            "#HPCI ml gnu\n"
-            "#HPCI ml python py.test\n"
-            "#HPCI  export FOO=bar\n"
+            "#HPCI -x module use /my/cool/directory/\n"
+            "#HPCI -x ml gnu\n"
+            "#HPCI -x ml python py.test\n"
+            "#HPCI -x export FOO=bar\n"
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
     print data
     expected = "module use /my/cool/directory/; ml gnu; ml python py.test; export FOO=bar;"
-    actual = hpcinstall.parse_installscript_for_directives(data)
+    actual = hpcinstall.parse_installscript_for_directives(data, "-x")
     assert actual == expected
 
 def test_parse_installscript_for_modules_comments():
     data = ("#!/bin/bash\n"
             "#\n"
-            "#HPCI module use /my/cool/directory/ # I need this to load a special version of python\n"
-            "#HPCI ml python py.test              # this is my special version of python \n"
-            "#HPCI  export FOO=bar                # Other things\n"
+            "#HPCI -x module use /my/cool/directory/ # I need this to load a special version of python\n"
+            "#HPCI -x ml python py.test              # this is my special version of python \n"
+            "#HPCI -x  export FOO=bar                # Other things\n"
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
     print data
     expected = "module use /my/cool/directory/; ml python py.test; export FOO=bar;"
-    actual = hpcinstall.parse_installscript_for_directives(data)
+    actual = hpcinstall.parse_installscript_for_directives(data, "-x")
     assert actual == expected
 
 def test_verify_modules_are_loadable():
