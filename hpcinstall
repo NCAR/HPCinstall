@@ -72,6 +72,7 @@ def parse_command_line_arguments():
     parser.add_argument("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
     parser.add_argument("--nossh", action="store_true", default=False, help=argparse.SUPPRESS) # Don't manually invoke this
 
+    should_exit = False
     try:
         # args = dict(vars(parser.parse_args())) maybe for later
         args = parser.parse_args()
@@ -80,7 +81,7 @@ def parse_command_line_arguments():
         print >> sys.stderr, e
         print
         parser.print_help()
-        sys.exit(1)
+        sys.exit(1)          # can't try most of the following
 
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
@@ -88,11 +89,11 @@ def parse_command_line_arguments():
         defaults = parse_config_data(open(config_filename))
     except KeyError:
         print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
-        sys.exit(1)
+        should_exit = True
     except IOError as e:
         print >> sys.stderr, e
         print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
-        sys.exit(1)
+        should_exit = True
 
     # something  like `if not args.defaults:` since the following would break a command line argument named defaults, if ever added
     args.defaults = defaults
@@ -105,15 +106,15 @@ def parse_command_line_arguments():
     stuff        = parse_installscript_for_directives(install_script_str, "-")
     if len(stuff) == 0:
         if len(legacy_stuff) > 0:
-            print >> sys.stderr, "Deprecation warning: the anonymous '#HPCI foo'    directive is deprecated"
-            print >> sys.stderr, "                     use the named '#HPCI -x foo' directive is recommended."
+            print >> sys.stderr, "Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated."
+            print >> sys.stderr, "                   Must use the named '#HPCI -x foo' directive instead."
             modules_to_load = legacy_stuff
         else:
             modules_to_load = ""
     else:
         if len(legacy_stuff) != len(stuff):
             print >> sys.stderr, "ERROR: can't mix anoymous '#HPCI foo' and named '#HPCI -? bar' directives."
-            sys.exit(1)
+            should_exit = True
         modules_to_load = parse_installscript_for_directives(install_script_str, "-x")
 
     # something  like `if not args.modules_to_load:` since the following would break a command line argument named modules-to-load, if ever added
@@ -123,19 +124,23 @@ def parse_command_line_arguments():
     tarballs = parse_installscript_for_directives(install_script_str, "-a")
     if len(urls) == 0 and len(tarballs) == 0:
         print >> sys.stderr, "ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' are needed"
-        sys.exit(1)
+        should_exit = True
 
     for u in urls:
         if not validate_url(u):
             print >> sys.stderr, "Not a valid URL", u
-            sys.exit(1)
+            should_exit = True
     for t in tarballs:
         tarball = os.path.abspath(os.path.expanduser(t))
         if not os.access(tarball, os.R_OK):
-            print >> sys.stderr, "Troubles opening file", tarball
-            sys.exit(1)
+            print >> sys.stderr, "Troubles accessing file", tarball
+            should_exit = True
         else:
             list_of_files.append(tarball)
+
+    if should_exit:
+        parser.print_help()
+        sys.exit(1)
 
     return args
 
