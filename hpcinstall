@@ -77,6 +77,7 @@ def parse_command_line_arguments():
     parser.add_argument("--nossh", action="store_true", default=False, help=argparse.SUPPRESS) # Don't manually invoke this
 
     try:
+        # args = dict(vars(parser.parse_args())) maybe for later
         args = parser.parse_args()
     except IOError, e:
         print >> sys.stderr, "Troubles accessing <install-software-ver> file"
@@ -120,7 +121,10 @@ def parse_command_line_arguments():
         print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
         sys.exit(1)
 
-    return args, defaults
+    # something  like `if not args.defaults:` since the following would break a command line argument named defaults, if ever added
+    args.defaults = defaults
+
+    return args
 
 def ask_confirmation_for(options, msg):
     if options.csgteam:
@@ -296,7 +300,7 @@ def how_to_call_yourself(args, yourself, pwd):
 
 # execution starts here
 if __name__ == "__main__":
-    options, defaults = parse_command_line_arguments()
+    options = parse_command_line_arguments()
     script_dir = os.path.dirname(os.path.realpath(__file__)) # directory where this script is
 
     if not options.nossh:
@@ -308,7 +312,7 @@ if __name__ == "__main__":
     files_to_archive = []
     log_full_env(files_to_archive)
     comp_mpi = identify_compiler_mpi()
-    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, defaults)
+    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, options.defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
         modules_to_load = "module use " + moduledir + "; " + modules_to_load
