@@ -70,10 +70,6 @@ def parse_command_line_arguments():
     parser.add_argument("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
     parser.add_argument("-f", "--force", action="store_true", default=False, help='Force overwrite of existing install (default: False)')
     parser.add_argument("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
-    source_code = parser.add_mutually_exclusive_group(required=True)
-    source_code.add_argument("-a", "--archive", action='append', nargs='*', type=argparse.FileType('r'), help='Store the provided source archive(s)')
-    source_code.add_argument("-l", "--archive-list", action='append', nargs='*', metavar='FILE', type=argparse.FileType('r'), help='Store the source archive(s) provided in FILE')
-    source_code.add_argument("-u", "--archive-url", action='append', nargs='*', metavar='URL', help='Store URL instead of source archive')
     parser.add_argument("--nossh", action="store_true", default=False, help=argparse.SUPPRESS) # Don't manually invoke this
 
     try:
@@ -83,29 +79,6 @@ def parse_command_line_arguments():
         print >> sys.stderr, "Troubles accessing <install-software-ver> file"
         print >> sys.stderr, e
         print
-        parser.print_help()
-        sys.exit(1)
-    args.archive      = hashdir.flatten_argument(args.archive)
-    args.archive_list = hashdir.flatten_argument(args.archive_list)
-    args.archive_url  = hashdir.flatten_argument(args.archive_url)
-    should_exit = False
-    if args.archive_list:
-        list_of_files = []
-        for f in args.archive_list:
-            for line in f:
-                archive_file = os.path.abspath(os.path.expanduser(line.strip()))
-                if not os.access(archive_file, os.R_OK):
-                    print >> sys.stderr, "Troubles opening file", line.strip(), "specified in", f.name
-                    should_exit = True
-                else:
-                    list_of_files.append(archive_file)
-        args.archive_list = list_of_files
-    if args.archive_url:
-        for u in args.archive_url:
-            if not validate_url(u):
-                print >> sys.stderr, "Not a valid URL", u
-                should_exit = True
-    if should_exit:
         parser.print_help()
         sys.exit(1)
 
@@ -145,6 +118,24 @@ def parse_command_line_arguments():
 
     # something  like `if not args.modules_to_load:` since the following would break a command line argument named modules-to-load, if ever added
     args.modules_to_load = modules_to_load
+
+    urls     = parse_installscript_for_directives(install_script_str, "-u")
+    tarballs = parse_installscript_for_directives(install_script_str, "-a")
+    if len(urls) == 0 and len(tarballs) == 0:
+        print >> sys.stderr, "ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' are needed"
+        sys.exit(1)
+
+    for u in urls:
+        if not validate_url(u):
+            print >> sys.stderr, "Not a valid URL", u
+            sys.exit(1)
+    for t in tarballs:
+        tarball = os.path.abspath(os.path.expanduser(t))
+        if not os.access(tarball, os.R_OK):
+            print >> sys.stderr, "Troubles opening file", tarball
+            sys.exit(1)
+        else:
+            list_of_files.append(tarball)
 
     return args
 
