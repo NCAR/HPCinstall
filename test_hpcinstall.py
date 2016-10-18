@@ -202,6 +202,13 @@ def test_how_to_call_yourself(stub_os):
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", "ml python; ml gnu;")
     assert actual == expected
 
+def test_wrap_command_for_ksh(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['SHELL'] = "/bin/ksh"
+    actual = hpcinstall.wrap_command_for_stopping_on_errors("ml gnu; ml broken; ml mpt")
+    expected = "(set -e; ml gnu; ml broken; ml mpt)"
+    assert actual == expected
+
 def test_wrap_command_for_bash(stub_os):
     hpcinstall.os = stub_os
     stub_os.environ['SHELL'] = "/bin/bash"
@@ -214,6 +221,13 @@ def test_wrap_command_for_tcsh(stub_os):
     stub_os.environ['SHELL'] = "/bin/tcsh"
     actual = hpcinstall.wrap_command_for_stopping_on_errors("ml gnu; ml broken; ml mpt")
     expected = "/bin/tcsh -e -c 'ml gnu; ml broken; ml mpt'"
+    assert actual == expected
+
+def test_wrap_command_for_csh(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['SHELL'] = "/bin/csh"
+    actual = hpcinstall.wrap_command_for_stopping_on_errors("ml gnu; ml broken; ml mpt")
+    expected = "/bin/csh -e -c 'ml gnu; ml broken; ml mpt'"
     assert actual == expected
 
 # not testing archive_in() since it's simple and hard to test
