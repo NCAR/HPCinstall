@@ -355,6 +355,8 @@ if __name__ == "__main__":
     options = parse_command_line_arguments()
     script_dir = os.path.dirname(os.path.realpath(__file__)) # directory where this script is
 
+    # hack to reset the environment -- assume everything into the environment has been
+    # reset, and continue executing "as is" the following `if` did not exist.
     if not options.nossh:
         sys.exit(
             subprocess.call(
