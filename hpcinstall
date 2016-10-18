@@ -118,10 +118,12 @@ def parse_command_line_arguments():
         if len(mtl_list) > 0:
             modules_to_load += ";"
 
-    if (subcall(modules_to_load, debug=args.debug) != 0):
-        print >> sys.stderr, "Modules from", args.install_script.name, "are not loadable:"
-        print >> sys.stderr, modules_to_load
-        should_exit = True
+    # This test makes sense only when the environment is reset
+    if args.nossh:
+        if (subcall(single_shell, debug=args.debug) != 0):
+            print >> sys.stderr, "Modules from", args.install_script.name, "are not loadable:"
+            print >> sys.stderr, modules_to_load
+            should_exit = True
 
     args.modules_to_load = modules_to_load
 
