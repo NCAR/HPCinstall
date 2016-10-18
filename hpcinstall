@@ -160,12 +160,21 @@ def parse_command_line_arguments():
         else:
             list_of_files.append(tarball)
 
+    progname = parse_installscript_for_directives(install_script_str, "-n")
+    progver  = parse_installscript_for_directives(install_script_str, "-v")
+    if len(progname) > 1 or len(progver) > 1:
+        print >> sys.stderr, "'#HPCI -n software' and '#HPCI -v version' can't be specified more than once"
+        should_exit = True
+
     if should_exit:
         print >> sys.stderr, "" # just an empty line to make the output more clear in case of errors
         parser.print_help()
         sys.exit(1)
 
-    args.prog = parse_installscript_filename(args.install_script.name)
+    if len(progname) == 1 and len(progver) == 1:
+        args.prog = progname[0] + "/" + progver[0]
+    else:
+        args.prog = parse_installscript_filename(args.install_script.name)
 
     return args
 
