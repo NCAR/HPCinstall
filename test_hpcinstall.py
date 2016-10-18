@@ -144,56 +144,90 @@ def test_identify_compiler_and_mpi_no_version(stub_os):
     with pytest.raises(SystemExit):
         comp_mpi = hpcinstall.identify_compiler_mpi()
 
-def test_parse_installscript_for_modules_single():
+def test_parse_installscript_for_modules_legacy():
     data = ("#!/bin/bash\n"
             "#\n"
             "#HPCI module load gnu\n"
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
     print data
-    expected = "module load gnu;"
-    actual = hpcinstall.parse_installscript_for_modules(data)
+    expected = ["module load gnu"]
+    actual = hpcinstall.parse_installscript_for_directives(data)
+    assert actual == expected
+
+def test_parse_installscript_for_modules_single():
+    data = ("#!/bin/bash\n"
+            "#\n"
+            "#HPCI -x module load gnu\n"
+            "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
+            "echo Just kidding, done nothing\n")
+    print data
+    expected = ["module load gnu"]
+    actual = hpcinstall.parse_installscript_for_directives(data, "-x")
     assert actual == expected
 
 def test_parse_installscript_for_modules_multiple():
     data = ("#!/bin/bash\n"
             "#\n"
-            "#HPCI module use /my/cool/directory/\n"
-            "#HPCI ml gnu\n"
-            "#HPCI ml python py.test\n"
-            "#HPCI  export FOO=bar\n"
+            "#HPCI -x module use /my/cool/directory/\n"
+            "#HPCI -x ml gnu\n"
+            "#HPCI -x ml python py.test\n"
+            "#HPCI -x export FOO=bar\n"
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
     print data
-    expected = "module use /my/cool/directory/; ml gnu; ml python py.test; export FOO=bar;"
-    actual = hpcinstall.parse_installscript_for_modules(data)
+    expected = ["module use /my/cool/directory/", "ml gnu", "ml python py.test", "export FOO=bar"]
+    actual = hpcinstall.parse_installscript_for_directives(data, "-x")
     assert actual == expected
 
 def test_parse_installscript_for_modules_comments():
     data = ("#!/bin/bash\n"
             "#\n"
-            "#HPCI module use /my/cool/directory/ # I need this to load a special version of python\n"
-            "#HPCI ml python py.test              # this is my special version of python \n"
-            "#HPCI  export FOO=bar                # Other things\n"
+            "#HPCI -x module use /my/cool/directory/ # I need this to load a special version of python\n"
+            "#HPCI -x ml python py.test              # this is my special version of python \n"
+            "#HPCI -x  export FOO=bar                # Other things\n"
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
     print data
-    expected = "module use /my/cool/directory/; ml python py.test; export FOO=bar;"
-    actual = hpcinstall.parse_installscript_for_modules(data)
+    expected = ["module use /my/cool/directory/", "ml python py.test", "export FOO=bar"]
+    actual = hpcinstall.parse_installscript_for_directives(data, "-x")
     assert actual == expected
-
-def test_verify_modules_are_loadable():
-    hpcinstall.verify_modules_are_loadable("ml reset;", "no file")
-    with pytest.raises(SystemExit):
-        hpcinstall.verify_modules_are_loadable("ml nonexistingmodule;", "no file")
 
 def test_how_to_call_yourself(stub_os):
     hpcinstall.os = stub_os
     stub_os.environ['SHELL'] = "/bin/bash"
     args = ['./hpcinstall', 'build-example-1.2.3', '-u', 'http://example.com']
     expected = ['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
-                "'ml purge; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -u http://example.com --nossh'"]
-    actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/")
+                "'ml purge; ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -u http://example.com --nossh'"]
+    actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", "ml python; ml gnu;")
+    assert actual == expected
+
+def test_wrap_command_for_ksh(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['SHELL'] = "/bin/ksh"
+    actual = hpcinstall.wrap_command_for_stopping_on_errors("ml gnu; ml broken; ml mpt")
+    expected = "(set -e; ml gnu; ml broken; ml mpt)"
+    assert actual == expected
+
+def test_wrap_command_for_bash(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['SHELL'] = "/bin/bash"
+    actual = hpcinstall.wrap_command_for_stopping_on_errors("ml gnu; ml broken; ml mpt")
+    expected = "(set -e; ml gnu; ml broken; ml mpt)"
+    assert actual == expected
+
+def test_wrap_command_for_tcsh(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['SHELL'] = "/bin/tcsh"
+    actual = hpcinstall.wrap_command_for_stopping_on_errors("ml gnu; ml broken; ml mpt")
+    expected = "/bin/tcsh -e -c 'ml gnu; ml broken; ml mpt'"
+    assert actual == expected
+
+def test_wrap_command_for_csh(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['SHELL'] = "/bin/csh"
+    actual = hpcinstall.wrap_command_for_stopping_on_errors("ml gnu; ml broken; ml mpt")
+    expected = "/bin/csh -e -c 'ml gnu; ml broken; ml mpt'"
     assert actual == expected
 
 # not testing archive_in() since it's simple and hard to test

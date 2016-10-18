@@ -70,12 +70,13 @@ def parse_command_line_arguments():
     parser.add_argument("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
     parser.add_argument("-f", "--force", action="store_true", default=False, help='Force overwrite of existing install (default: False)')
     parser.add_argument("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
-    source_code = parser.add_mutually_exclusive_group(required=True)
-    source_code.add_argument("-a", "--archive", action='append', nargs='*', type=argparse.FileType('r'), help='Store the provided source archive(s)')
-    source_code.add_argument("-l", "--archive-list", action='append', nargs='*', metavar='FILE', type=argparse.FileType('r'), help='Store the source archive(s) provided in FILE')
-    source_code.add_argument("-u", "--archive-url", action='append', nargs='*', metavar='URL', help='Store URL instead of source archive')
-    parser.add_argument("--nossh", action="store_true", default=False, help=argparse.SUPPRESS) # Don't manually invoke this
+    parser.add_argument("--nossh", action="store_true", default=False, help=argparse.SUPPRESS) # Never manually invoke this
+    # do not add a command line argument named defaults, because it will be overridden (see below)
+    # do not add a command line argument named modules-to-load or modules_to_load, because it will be overridden (see below)
+    # do not add a command line argument named urls, because it will be overridden (see below)
+    # do not add a command line argument named tarballs, because it will be overridden (see below)
 
+    should_exit = False
     try:
         args = parser.parse_args()
     except IOError, e:
@@ -83,44 +84,75 @@ def parse_command_line_arguments():
         print >> sys.stderr, e
         print
         parser.print_help()
-        sys.exit(1)
-    args.archive      = hashdir.flatten_argument(args.archive)
-    args.archive_list = hashdir.flatten_argument(args.archive_list)
-    args.archive_url  = hashdir.flatten_argument(args.archive_url)
-    should_exit = False
-    if args.archive_list:
-        list_of_files = []
-        for f in args.archive_list:
-            for line in f:
-                archive_file = os.path.abspath(os.path.expanduser(line.strip()))
-                if not os.access(archive_file, os.R_OK):
-                    print >> sys.stderr, "Troubles opening file", line.strip(), "specified in", f.name
-                    should_exit = True
-                else:
-                    list_of_files.append(archive_file)
-        args.archive_list = list_of_files
-    if args.archive_url:
-        for u in args.archive_url:
-            if not validate_url(u):
-                print >> sys.stderr, "Not a valid URL", u
-                should_exit = True
-    if should_exit:
-        parser.print_help()
-        sys.exit(1)
+        sys.exit(1)          # can't try most of the following
 
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
     try:
         defaults = parse_config_data(open(config_filename))
+        args.defaults = defaults
     except KeyError:
         print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
-        sys.exit(1)
+        should_exit = True
     except IOError as e:
         print >> sys.stderr, e
         print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
+        should_exit = True
+
+    install_script_str = args.install_script.read()
+    legacy_stuff = parse_installscript_for_directives(install_script_str)
+    stuff        = parse_installscript_for_directives(install_script_str, "-")
+    if len(stuff) == 0:
+        if len(legacy_stuff) > 0:
+            print >> sys.stderr, "Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated."
+            print >> sys.stderr, "                   Must use the named '#HPCI -x foo' directive instead."
+            should_exit = True
+        else:
+            modules_to_load = ""
+    else:
+        if len(legacy_stuff) != len(stuff):
+            print >> sys.stderr, "ERROR: can't mix anoymous '#HPCI foo' and named '#HPCI -? bar' directives."
+            should_exit = True
+        mtl_list = parse_installscript_for_directives(install_script_str, "-x")
+        modules_to_load = "; ".join(mtl_list)
+        if len(mtl_list) > 0:
+            modules_to_load += ";"
+
+    # This test makes sense only when the environment is reset
+    if args.nossh:
+        if (subcall(modules_to_load, debug=args.debug, stop_on_errors=True) != 0):
+            print >> sys.stderr, "Modules from", args.install_script.name, "are not loadable:"
+            print >> sys.stderr, modules_to_load
+            should_exit = True
+
+    args.modules_to_load = modules_to_load
+
+    urls     = parse_installscript_for_directives(install_script_str, "-u")
+    args.urls = urls
+    tarballs = parse_installscript_for_directives(install_script_str, "-a")
+    args.tarballs = tarballs
+
+    if len(urls) == 0 and len(tarballs) == 0:
+        print >> sys.stderr, "ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided"
+        should_exit = True
+
+    for u in urls:
+        if not validate_url(u):
+            print >> sys.stderr, "Not a valid URL:", u
+            should_exit = True
+    for t in tarballs:
+        tarball = os.path.abspath(os.path.expanduser(t))
+        if not os.access(tarball, os.R_OK):
+            print >> sys.stderr, "Troubles accessing file:", tarball
+            should_exit = True
+        else:
+            list_of_files.append(tarball)
+
+    if should_exit:
+        parser.print_help()
         sys.exit(1)
 
-    return args, defaults
+    return args
 
 def ask_confirmation_for(options, msg):
     if options.csgteam:
@@ -192,34 +224,38 @@ def start_logging_current_session(files_to_archive, log=HPCi_log, continuation=F
 def stop_logging_current_session():
     tee.close_all_files()
 
-def subcall(modules_to_load, command, log=None, use_popen = False, variables = False, debug=False):
-    str_cmd = modules_to_load + " " + command
-    if log:
-        str_cmd += " &> " + log
-    if debug:
-        print >> sys.stderr, "DEBUG:", str_cmd
-    if use_popen:
-        return subprocess.Popen(str_cmd, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
+def wrap_command_for_stopping_on_errors(command):
+    shell = os.environ['SHELL']
+    if "csh" in shell:
+        prefix = shell + " -e -c '"
+        suffix = "'"
     else:
-        return subprocess.call(str_cmd, shell=True)
+        prefix = "(set -e; "
+        suffix = ")"
+    return prefix + command + suffix
 
-def log_full_env(files_to_archive, modules_to_load):
+def subcall(command, log=None, use_popen = False, variables = False, debug=False, stop_on_errors=False):
+    if stop_on_errors:
+        command = wrap_command_for_stopping_on_errors(command)
+    if log:
+        command += " &> " + log
+    if debug:
+        print >> sys.stderr, "DEBUG:", command
+    if use_popen:
+        return subprocess.Popen(command, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
+    else:
+        return subprocess.call(command, shell=True)
+
+def log_full_env(files_to_archive):
     print "Saving environment status in", env_log, "...",
-    subcall(modules_to_load, "env", env_log)
+    subcall("env", env_log)
     print "Done."
     files_to_archive.append(env_log)
 
     print "Saving module list in", module_log, "...",
-    subcall(modules_to_load, "module list", module_log)
+    subcall("module list", module_log)
     print "Done.\n"
     files_to_archive.append(module_log)
-
-def string_or_file(stuff):
-    try:
-        lines = stuff.splitlines(True)   # a string
-    except AttributeError:
-        lines = stuff                    # a file
-    return lines
 
 def identify_compiler_mpi():
     compiler = os.environ.get('LMOD_FAMILY_COMPILER','').strip()
@@ -236,31 +272,26 @@ def identify_compiler_mpi():
         sys.exit(1)
     return compiler + mpi
 
-def parse_installscript_for_modules(install_script):
+def parse_installscript_for_directives(install_script_str, argument = ""):
+    directive = "#HPCI " + argument
     executing_lines = []
-    for line in string_or_file(install_script):
-        if line.startswith("#HPCI "):
-            exe_line = line.replace("#HPCI ", "", 1).split(" #")[0].strip()
+    for line in install_script_str.splitlines(True):
+        if line.startswith(directive):
+            exe_line = line.replace(directive, "", 1).split(" #")[0].strip()
             executing_lines.append(exe_line)
-    modules_to_run = "; ".join(executing_lines)
-    if len(modules_to_run) > 0:
-        modules_to_run += ";"
-    return modules_to_run
+#    modules_to_run = "; ".join(executing_lines)
+#    if len(modules_to_run) > 0:
+#        modules_to_run += ";"
+    return executing_lines
 
-def verify_modules_are_loadable(modules_to_load, installscript_name):
-    if (subcall(modules_to_load, "") != 0):
-        print >> sys.stderr, "Modules from", installscript_name, "are not loadable:"
-        print >> sys.stderr, modules_to_load
-        sys.exit(1)
-
-def execute_installscript(options, modules_to_load, variables, files_to_archive):
+def execute_installscript(options, variables, files_to_archive):
     current_perm = os.stat(options.install_script.name)
     os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + options.install_script.name, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "hpci." + options.install_script.name  + "-" + str(os.getpid()) + ".log"
     start_logging_current_session(files_to_archive, log=log)
-    p = subcall(modules_to_load, "./" + options.install_script.name, use_popen=True, variables=variables, debug=options.debug)
+    p = subcall("./" + options.install_script.name, use_popen=True, variables=variables, debug=options.debug)
     process_output = " "
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
         process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
@@ -279,7 +310,7 @@ def archive_in(prefix, files_to_archive):
     for somefile in files_to_archive:
     	shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
 
-def how_to_call_yourself(args, yourself, pwd):
+def how_to_call_yourself(args, yourself, pwd, modules_to_load):
     shell = [os.environ['SHELL']]
     if "bash" in shell[0]:
         shell.append('-l')
@@ -289,44 +320,42 @@ def how_to_call_yourself(args, yourself, pwd):
     args_copy = list(args)
     args_copy[0] = os.path.abspath(yourself + "/hpcinstall")
     args_copy.append("--nossh")
-    new_invocation.append("'" + "ml purge; cd " + pwd + "; " +
+    new_invocation.append("'" + "ml purge; " + modules_to_load +
+                                " cd " + pwd + "; " +
                                 " ".join(args_copy) +
                           "'")
     return new_invocation
 
 # execution starts here
 if __name__ == "__main__":
-    options, defaults = parse_command_line_arguments()
+    options = parse_command_line_arguments()
     script_dir = os.path.dirname(os.path.realpath(__file__)) # directory where this script is
 
     if not options.nossh:
-        sys.exit(subprocess.call(how_to_call_yourself(sys.argv, script_dir, os.getcwd())))
+        sys.exit(
+            subprocess.call(
+                       how_to_call_yourself(sys.argv, script_dir, os.getcwd(), options.modules_to_load)
+                         )
+                )
 
     my_program = parse_installscript_filename(options.install_script.name)
-    modules_to_load = parse_installscript_for_modules(options.install_script)
-    verify_modules_are_loadable(modules_to_load, options.install_script.name)
     files_to_archive = []
-    log_full_env(files_to_archive, modules_to_load)
+    log_full_env(files_to_archive)
     comp_mpi = identify_compiler_mpi()
-    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, defaults)
+    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, options.defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
-        modules_to_load = "module use " + moduledir + "; " + modules_to_load
+        # modules_to_load = "module use " + moduledir + "; " + modules_to_load
+        print "WARNING: Needs to figure out 'module use' business"
     start_logging_current_session(files_to_archive)
     print_invocation_info()
     variables = prepare_variables_and_warn(prefix, moduledir, options)
-    execute_installscript(options, modules_to_load, variables, files_to_archive)
-    if options.archive:
-        for tarball in options.archive:
-            files_to_archive.append(tarball.name)
-            print "Storing source archive", tarball.name
-    if options.archive_list:
-        for f in options.archive_list:
-            files_to_archive.append(f)
-            print "Storing source archive", f
-    if options.archive_url:
-        for u in options.archive_url:
-            print "Not storing source archive, see instead", u
+    execute_installscript(options, variables, files_to_archive)
+    for tarball in options.tarballs:
+        files_to_archive.append(tarball.name)
+        print "Storing source archive:", tarball.name
+    for u in options.urls:
+        print "For more details about this code, see URL:", u
     print hashdir.hashdir(prefix), os.path.abspath(os.path.expanduser(prefix))
     stop_logging_current_session()
     hashlog = "hpci.fileinfo.log"
