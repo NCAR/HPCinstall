@@ -339,9 +339,9 @@ if __name__ == "__main__":
     execute_installscript(options, variables, files_to_archive)
     for tarball in options.tarballs:
         files_to_archive.append(tarball.name)
-        print "Storing source archive", tarball.name
+        print "Storing source archive:", tarball.name
     for u in options.urls:
-        print "For more details about this code, see URL", u
+        print "For more details about this code, see URL:", u
     print hashdir.hashdir(prefix), os.path.abspath(os.path.expanduser(prefix))
     stop_logging_current_session()
     hashlog = "hpci.fileinfo.log"
