@@ -44,14 +44,17 @@ def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
     if len(sw_structure) < 3:
         print >> sys.stderr, "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
-        if len(sw_structure) == 2:
-            print >> sys.stderr, "Maybe you meant build-" + filename +"?"
-        sys.exit(2)
+        print >> sys.stderr, "Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives"
+        sys.exit(1)
 
-    # integer versions are accepted without directives
-    version = int(sw_structure[2].replace(".", ""))
-    if version < 0:
-        raise ValueError()
+    try:
+        version = int(sw_structure[2].replace(".", ""))
+        if version < 0:
+            raise ValueError()
+    except ValueError:
+        print >> sys.stderr, "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
+        print >> sys.stderr, "Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives"
+        sys.exit(1)
 
     return sw_structure[1] + "/" + sw_structure[2]
 
