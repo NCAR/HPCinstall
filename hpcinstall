@@ -17,10 +17,16 @@ def print_invocation_info():
     print "invoked as",
     arguments = list(sys.argv)
     try:
-        arguments.remove("--nossh")
+        ssh_position = arguments.index("--nossh")
+        arguments.pop(ssh_position)
     except ValueError:
         print >> sys.stderr, "INTERNAL ERROR: Wrong ssh invocation, please report it to https://github.com/NCAR/HPCinstall/issues/"
         sys.exit(2)
+    try:
+        arguments.pop(ssh_position) # was ssh_position + 1
+    except IndexError:
+        pass                        # sudo user is optional
+
     simple = True
     for arg in arguments:
         if " " in arg or "'" in arg or '"' in arg or "\\" in arg:
