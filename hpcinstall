@@ -15,14 +15,20 @@ def print_invocation_info():
     print "On", datetime.datetime.now().isoformat(), running_user
     print "called HPCinstall from", os.path.realpath(__file__)
     print "invoked as",
+    arguments = list(sys.argv)
+    try:
+        arguments.remove("--nossh")
+    except ValueError:
+        print >> sys.stderr, "Internal error: please report it to https://github.com/NCAR/HPCinstall/issues/"
+        sys.exit(2)
     simple = True
-    for arg in sys.argv:
+    for arg in arguments:
         if " " in arg or "'" in arg or '"' in arg or "\\" in arg:
             simple = False
     if simple:
-        print " ".join(sys.argv)
+        print " ".join(arguments)
     else:
-        print sys.argv
+        print arguments
     print # emtpy line
 
 def parse_config_data(yaml_data):
