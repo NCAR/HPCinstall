@@ -19,7 +19,7 @@ def print_invocation_info():
     try:
         arguments.remove("--nossh")
     except ValueError:
-        print >> sys.stderr, "Internal error: please report it to https://github.com/NCAR/HPCinstall/issues/"
+        print >> sys.stderr, "INTERNAL ERROR: Wrong ssh invocation, please report it to https://github.com/NCAR/HPCinstall/issues/"
         sys.exit(2)
     simple = True
     for arg in arguments:
