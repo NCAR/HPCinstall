@@ -191,20 +191,20 @@ def get_prefix_and_moduledir(options, my_path, default_dirs):
     if options.csgteam:
         if os.environ['USER'] != "csgteam":
             ask_confirmation_for(options, "Should sudo into 'csgteam' to install as such. Continue anyway? ")
-        prefix     = default_dirs["sw_install_dir"]  + my_path
-        moduledir = default_dirs["mod_install_dir"]
+        prefix    = os.path.abspath(default_dirs["sw_install_dir"]) + "/" + my_path
+        moduledir = os.path.abspath(default_dirs["mod_install_dir"])
     else:
         if "INSTALL_TEST_BASEPATH" in os.environ:
             basepath = os.environ['INSTALL_TEST_BASEPATH']
         else:
             basepath = default_dirs["scratch_tree"] + os.environ['USER'] + "/test_installs/"
-        prefix = basepath + "/" + my_path
-        moduledir = basepath + "/modulefiles/"
+        prefix    = os.path.abspath(basepath + "/" + my_path)
+        moduledir = os.path.abspath(basepath + "/modulefiles/")
 
     if os.path.exists(prefix) and not options.force:
-        print >> sys.stderr, "File already exists", prefix
+        print >> sys.stderr, "ERROR: Path already exists:", prefix
         sys.exit(1)
-    return os.path.abspath(prefix) + "/", os.path.abspath(moduledir) + "/"
+    return prefix + "/", moduledir + "/"
 
 def prepare_variables_and_warn(prefix, moduledir, options):
     name = options.install_script.name.split("-")[1]       # 0 is build, 1 is software name
