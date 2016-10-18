@@ -258,7 +258,7 @@ def wrap_command_for_stopping_on_errors(command):
         suffix = ")"
     return prefix + command + suffix
 
-def subcall(command, log=None, use_popen = False, variables = False, debug=False, stop_on_errors=False):
+def subcall(command, log=None, use_popen = False, debug=False, stop_on_errors=False):
     if stop_on_errors:
         command = wrap_command_for_stopping_on_errors(command)
     if log:
@@ -308,14 +308,14 @@ def parse_installscript_for_directives(install_script_str, argument = ""):
 #        modules_to_run += ";"
     return executing_lines
 
-def execute_installscript(options, variables, files_to_archive):
+def execute_installscript(options, files_to_archive):
     current_perm = os.stat(options.install_script.name)
     os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + options.install_script.name, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "hpci." + options.install_script.name  + "-" + str(os.getpid()) + ".log"
     start_logging_current_session(files_to_archive, log=log)
-    p = subcall("./" + options.install_script.name, use_popen=True, variables=variables, debug=options.debug)
+    p = subcall("./" + options.install_script.name, use_popen=True, debug=options.debug)
     process_output = " "
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
         process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
@@ -374,8 +374,8 @@ if __name__ == "__main__":
         print "WARNING: Needs to figure out 'module use' business"
     start_logging_current_session(files_to_archive)
     print_invocation_info()
-    variables = prepare_variables_and_warn(prefix, moduledir, options)
-    execute_installscript(options, variables, files_to_archive)
+    prepare_variables_and_warn(prefix, moduledir, options)
+    execute_installscript(options, files_to_archive)
     for tarball in options.tarballs:
         files_to_archive.append(tarball.name)
         print "Storing source archive:", tarball.name
