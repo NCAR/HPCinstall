@@ -79,6 +79,7 @@ def parse_command_line_arguments():
     # do not add a command line argument named modules-to-load or modules_to_load, because it will be overridden (see below)
     # do not add a command line argument named urls, because it will be overridden (see below)
     # do not add a command line argument named tarballs, because it will be overridden (see below)
+    # do not add a command line argument named prog, because it will be overridden (see below)
 
     should_exit = False
     try:
@@ -160,6 +161,8 @@ def parse_command_line_arguments():
         print >> sys.stderr, "" # just an empty line to make the output more clear in case of errors
         parser.print_help()
         sys.exit(1)
+
+    args.prog = parse_installscript_filename(args.install_script.name)
 
     return args
 
@@ -347,11 +350,10 @@ if __name__ == "__main__":
                          )
                 )
 
-    my_program = parse_installscript_filename(options.install_script.name)
     files_to_archive = []
     log_full_env(files_to_archive)
     comp_mpi = identify_compiler_mpi()
-    prefix, moduledir = get_prefix_and_moduledir(options, my_program + "/" + comp_mpi, options.defaults)
+    prefix, moduledir = get_prefix_and_moduledir(options, options.prog + "/" + comp_mpi, options.defaults)
     if not moduledir in os.environ['MODULEPATH']:
         # run 'module use' on this directory, but only if needed
         # modules_to_load = "module use " + moduledir + "; " + modules_to_load
