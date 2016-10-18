@@ -120,7 +120,7 @@ def parse_command_line_arguments():
 
     # This test makes sense only when the environment is reset
     if args.nossh:
-        if (subcall(single_shell, debug=args.debug) != 0):
+        if (subcall(modules_to_load, debug=args.debug, stop_on_errors=True) != 0):
             print >> sys.stderr, "Modules from", args.install_script.name, "are not loadable:"
             print >> sys.stderr, modules_to_load
             should_exit = True
@@ -224,7 +224,19 @@ def start_logging_current_session(files_to_archive, log=HPCi_log, continuation=F
 def stop_logging_current_session():
     tee.close_all_files()
 
-def subcall(command, log=None, use_popen = False, variables = False, debug=False):
+def wrap_command_for_stopping_on_errors(command):
+    shell = os.environ['SHELL']
+    if "csh" in shell:
+        prefix = shell + " -e -c '"
+        suffix = "'"
+    else:
+        prefix = "(set -e; "
+        suffix = ")"
+    return prefix + command + suffix
+
+def subcall(command, log=None, use_popen = False, variables = False, debug=False, stop_on_errors=False):
+    if stop_on_errors:
+        command = wrap_command_for_stopping_on_errors(command)
     if log:
         command += " &> " + log
     if debug:
