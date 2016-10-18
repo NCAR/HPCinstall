@@ -301,7 +301,7 @@ def execute_installscript(options, variables, files_to_archive):
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
         process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
         print process_output,                 # 'tee' to log the process output
-    p.poll()
+    p.wait()
     stop_logging_current_session()
     files_to_archive.append(log)
     start_logging_current_session(files_to_archive, continuation=True)
