@@ -270,14 +270,14 @@ def subcall(command, log=None, use_popen = False, debug=False, stop_on_errors=Fa
     else:
         return subprocess.call(command, shell=True)
 
-def log_full_env(files_to_archive):
+def log_full_env(files_to_archive, module_use):
     print "Saving environment status in", env_log, "...",
-    subcall("env", env_log)
+    subcall(module_use + "env", env_log)
     print "Done."
     files_to_archive.append(env_log)
 
     print "Saving module list in", module_log, "...",
-    subcall("module list", module_log)
+    subcall(module_use + "module list", module_log)
     print "Done.\n"
     files_to_archive.append(module_log)
 
@@ -308,14 +308,14 @@ def parse_installscript_for_directives(install_script_str, argument = ""):
 #        modules_to_run += ";"
     return executing_lines
 
-def execute_installscript(options, files_to_archive):
+def execute_installscript(options, files_to_archive, module_use):
     current_perm = os.stat(options.install_script.name)
     os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + options.install_script.name, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "hpci." + options.install_script.name  + "-" + str(os.getpid()) + ".log"
     start_logging_current_session(files_to_archive, log=log)
-    p = subcall("./" + options.install_script.name, use_popen=True, debug=options.debug)
+    p = subcall(module_use + "./" + options.install_script.name, use_popen=True, debug=options.debug)
     process_output = " "
     while process_output != "":               # continue while the process is running, it'll be "" when EOF is reached
         process_output = p.stdout.readline()  # needs to do this instead of using subprocess.call to allow 
@@ -365,17 +365,16 @@ if __name__ == "__main__":
                 )
 
     files_to_archive = []
-    log_full_env(files_to_archive)
     comp_mpi = identify_compiler_mpi()
     prefix, moduledir = get_prefix_and_moduledir(options, options.prog + "/" + comp_mpi, options.defaults)
+    module_use = ""
     if not moduledir in os.environ['MODULEPATH']:
-        # run 'module use' on this directory, but only if needed
-        # modules_to_load = "module use " + moduledir + "; " + modules_to_load
-        print "WARNING: Needs to figure out 'module use' business"
+        module_use = "module use " + moduledir + "; "
+    log_full_env(files_to_archive, module_use)
     start_logging_current_session(files_to_archive)
     print_invocation_info()
     prepare_variables_and_warn(prefix, moduledir, options)
-    execute_installscript(options, files_to_archive)
+    execute_installscript(options, files_to_archive, module_use)
     for tarball in options.tarballs:
         files_to_archive.append(tarball.name)
         print "Storing source archive:", tarball.name
