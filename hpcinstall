@@ -120,7 +120,7 @@ def parse_command_line_arguments():
 
     # This test makes sense only when the environment is reset
     if args.nossh:
-        if (subcall(modules_to_load, debug=args.debug, stop_on_errors=True) != 0):
+        if subcall(modules_to_load, debug=args.debug, stop_on_errors=True, log="/dev/null") != 0:
             print >> sys.stderr, "Modules from", args.install_script.name, "are not loadable:"
             print >> sys.stderr, modules_to_load
             should_exit = True
@@ -149,6 +149,7 @@ def parse_command_line_arguments():
             list_of_files.append(tarball)
 
     if should_exit:
+        print >> sys.stderr, "" # just an empty line to make the output more clear in case of errors
         parser.print_help()
         sys.exit(1)
 
