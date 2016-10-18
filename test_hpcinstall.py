@@ -68,9 +68,9 @@ def test_parse_installscript_filename():
         hpcinstall.parse_installscript_filename("incorrect_name")
     with pytest.raises(SystemExit):
         hpcinstall.parse_installscript_filename("incorrect_name-version")
-    with pytest.raises(ValueError):
+    with pytest.raises(SystemExit):
         hpcinstall.parse_installscript_filename("build-mysoftware-v3.2.6")
-    with pytest.raises(ValueError):
+    with pytest.raises(SystemExit):
         hpcinstall.parse_installscript_filename("build-netcdf-mpi-1.2.3")
 
 # not testing parse_command_line_arguments() since it's harmless and hard to test
