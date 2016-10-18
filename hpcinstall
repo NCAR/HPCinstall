@@ -120,7 +120,11 @@ def parse_command_line_arguments():
 
     # This test makes sense only when the environment is reset
     if args.nossh:
-        if subcall(modules_to_load, debug=args.debug, stop_on_errors=True, log="/dev/null") != 0:
+        if subcall(modules_to_load,            # try loading modules
+                   stop_on_errors=True,        # stop at the first failure
+                   log="/dev/null",            # don't output anything (output already happened in the ssh call)
+                   debug=args.debug,           # use specified debug level
+                  ) != 0:
             print >> sys.stderr, "Modules from", args.install_script.name, "are not loadable:"
             print >> sys.stderr, modules_to_load
             should_exit = True
