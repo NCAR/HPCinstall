@@ -105,19 +105,6 @@ def parse_command_line_arguments():
         parser.print_help()
         sys.exit(1)          # can't try most of the following
 
-    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
-                        "/config.hpcinstall.yaml" )
-    try:
-        defaults = parse_config_data(open(config_filename))
-        args.defaults = defaults
-    except KeyError:
-        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
-        should_exit = True
-    except IOError as e:
-        print >> sys.stderr, e
-        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
-        should_exit = True
-
     install_script_str = args.install_script.read()
     legacy_stuff = parse_installscript_for_directives(install_script_str)
     stuff        = parse_installscript_for_directives(install_script_str, "-")
@@ -159,6 +146,19 @@ def parse_command_line_arguments():
                 if env_sudo_user != arg_sudo_user:
                     print >> sys.stderr, "ERROR: Can't figure out the actual user invoking csgteam"
                     should_exit = True
+
+    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
+                        "/config.hpcinstall.yaml" )
+    try:
+        defaults = parse_config_data(open(config_filename))
+        args.defaults = defaults
+    except KeyError:
+        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
+        should_exit = True
+    except IOError as e:
+        print >> sys.stderr, e
+        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
+        should_exit = True
 
     args.modules_to_load = modules_to_load
 
