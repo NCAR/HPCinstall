@@ -42,8 +42,12 @@ def parse_config_data(yaml_data):
     config = yaml.safe_load(yaml_data)
     if not config:
         raise KeyError(list_of_dirs)
+
     for dirname in list_of_dirs:
-        default_dirs[dirname] = os.path.abspath(os.path.expanduser(config[dirname])) + "/"
+        default_dirs[dirname] = os.path.abspath(
+                                   os.path.expandvars(
+                                      os.path.expanduser(
+                                         config[dirname]))) + "/"
     return default_dirs
 
 def parse_installscript_filename(filename):
