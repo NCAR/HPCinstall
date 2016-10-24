@@ -42,8 +42,12 @@ def parse_config_data(yaml_data):
     config = yaml.safe_load(yaml_data)
     if not config:
         raise KeyError(list_of_dirs)
+
     for dirname in list_of_dirs:
-        default_dirs[dirname] = os.path.abspath(os.path.expanduser(config[dirname])) + "/"
+        default_dirs[dirname] = os.path.abspath(
+                                   os.path.expandvars(
+                                      os.path.expanduser(
+                                         config[dirname]))) + "/"
     return default_dirs
 
 def parse_installscript_filename(filename):
@@ -74,7 +78,7 @@ def validate_url(u):
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return regex.match(u)
 
-def parse_command_line_arguments():
+def parse_command_line_arguments(list_of_files):
     parser = argparse.ArgumentParser()
     parser.add_argument("install_script", metavar="install-software-ver", type=argparse.FileType('r'),
                                                                help="script in the current directory which\n" +
@@ -101,19 +105,6 @@ def parse_command_line_arguments():
         print
         parser.print_help()
         sys.exit(1)          # can't try most of the following
-
-    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
-                        "/config.hpcinstall.yaml" )
-    try:
-        defaults = parse_config_data(open(config_filename))
-        args.defaults = defaults
-    except KeyError:
-        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
-        should_exit = True
-    except IOError as e:
-        print >> sys.stderr, e
-        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
-        should_exit = True
 
     install_script_str = args.install_script.read()
     legacy_stuff = parse_installscript_for_directives(install_script_str)
@@ -161,6 +152,19 @@ def parse_command_line_arguments():
                 if env_sudo_user != arg_sudo_user:
                     print >> sys.stderr, "ERROR: Can't figure out the actual user invoking csgteam"
                     should_exit = True
+
+    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
+                        "/config.hpcinstall.yaml" )
+    try:
+        defaults = parse_config_data(open(config_filename))
+        args.defaults = defaults
+    except KeyError:
+        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
+        should_exit = True
+    except IOError as e:
+        print >> sys.stderr, e
+        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
+        should_exit = True
 
     args.modules_to_load = modules_to_load
 
@@ -379,7 +383,8 @@ def how_to_call_yourself(args, yourself, pwd, modules_to_load):
 
 # execution starts here
 if __name__ == "__main__":
-    options = parse_command_line_arguments()
+    files_to_archive = []
+    options = parse_command_line_arguments(files_to_archive)
     script_dir = os.path.dirname(os.path.realpath(__file__)) # directory where this script is
 
     # hack to reset the environment -- assume everything into the environment has been
@@ -391,7 +396,6 @@ if __name__ == "__main__":
                          )
                 )
 
-    files_to_archive = []
     comp_mpi = identify_compiler_mpi()
     prefix, moduledir = get_prefix_and_moduledir(options, options.prog + "/" + comp_mpi, options.defaults)
     module_use = ""
@@ -403,8 +407,8 @@ if __name__ == "__main__":
     prepare_variables_and_warn(prefix, moduledir, options)
     execute_installscript(options, files_to_archive, module_use)
     for tarball in options.tarballs:
-        files_to_archive.append(tarball.name)
-        print "Storing source archive:", tarball.name
+        files_to_archive.append(tarball)
+        print "Storing source archive:", tarball
     for u in options.urls:
         print "For more details about this code, see URL:", u
     print hashdir.hashdir(prefix), os.path.abspath(os.path.expanduser(prefix))

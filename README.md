@@ -16,30 +16,33 @@ It is easier to show how it achieves these goals with an example
 ## Use example - zlib v1.2.8
 
 1. Download the software to be installed. I manually run `wget http://zlib.net/zlib-1.2.8.tar.gz`.
-2. Untar the tarball and go into the directory. Create a file named `build-name-version`. So in this case I run `touch build-zlib-1.2.8`.
-3. Load the `hpcinstall` module and run `hpcinstall build-zlib-1.2.8 -a zlib-1.2.8.tar.gz` :collision: You now you **must** specify one of
-the `-a`, `-l` or `-u` options to document which source code you are using (`-u` is recommended *only* for software that you did not manually
-download a source archive, such as ones that you install with `pip install` or `git clone`)
-4. The install script `build-zlib-1.2.8` we created in bullet 2 is empty, so it does nothing, but `HPCinstall` still does something with it. The output of running `hpcinstall build-zlib-1.2.8` should be something like:
+2. Untar the tarball and cd into the directory. Create a file named `build-name-version`. So in this case I run `touch build-zlib-1.2.8`.
+3. Load the `hpcinstall` module and run `hpcinstall build-zlib-1.2.8` :collision: You will get the
+`ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided` (see https://github.com/NCAR/HPCinstall/issues/15
+for details)
+4. You now you **must** specify one of the `-a`, or `-u` directive to document which source code you are using (`-u` is recommended
+*only* for software that you did not manually download a source archive, such as ones that you install with `pip install` or `git clone`)
+5. So run `echo "#HPCI -a ../zlib-1.2.8.tar.gz" > build-zlib-1.2.8` (to create that directive into the file) and run again
+`hpcinstall build-zlib-1.2.8`
+4. The install script `build-zlib-1.2.8` we created is almost empty, so it does nothing, but `HPCinstall` still does something with it. The output of running `hpcinstall build-zlib-1.2.8` should be something like:
  ```
 Saving environment status in hpci.env.log ... Done.
 Saving module list in hpci.modules.log ... Done.
 
-On 2016-10-07T10:48:04.840039 ddvento
+On 2016-10-21T16:08:24.802860 ddvento
 called HPCinstall from /picnic/u/home/ddvento/github/HPCinstall/trunk/hpcinstall
-invoked as ../hpcinstall build-zlib-1.2.8 -a zlib-1.2.8.tar.gz
+invoked as /picnic/u/home/ddvento/github/HPCinstall/trunk/hpcinstall build-zlib-1.2.8
 
 Setting environmental variables:
 HPCI_SW_DIR     = /picnic/scratch/ddvento/test_installs/zlib/1.2.8/
 HPCI_SW_NAME    = zlib
 HPCI_SW_VERSION = 1.2.8
 HPCI_MOD_DIR    = /picnic/scratch/ddvento/test_installs/modulefiles/
-
-
 Running ./build-zlib-1.2.8 ...
 Done running ./build-zlib-1.2.8 - exited with code 0
-Storing source archive zlib-1.2.8.tar.gz
+Storing source archive: ../zlib-1.2.8.tar.gz
 d41d8cd98f00b204e9800998ecf8427e /picnic/scratch/ddvento/test_installs/zlib/1.2.8
+Connection to localhost closed.
 ```
  Let's look at what `HPCinstall` has done in the current directory:
  ```
