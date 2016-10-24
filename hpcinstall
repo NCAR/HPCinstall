@@ -199,7 +199,7 @@ def parse_command_line_arguments(list_of_files):
         print >> sys.stderr, "" # just an empty line to make the output more clear in case of errors
         parser.print_help()
         sys.exit(1)
-    
+
     if len(progname) == 1 and len(progver) == 1:
         args.prog = progname[0] + "/" + progver[0]
     else:
@@ -377,7 +377,7 @@ def how_to_call_yourself(args, yourself, pwd, modules_to_load):
     if "-p" in args or "--preserve" in args:
         new_invocation = shell + [comb_cmd]
     else:
-        new_invocation = ["ssh","-t","localhost"] + shell + [" 'ml purge; " + comb_cmd + "'"]
+        new_invocation = ["ssh","-t","localhost"] + shell + ["'ml purge; " + comb_cmd + "'"]
     
     return new_invocation
 
