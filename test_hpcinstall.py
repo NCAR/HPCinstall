@@ -204,6 +204,15 @@ def test_how_to_call_yourself(stub_os):
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", "ml python; ml gnu;")
     assert actual == expected
 
+def test_how_to_call_yourself_with_preserve(stub_os):
+    hpcinstall.os = stub_os
+    stub_os.environ['SHELL'] = "/bin/bash"
+    args = ['./hpcinstall', 'build-example-1.2.3', '-u', '-p', 'http://example.com']
+    expected = ['/bin/bash', '-l', '-c',
+                "ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -u -p http://example.com --nossh"]
+    actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", "ml python; ml gnu;")
+    assert actual == expected
+
 def test_wrap_command_for_ksh(stub_os):
     hpcinstall.os = stub_os
     stub_os.environ['SHELL'] = "/bin/ksh"
