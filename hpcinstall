@@ -87,6 +87,7 @@ def parse_command_line_arguments(list_of_files):
     parser.add_argument("-c", "--csgteam", action="store_true", default=False, help='Install as csgteam (default: False)')
     parser.add_argument("-f", "--force", action="store_true", default=False, help='Force overwrite of existing install (default: False)')
     parser.add_argument("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
+    parser.add_argument("-p", "--preserve", action="store_true", default=False, help='Preserve current environment - not valid with --csgteam (default: False)')
     parser.add_argument("--nossh", nargs='?', help=argparse.SUPPRESS) # Never manually invoke this
     # do not add a command line argument named defaults, because it will be overridden (see below)
     # do not add a command line argument named modules-to-load or modules_to_load, because it will be overridden (see below)
@@ -124,10 +125,15 @@ def parse_command_line_arguments(list_of_files):
         if len(mtl_list) > 0:
             modules_to_load += ";"
 
+    # Make sure user doesn't preserve environment during system install
+    if args.preserve and args.csgteam:
+        print >> sys.stderr, "ERROR: preserve environment not allowed for system installation (-c)."
+        should_exit = True
+
     arg_sudo_user = args.nossh
     args.nossh = "--nossh" in sys.argv
 
-    # This test makes sense only when the environment is reset
+    # Run test during execution step (not during initial pass)
     if args.nossh:
         if subcall(modules_to_load,            # try loading modules
                    stop_on_errors=True,        # stop at the first failure
@@ -362,16 +368,17 @@ def how_to_call_yourself(args, yourself, pwd, modules_to_load):
     if "bash" in shell[0]:
         shell.append('-l')
     shell.append('-c')
-    new_invocation = ['ssh', '-t', 'localhost']
-    new_invocation += shell
     args_copy = list(args)
     args_copy[0] = os.path.abspath(yourself + "/hpcinstall")
     reset_env_hack = "--nossh " + os.environ.get('SUDO_USER', '')
     args_copy.append(reset_env_hack.strip())
-    new_invocation.append("'" + "ml purge; " + modules_to_load +
-                                " cd " + pwd + "; " +
-                                " ".join(args_copy) +
-                          "'")
+    comb_cmd = modules_to_load + " cd " + pwd + "; " + " ".join(args_copy)
+
+    if "-p" in args or "--preserve" in args:
+        new_invocation = shell + [comb_cmd]
+    else:
+        new_invocation = ["ssh","-t","localhost"] + shell + ["'ml purge; " + comb_cmd + "'"]
+    
     return new_invocation
 
 # execution starts here
