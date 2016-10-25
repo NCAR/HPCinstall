@@ -375,11 +375,13 @@ def how_to_call_yourself(args, yourself, pwd, modules_to_load):
     comb_cmd = modules_to_load + " cd " + pwd + "; " + " ".join(args_copy)
 
     if "-p" in args or "--preserve" in args:
-        new_invocation = shell + [comb_cmd]
+        new_invocation = comb_cmd
+        use_shell = True
     else:
         new_invocation = ["ssh","-t","localhost"] + shell + ["'ml purge; " + comb_cmd + "'"]
+        use_shell = False
     
-    return new_invocation
+    return new_invocation, use_shell
 
 # execution starts here
 if __name__ == "__main__":
@@ -390,11 +392,8 @@ if __name__ == "__main__":
     # hack to reset the environment -- assume everything into the environment has been
     # reset, and continue executing "as is" the following `if` did not exist.
     if not options.nossh:
-        sys.exit(
-            subprocess.call(
-                       how_to_call_yourself(sys.argv, script_dir, os.getcwd(), options.modules_to_load)
-                         )
-                )
+        exe_cmd, use_shell = how_to_call_yourself(sys.argv, script_dir, os.getcwd(), options.modules_to_load)
+        sys.exit(subprocess.call(exe_cmd, shell = use_shell))
 
     comp_mpi = identify_compiler_mpi()
     prefix, moduledir = get_prefix_and_moduledir(options, options.prog + "/" + comp_mpi, options.defaults)
