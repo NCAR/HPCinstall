@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/NCAR/HPCinstall.svg?branch=master)](https://travis-ci.com/NCAR/HPCinstall/)
+[![Build Status](https://travis-ci.com/NCAR/HPCinstall.svg?token=ZoVz2xMBgzXK6oqcK3qN&branch=master)](https://travis-ci.com/NCAR/HPCinstall)
 
 # HPCinstall
 
