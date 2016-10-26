@@ -236,8 +236,8 @@ def get_prefix_and_moduledir(options, my_path, default_dirs):
     return prefix + "/", moduledir + "/"
 
 def prepare_variables_and_warn(prefix, moduledir, options):
-    name = options.install_script.name.split("-")[1]       # 0 is build, 1 is software name
-    version = options.install_script.name.split("-")[2]    # 2 is software version
+    name = options.prog.split("/")[0]       # 0 is software name
+    version = options.prog.split("/")[1]    # 1 is software version
 
     variables = {'HPCI_SW_DIR': prefix,
                  'HPCI_SW_NAME': name,
