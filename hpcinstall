@@ -361,7 +361,10 @@ def archive_in(prefix, files_to_archive):
     if not os.path.exists(build_dir):
     	os.makedirs(build_dir)
     for somefile in files_to_archive:
-    	shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
+        if os.path.isfile(somefile):
+            shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
+        else:
+            shutil.copytree(somefile, build_dir + os.path.basename(somefile))
 
 def how_to_call_yourself(args, yourself, pwd, modules_to_load):
     shell = [os.environ['SHELL']]
