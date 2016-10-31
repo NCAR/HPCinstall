@@ -409,7 +409,6 @@ if __name__ == "__main__":
     prepare_variables_and_warn(prefix, moduledir, options)
     execute_installscript(options, files_to_archive, module_use)
     for tarball in options.tarballs:
-        files_to_archive.append(tarball)
         print "Storing source archive:", tarball
     for u in options.urls:
         print "For more details about this code, see URL:", u
