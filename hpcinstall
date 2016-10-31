@@ -364,7 +364,7 @@ def archive_in(prefix, files_to_archive):
         if os.path.isfile(somefile):
             shutil.copyfile(somefile, build_dir + os.path.basename(somefile))
         else:
-            shutil.copytree(somefile, build_dir + os.path.basename(somefile))
+            shutil.copytree(somefile, build_dir + os.path.basename(somefile), symlinks=True)
 
 def how_to_call_yourself(args, yourself, pwd, modules_to_load):
     shell = [os.environ['SHELL']]
