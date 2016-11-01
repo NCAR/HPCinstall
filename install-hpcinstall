@@ -27,5 +27,17 @@ cp hpcinstall tee.py tee.pyc README.md config.hpcinstall.yaml $HPCI_SW_DIR
 # copy also this directory (library dependence)
 cp -r yaml $HPCI_SW_DIR
 
+mkdir -p $HPCI_MOD_DIR/system/$HPCI_SW_NAME/
+cat << EOF > $HPCI_MOD_DIR/system/$HPCI_SW_NAME/${HPCI_SW_VERSION}.lua
+require("posix")
+whatis("HPCinstall v${HPCI_SW_VERSION}")
+
+help([[
+HPCinstall is supposed to be used by members of the CSG team
+]])
+
+append_path("PATH","$HPCI_SW_DIR")
+EOF
+
 echo You may restore the previous status of the repo with
 echo git checkout $branch
