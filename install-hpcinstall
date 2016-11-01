@@ -22,7 +22,8 @@ fi
 
 # if successfull, create directory and copy relevant files
 mkdir -p $HPCI_SW_DIR
-cp hpcinstall tee.py tee.pyc README.md config.hpcinstall.yaml $HPCI_SW_DIR
+cp *.py *.pyc README.md config.hpcinstall.yaml $HPCI_SW_DIR
+cp -r hpcinstall hashdir $HPCI_SW_DIR                           # symbolic links
 
 # copy also this directory (library dependence)
 cp -r yaml $HPCI_SW_DIR
