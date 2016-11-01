@@ -94,18 +94,21 @@ So `HPCinstall` has done the following:
 #
 # Loading the latest GNU compiler and our wrappers
 # No other (default or otherwise) modules are loaded
-#HPCI ml gnu
-#HPCI module load ncarcompilers
+#HPCI -x ml gnu
+#HPCI -x module load ncarcompilers
+#
+# Storing the tarball
+#HPCI -a ../zlib-1.2.8.tar.gz
 
 ./configure --prefix=$HPCI_SW_DIR
 make && make install
 ```
 
-6. Note the `#HPCI` directive which will execute (source) whatever instruction you have there, like `module load such-and-such` or `export THIS_AND_THAT`
+6. Note the `#HPCI -x` directive which will execute (source) whatever instruction you have there, like `module load such-and-such` or `export THIS_AND_THAT`
 
 6. run `hpcinstall build-zlib-1.2.8  -a ../zlib-1.2.8.tar.gz` and [go playing in the hallway](http://www.xkcd.com/303/)
 
-7. If the third last line of the log is different from `Done running ./build-zlib-1.2.8 - exited with code 0`, figure out what was wrong, and go back to previous bullet.
+7. If one among the last lines of the log is different from `Done running ./build-zlib-1.2.8 - exited with code 0`, figure out what was wrong, and go back to previous bullet.
 
 8. Run  `cat hpci.main.log` and look at the content of `$HPCI_SW_DIR` directory, which for me on Laramie is
 `/picnic/scratch/ddvento/test_installs/zlib/1.2.8/gnu/6.2.0/` (this is where everything should be installed,
@@ -133,12 +136,10 @@ and compare its output to the one in `/path/to/installed/directory/BUILD_DIR/hpc
 
  3. The install directory should not exist, to prevent involuntary clobbering. Use the `--force` option to allow `HPCinstall` to clobber previous builds. Note that the path is not currently cleaned up before rerunning the install script, so manually cleaning may still be desired.
 
- 4. The number (3249 in this case) at the end of the install script log `hpci.build-zlib-1.2.8-3249.txt` is the PID of the execution.
+ 4. The number (14743 in this case) at the end of the install script log `hpci.build-zlib-1.2.8-14743.txt` is the PID of the execution.
 It is added to avoid deleting the log from previous attempts, so one can compare the current erros with the previous one(s) in
 case of failures, to see if any progress has been made. To reduce clutter, the other logs (modules, env, etc) are clobbered
 because tend to have more obvious content and not error messages.
 
  5. The csgteam install is interactive! It may ask a bunch of questions. We may need to discuss in the group meeting whether or not this is desired, it can be easily changed if appropriate, as well as if we want the script to know about picnic and whatsnot
- 6. Per Sidd request in issue #14 *clean slate* state is enforced and any setting (e.g. environment variable) set in the shell are reset. Also, the modules are purged,
-your script will need to load any that are needed. Include any module or environmental variable setting in the build script
 
