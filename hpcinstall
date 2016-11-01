@@ -110,12 +110,11 @@ def parse_command_line_arguments(list_of_files):
     legacy_stuff = parse_installscript_for_directives(install_script_str)
     stuff        = parse_installscript_for_directives(install_script_str, "-")
     if len(stuff) == 0:
+        modules_to_load = ""
         if len(legacy_stuff) > 0:
             print >> sys.stderr, "Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated."
             print >> sys.stderr, "                   Must use the named '#HPCI -x foo' directive instead."
             should_exit = True
-        else:
-            modules_to_load = ""
     else:
         if len(legacy_stuff) != len(stuff):
             print >> sys.stderr, "ERROR: can't mix anoymous '#HPCI foo' and named '#HPCI -? bar' directives."
