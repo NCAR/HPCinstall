@@ -4,6 +4,8 @@
 
 `HPCinstall` is a piece of software used to install other software. What it does is simply to run a given install script, but it will help by automatize the stupid, clerical, tedious tasks, letting the script do only the complicated parts.
 
+See https://wiki.ucar.edu/display/csg/Module+and+installation+management+process for the workflow we agreed on
+
 ## Features
  
 Some of the features of `HPCinstall` are: 
