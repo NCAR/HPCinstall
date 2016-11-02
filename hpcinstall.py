@@ -342,7 +342,7 @@ def execute_installscript(options, files_to_archive, module_use):
     os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
     print "Running ./" + options.install_script.name, "..."
     stop_logging_current_session()                                  # log the output of the script in a different dir
-    log = "hpci." + options.install_script.name  + "-" + str(os.getpid()) + ".log"
+    log = "hpci." + os.path.basename(options.install_script.name)  + "-" + str(os.getpid()) + ".log"
     start_logging_current_session(files_to_archive, log=log)
     p = subcall(module_use + "./" + options.install_script.name, use_popen=True, debug=options.debug)
     process_output = " "
