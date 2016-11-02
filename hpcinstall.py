@@ -117,7 +117,8 @@ def parse_command_line_arguments(list_of_files):
             should_exit = True
     else:
         if len(legacy_stuff) != len(stuff):
-            print >> sys.stderr, "ERROR: can't mix anoymous '#HPCI foo' and named '#HPCI -? bar' directives."
+            print >> sys.stderr, "ERROR: anoymous '#HPCI foo' directives are not supported anymore"
+            print >> sys.stderr, "       use '#HPCI -x foo' directives instead."
             should_exit = True
         mtl_list = parse_installscript_for_directives(install_script_str, "-x")
         modules_to_load = "; ".join(mtl_list)
