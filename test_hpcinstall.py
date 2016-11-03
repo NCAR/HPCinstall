@@ -213,9 +213,9 @@ def test_how_to_call_yourself(stub_os, opt):
     hpcinstall.os = stub_os
     opt.modules_to_load = "ml python; ml gnu;"
     stub_os.environ['SHELL'] = "/bin/bash"
-    args = ['./hpcinstall', 'build-example-1.2.3', '-u', 'http://example.com']
+    args = ['./hpcinstall', 'build-example-1.2.3']
     expected = (['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
-                "'ml purge; ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -u http://example.com --nossh'"], False)
+                "'ml purge; ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 --nossh'"], False)
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
     assert actual == expected
 
@@ -223,8 +223,8 @@ def test_how_to_call_yourself_with_preserve(stub_os, opt):
     hpcinstall.os = stub_os
     opt.modules_to_load = "ml python; ml gnu;"
     stub_os.environ['SHELL'] = "/bin/bash"
-    args = ['./hpcinstall', 'build-example-1.2.3', '-u', '-p', 'http://example.com']
-    expected = ("ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -u -p http://example.com --nossh", True)
+    args = ['./hpcinstall', 'build-example-1.2.3', '-p']
+    expected = ("ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -p --nossh", True)
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
     assert actual == expected
 
