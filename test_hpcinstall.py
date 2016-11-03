@@ -222,9 +222,10 @@ def test_how_to_call_yourself(stub_os, opt):
 def test_how_to_call_yourself_with_preserve(stub_os, opt):
     hpcinstall.os = stub_os
     opt.modules_to_load = "ml python; ml gnu;"
+    opt.preserve = True
     stub_os.environ['SHELL'] = "/bin/bash"
-    args = ['./hpcinstall', 'build-example-1.2.3', '-p']
-    expected = ("ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -p --nossh", True)
+    args = ['./hpcinstall', 'build-example-1.2.3', '-c']
+    expected = ("ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -c --nossh", True)
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
     assert actual == expected
 
