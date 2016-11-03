@@ -366,7 +366,7 @@ def archive_in(prefix, files_to_archive):
         else:
             shutil.copytree(somefile, build_dir + os.path.basename(somefile), symlinks=True)
 
-def how_to_call_yourself(args, yourself, pwd, modules_to_load):
+def how_to_call_yourself(args, yourself, pwd, opt):
     shell = [os.environ['SHELL']]
     if "bash" in shell[0]:
         shell.append('-l')
@@ -375,7 +375,7 @@ def how_to_call_yourself(args, yourself, pwd, modules_to_load):
     args_copy[0] = os.path.abspath(yourself + "/hpcinstall")
     reset_env_hack = "--nossh " + os.environ.get('SUDO_USER', '')
     args_copy.append(reset_env_hack.strip())
-    comb_cmd = modules_to_load + " cd " + pwd + "; " + " ".join(args_copy)
+    comb_cmd = opt.modules_to_load + " cd " + pwd + "; " + " ".join(args_copy)
 
     if "-p" in args or "--preserve" in args:
         new_invocation = comb_cmd
@@ -399,7 +399,7 @@ if __name__ == "__main__":
         sys.exit(subprocess.call(exe_cmd, shell = use_shell))
 
     comp_mpi = identify_compiler_mpi()
-    prefix, moduledir = get_prefix_and_moduledir(options, options.prog + "/" + comp_mpi, options.defaults)
+    prefix, moduledir = get_prefix_and_moduledir(options, options.prog + "/" + comp_mpi, options)
     module_use = ""
     if not moduledir in os.environ['MODULEPATH']:
         module_use = "module use " + moduledir + "; "
