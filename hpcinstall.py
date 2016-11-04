@@ -405,7 +405,7 @@ if __name__ == "__main__":
         sys.exit(subprocess.call(exe_cmd, shell = use_shell))
 
     comp_mpi = identify_compiler_mpi()
-    prefix, moduledir = get_prefix_and_moduledir(options, options.prog + "/" + comp_mpi, options)
+    prefix, moduledir = get_prefix_and_moduledir(options, options.prog + "/" + comp_mpi, options.defaults)
     module_use = ""
     if not moduledir in os.environ['MODULEPATH']:
         module_use = "module use " + moduledir + "; "
