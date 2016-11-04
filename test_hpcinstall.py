@@ -230,6 +230,18 @@ def test_how_to_call_yourself_with_preserve(stub_os, opt):
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
     assert actual == expected
 
+def test_how_to_call_yourself_with_environment(stub_os, opt):
+    hpcinstall.os = stub_os
+    opt.modules_to_load = "ml intel;"
+    opt.defaults = {}
+    opt.defaults['environment_prefix'] = "ml python"
+    stub_os.environ['SHELL'] = "/bin/bash"
+    args = ['./hpcinstall', 'build-example-1.2.3']
+    expected = (['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
+                "'ml purge; ml python; ml intel; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 --nossh'"], False)
+    actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
+    assert actual == expected
+
 def test_wrap_command_for_ksh(stub_os):
     hpcinstall.os = stub_os
     stub_os.environ['SHELL'] = "/bin/ksh"
