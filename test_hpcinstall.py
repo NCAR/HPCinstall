@@ -27,7 +27,8 @@ def opt():                                                          # stub optio
     opt = lambda: None
     opt.csgteam = False                                             # not csgteam
     opt.force = True                                                # ignore actual paths on the filesystems
-    opt.preserve = False                                            # do not preserve (by default)
+    opt.preserve = False                                            # do not preserve (unless asked)
+    opt.defaults = {}                                               # do not use any defaults
     install_script = lambda : None                                  # fake file object
     install_script.name = "build-mysoftware-1.2.3"                  # with this filename
     opt.install_script = install_script                             # stuffed as an option
@@ -233,7 +234,6 @@ def test_how_to_call_yourself_with_preserve(stub_os, opt):
 def test_how_to_call_yourself_with_environment(stub_os, opt):
     hpcinstall.os = stub_os
     opt.modules_to_load = "ml intel;"
-    opt.defaults = {}
     opt.defaults['environment_prefix'] = "ml python"
     stub_os.environ['SHELL'] = "/bin/bash"
     args = ['./hpcinstall', 'build-example-1.2.3']
