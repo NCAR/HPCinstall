@@ -1,3 +1,4 @@
 scratch_tree: /glade/scratch
 sw_install_dir: /glade/apps/opt
 mod_install_dir: /glade/apps/opt/modulefiles/
+environment_prefix: ml python
