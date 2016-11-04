@@ -381,7 +381,10 @@ def how_to_call_yourself(args, yourself, pwd, opt):
         new_invocation = comb_cmd
         use_shell = True
     else:
-        new_invocation = ["ssh","-t","localhost"] + shell + ["'ml purge; " + comb_cmd + "'"]
+        module_prefix = "ml purge; "
+        if opt.defaults['environment_prefix']:
+            module_prefix += opt.defaults['environment_prefix'] + "; "
+        new_invocation = ["ssh","-t","localhost"] + shell + ["'" + module_prefix + comb_cmd + "'"]
         use_shell = False
     
     return new_invocation, use_shell
