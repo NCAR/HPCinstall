@@ -377,7 +377,7 @@ def how_to_call_yourself(args, yourself, pwd, opt):
     args_copy.append(reset_env_hack.strip())
     comb_cmd = opt.modules_to_load + " cd " + pwd + "; " + " ".join(args_copy)
 
-    if "-p" in args or "--preserve" in args:
+    if opt.preserve:
         new_invocation = comb_cmd
         use_shell = True
     else:
