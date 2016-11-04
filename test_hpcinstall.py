@@ -63,7 +63,7 @@ def test_optional_config_data():
              "mod_install_dir: /glade/apps/opt/modulefiles\n")
     expected = {"scratch_tree": "/glade/scratch/", "sw_install_dir": "/glade/apps/opt", "mod_install_dir": "/glade/apps/opt/modulefiles", "environment_prefix": "ml python"}
     parsed = hpcinstall.parse_config_data(data)
-    for key in parsed:
+    for key in expected:
         assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
 
 def test_missing_config_data():
