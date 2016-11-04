@@ -382,7 +382,7 @@ def how_to_call_yourself(args, yourself, pwd, opt):
         use_shell = True
     else:
         module_prefix = "ml purge; "
-        if opt.defaults['environment_prefix']:
+        if opt.defaults.get('environment_prefix'):
             module_prefix += opt.defaults['environment_prefix'] + "; "
         new_invocation = ["ssh","-t","localhost"] + shell + ["'" + module_prefix + comb_cmd + "'"]
         use_shell = False
