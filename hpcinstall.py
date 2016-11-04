@@ -48,6 +48,9 @@ def parse_config_data(yaml_data):
                                    os.path.expandvars(
                                       os.path.expanduser(
                                          config[dirname]))) + "/"
+    my_env = 'environment_prefix'
+    if my_env in config:
+        default_dirs[my_env] = config[my_env]
     return default_dirs
 
 def parse_installscript_filename(filename):
