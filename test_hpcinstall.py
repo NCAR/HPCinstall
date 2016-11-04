@@ -27,6 +27,7 @@ def opt():                                                          # stub optio
     opt = lambda: None
     opt.csgteam = False                                             # not csgteam
     opt.force = True                                                # ignore actual paths on the filesystems
+    opt.preserve = False                                            # do not preserve (by default)
     install_script = lambda : None                                  # fake file object
     install_script.name = "build-mysoftware-1.2.3"                  # with this filename
     opt.install_script = install_script                             # stuffed as an option
