@@ -395,7 +395,7 @@ if __name__ == "__main__":
     # hack to reset the environment -- assume everything into the environment has been
     # reset, and continue executing "as is" the following `if` did not exist.
     if not options.nossh:
-        exe_cmd, use_shell = how_to_call_yourself(sys.argv, script_dir, os.getcwd(), options.modules_to_load)
+        exe_cmd, use_shell = how_to_call_yourself(sys.argv, script_dir, os.getcwd(), options)
         sys.exit(subprocess.call(exe_cmd, shell = use_shell))
 
     comp_mpi = identify_compiler_mpi()
