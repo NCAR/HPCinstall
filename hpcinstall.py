@@ -219,18 +219,18 @@ def ask_confirmation_for(options, msg):
             print >> sys.stderr, "You did not say an ethusiastic 'yes', aborting..."
             sys.exit(1)
 
-def get_prefix_and_moduledir(options, my_path, default_dirs):
+def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
     if options.csgteam:
         if os.environ['USER'] != "csgteam":
             ask_confirmation_for(options, "Should sudo into 'csgteam' to install as such. Continue anyway? ")
-        prefix    = os.path.abspath(default_dirs["sw_install_dir"]) + "/" + my_path
+        prefix    = os.path.abspath(default_dirs["sw_install_dir"] + "/" + my_prog + "/" + my_dep)
         moduledir = os.path.abspath(default_dirs["mod_install_dir"])
     else:
         if "INSTALL_TEST_BASEPATH" in os.environ:
             basepath = os.environ['INSTALL_TEST_BASEPATH']
         else:
             basepath = default_dirs["scratch_tree"] + os.environ['USER'] + "/test_installs/"
-        prefix    = os.path.abspath(basepath + "/" + my_path)
+        prefix    = os.path.abspath(basepath + "/" + my_prog + "/" + my_dep)
         moduledir = os.path.abspath(basepath + "/modulefiles/")
 
     if os.path.exists(prefix) and not options.force:
@@ -405,7 +405,7 @@ if __name__ == "__main__":
         sys.exit(subprocess.call(exe_cmd, shell = use_shell))
 
     comp_mpi = identify_compiler_mpi()
-    prefix, moduledir = get_prefix_and_moduledir(options, options.prog + "/" + comp_mpi, options.defaults)
+    prefix, moduledir = get_prefix_and_moduledir(options, options.prog, comp_mpi, options.defaults)
     module_use = ""
     if not moduledir in os.environ['MODULEPATH']:
         module_use = "module use " + moduledir + "; "
