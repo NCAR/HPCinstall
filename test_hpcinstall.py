@@ -96,13 +96,13 @@ def test_parse_installscript_filename():
 def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     # not testing file_already_exist() and corresponding forcing
     hpcinstall.os = stub_os
-    prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
-    assert prefix    == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3") + "/"
+    prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", "gnu/4.4.1", dirs)
+    assert prefix    == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3/gnu/4.4.1") + "/"
     assert moduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
 
     stub_os.environ['INSTALL_TEST_BASEPATH'] = "/I_want_this_tree_instead"
     hpcinstall.os = stub_os
-    prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
+    prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", "", dirs)
     assert prefix    == os.path.abspath("/I_want_this_tree_instead/foo/1.2.3") + "/"
     assert moduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles") + "/"
 
@@ -111,7 +111,7 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
     stub_os.environ["USER"] = "csgteam"
     opt.csgteam = True
     hpcinstall.os = stub_os
-    prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", dirs)
+    prefix, moduledir = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", "", dirs)
     assert prefix    == os.path.abspath(dirs["sw_install_dir"] + "/foo/1.2.3/") + "/"
     assert moduledir == os.path.abspath(dirs["mod_install_dir"]) + "/"
 
