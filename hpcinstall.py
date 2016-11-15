@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse, os, stat, shutil, sys, subprocess, yaml, datetime, re
+from collections import namedtuple
 import tee, hashdir
 
 HPCi_log = "hpci.main.log"
@@ -236,7 +237,15 @@ def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
     if os.path.exists(prefix) and not options.force:
         print >> sys.stderr, "ERROR: Path already exists:", prefix
         sys.exit(1)
-    return prefix + "/", moduledir + "/"
+    directories = namedtuple('Directories', ['prefix','basemoduledir','idepmoduledir','cdepmoduledir'])
+    suffix = my_dep
+    if suffix == "":
+        suffix = "cdep"
+    d = directories(prefix        =                 prefix + "/",
+                    basemoduledir =                 moduledir + "/",
+                    idepmoduledir =                 moduledir + "/idep/",
+                    cdepmoduledir = os.path.abspath(moduledir + "/" + suffix) + "/" )
+    return d
 
 def prepare_variables_and_warn(prefix, moduledir, options):
     name = options.prog.split("/")[0]       # 0 is software name
@@ -405,24 +414,25 @@ if __name__ == "__main__":
         sys.exit(subprocess.call(exe_cmd, shell = use_shell))
 
     comp_mpi = identify_compiler_mpi()
-    prefix, moduledir = get_prefix_and_moduledir(options, options.prog, comp_mpi, options.defaults)
+    dirs = get_prefix_and_moduledir(options, options.prog, comp_mpi, options.defaults)
     module_use = ""
-    if not moduledir in os.environ['MODULEPATH']:
-        module_use = "module use " + moduledir + "; "
+#   TODO: figure out if this has any value
+#    if not dirs.moduledir in os.environ['MODULEPATH']:
+#        module_use = "module use " + dirs.moduledir + "; "
     log_full_env(files_to_archive, module_use)
     start_logging_current_session(files_to_archive)
     print_invocation_info()
-    prepare_variables_and_warn(prefix, moduledir, options)
+    prepare_variables_and_warn(dirs, options)
     execute_installscript(options, files_to_archive, module_use)
     for tarball in options.tarballs:
         print "Storing source archive:", tarball
     for u in options.urls:
         print "For more details about this code, see URL:", u
-    print hashdir.hashdir(prefix), os.path.abspath(os.path.expanduser(prefix))
+    print hashdir.hashdir(dirs.prefix), os.path.abspath(os.path.expanduser(dirs.prefix))
     stop_logging_current_session()
     hashlog = "hpci.fileinfo.log"
     redirect_output(hashlog)
-    hashdir.hashdir(prefix, verbose=True)
+    hashdir.hashdir(dirs.prefix, verbose=True)
     restore_output()
     files_to_archive.append(hashlog)
-    archive_in(prefix, files_to_archive)
+    archive_in(dirs.prefix, files_to_archive)
