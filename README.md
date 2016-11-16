@@ -38,10 +38,13 @@ called HPCinstall from /picnic/u/home/ddvento/github/HPCinstall/trunk/hpcinstall
 invoked as /picnic/u/home/ddvento/github/HPCinstall/trunk/hpcinstall build-zlib-1.2.8
 
 Setting environmental variables:
-HPCI_SW_DIR     = /picnic/scratch/ddvento/test_installs/zlib/1.2.8/
-HPCI_SW_NAME    = zlib
-HPCI_SW_VERSION = 1.2.8
-HPCI_MOD_DIR    = /picnic/scratch/ddvento/test_installs/modulefiles/
+HPCI_SW_DIR       = /picnic/scratch/ddvento/test_installs/zlib/1.2.8/
+HPCI_SW_NAME      = zlib
+HPCI_SW_VERSION   = 1.2.8
+HPCI_MOD_DIR      = /picnic/scratch/ddvento/test_installs/modulefiles/
+HPCI_MOD_DIR_IDEP = /picnic/scratch/ddvento/test_installs/modulefiles/idep/
+HPCI_MOD_DIR_CDEP = /picnic/scratch/ddvento/test_installs/modulefiles/cdep/
+
 Running ./build-zlib-1.2.8 ...
 Done running ./build-zlib-1.2.8 - exited with code 0
 Storing source archive: ../zlib-1.2.8.tar.gz
