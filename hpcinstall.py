@@ -367,6 +367,10 @@ def execute_installscript(options, files_to_archive, module_use):
     files_to_archive.append(log)
     start_logging_current_session(files_to_archive, continuation=True)
     print "Done running ./" + options.install_script.name, "- exited with code", p.returncode
+    if p.returncode != 0:
+        fake_opt = lambda: None
+        fake_opt.csgteam = True
+        ask_confirmation_for(fake_opt, "Running " + options.install_script.name + " failed. Archive logs anyway? ")
     files_to_archive.append(options.install_script.name)
 
 def archive_in(prefix, files_to_archive):
