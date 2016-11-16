@@ -217,31 +217,25 @@ def test_parse_installscript_for_modules_comments():
     actual = hpcinstall.parse_installscript_for_directives(data, "-x")
     assert actual == expected
 
-def test_how_to_call_yourself(stub_os, opt):
-    hpcinstall.os = stub_os
+def test_how_to_call_yourself(opt):
     opt.modules_to_load = "ml python; ml gnu;"
-    stub_os.environ['SHELL'] = "/bin/bash"
     args = ['./hpcinstall', 'build-example-1.2.3']
     expected = (['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
                 "'ml purge; ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 --nossh'"], False)
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
     assert actual == expected
 
-def test_how_to_call_yourself_with_preserve(stub_os, opt):
-    hpcinstall.os = stub_os
+def test_how_to_call_yourself_with_preserve(opt):
     opt.modules_to_load = "ml python; ml gnu;"
     opt.preserve = True
-    stub_os.environ['SHELL'] = "/bin/bash"
     args = ['./hpcinstall', 'build-example-1.2.3', '-c']
     expected = ("ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 -c --nossh", True)
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
     assert actual == expected
 
-def test_how_to_call_yourself_with_environment(stub_os, opt):
-    hpcinstall.os = stub_os
+def test_how_to_call_yourself_with_environment(opt):
     opt.modules_to_load = "ml intel;"
     opt.defaults['environment_prefix'] = "ml python"
-    stub_os.environ['SHELL'] = "/bin/bash"
     args = ['./hpcinstall', 'build-example-1.2.3']
     expected = (['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
                 "'ml purge; ml python; ml intel; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 --nossh'"], False)
