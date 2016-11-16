@@ -93,7 +93,9 @@ So `HPCinstall` has done the following:
  - created the directory `/picnic/scratch/ddvento/test_installs/zlib/1.2.8/BUILD_DIR/` (and all the necessary parents)
  - copied in the directory of the previous bullet the five `hpci.*.log` plus the source archive and the `build-zlib-1.2.8` scripts for reproducibility
  - note that it has not done anything with `/glade/scratch/ddvento/test_installs/modulefiles/` (other than setting the env var)
-5. A real install will need to do something, so let's put the following into `build-zlib-1.2.8` (any language will work, using `bash` for this example):
+5. A real install will need to do something, so let's put the following into `build-zlib-1.2.8` (only `bash` ufficially supported, however the bash
+script can call another script in `tcsh`, `python`, `R` or whatever -- in such case, remember to use the `#HPCI -a other_script.tcsh` to preserve
+that other script, since `HPCInstall` does not try to guess what your script is doing):
  ```
 #!/usr/bin/env bash
 #
