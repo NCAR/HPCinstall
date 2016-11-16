@@ -290,13 +290,8 @@ def stop_logging_current_session():
     tee.close_all_files()
 
 def wrap_command_for_stopping_on_errors(command):
-    shell = "/bin/bash" #os.environ['SHELL']
-    if "csh" in shell:
-        prefix = shell + " -e -c '"
-        suffix = "'"
-    else:
-        prefix = "(set -e; "
-        suffix = ")"
+    prefix = "(set -e; "
+    suffix = ")"
     return prefix + command + suffix
 
 def subcall(command, log=None, use_popen = False, debug=False, stop_on_errors=False):
@@ -384,6 +379,10 @@ def archive_in(prefix, files_to_archive):
             shutil.copytree(somefile, build_dir + os.path.basename(somefile), symlinks=True)
 
 def how_to_call_yourself(args, yourself, pwd, opt):
+    # Assuming bash makes things MUCH easier, dropping support for other shells
+    # (it is not less general, since bash can call tcsh, csh, ksh, python, etc.)
+    # Should support for other shells be added, needs to be done at least in
+    # wrap_command_for_stopping_on_errors() too.
     shell = ["/bin/bash"] #os.environ['SHELL']
     if "bash" in shell[0]:
         shell.append('-l')
