@@ -248,9 +248,7 @@ def test_how_to_call_yourself_with_environment(stub_os, opt):
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
     assert actual == expected
 
-def test_wrap_command_for_bash(stub_os):
-    hpcinstall.os = stub_os
-    stub_os.environ['SHELL'] = "/bin/bash"
+def test_wrap_command():
     actual = hpcinstall.wrap_command_for_stopping_on_errors("ml gnu; ml broken; ml mpt")
     expected = "(set -e; ml gnu; ml broken; ml mpt)"
     assert actual == expected
