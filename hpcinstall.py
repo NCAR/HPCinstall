@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import argparse, os, stat, shutil, sys, subprocess, yaml, datetime, re
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 import tee, hashdir
 
 HPCi_log = "hpci.main.log"
@@ -247,25 +247,25 @@ def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
                     cdepmoduledir = os.path.abspath(moduledir + "/" + suffix) + "/" )
     return d
 
-def prepare_variables_and_warn(prefix, moduledir, options):
+def prepare_variables_and_warn(dirs, options):
     name = options.prog.split("/")[0]       # 0 is software name
     version = options.prog.split("/")[1]    # 1 is software version
 
-    variables = {'HPCI_SW_DIR': prefix,
-                 'HPCI_SW_NAME': name,
-                 'HPCI_SW_VERSION': version,
-                 'HPCI_MOD_DIR': moduledir,
-                 }
-
-    for key in variables:
-        os.environ[key] = variables[key]
+    variables = OrderedDict([
+                 ('HPCI_SW_DIR',       dirs.prefix),
+                 ('HPCI_SW_NAME',      name),
+                 ('HPCI_SW_VERSION',   version),
+                 ('HPCI_MOD_DIR',      dirs.basemoduledir),
+                 ('HPCI_MOD_DIR_IDEP', dirs.idepmoduledir),
+                 ('HPCI_MOD_DIR_CDEP', dirs.cdepmoduledir),
+                 ])
 
     print "Setting environmental variables:"
-    print 'HPCI_SW_DIR     =', prefix
-    print 'HPCI_SW_NAME    =', name
-    print 'HPCI_SW_VERSION =', version
-    print 'HPCI_MOD_DIR    =', moduledir
-    ask_confirmation_for(options, "This will attempt global install in " + prefix +
+    for key in variables:
+        os.environ[key] = variables[key]
+        print "{:<17}".format(key), "=", variables[key]
+
+    ask_confirmation_for(options, "This will attempt global install in " + dirs.prefix +
                          " by running ./" + options.install_script.name + " as " + os.environ['USER'] + ". Continue? ")
     return variables
 
