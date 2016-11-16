@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import argparse, os, stat, shutil, sys, subprocess, yaml, datetime, re
+import argparse, os, stat, shutil, sys, subprocess, yaml, datetime, re, glob
 from collections import namedtuple, OrderedDict
 import tee, hashdir
 
@@ -175,7 +175,18 @@ def parse_command_line_arguments(list_of_files):
     urls     = parse_installscript_for_directives(install_script_str, "-u")
     args.urls = urls
     tarballs = parse_installscript_for_directives(install_script_str, "-a")
-    args.tarballs = tarballs
+    parsed_tarballs = []
+    for tarball in tarballs:
+        print "Original", tarball
+        for globbed_tarball in glob.iglob(tarball):
+            t = os.path.abspath(os.path.expanduser(globbed_tarball))
+            parsed_tarballs.append(t)
+            if not os.access(t, os.R_OK):
+                print >> sys.stderr, "Troubles accessing file:", t
+                should_exit = True
+            else:
+                list_of_files.append(t)
+    args.tarballs = parsed_tarballs
 
     if len(urls) == 0 and len(tarballs) == 0:
         print >> sys.stderr, "ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided"
@@ -185,13 +196,6 @@ def parse_command_line_arguments(list_of_files):
         if not validate_url(u):
             print >> sys.stderr, "Not a valid URL:", u
             should_exit = True
-    for t in tarballs:
-        tarball = os.path.abspath(os.path.expanduser(t))
-        if not os.access(tarball, os.R_OK):
-            print >> sys.stderr, "Troubles accessing file:", tarball
-            should_exit = True
-        else:
-            list_of_files.append(tarball)
 
     progname = parse_installscript_for_directives(install_script_str, "-n")
     progver  = parse_installscript_for_directives(install_script_str, "-v")
@@ -429,7 +433,7 @@ if __name__ == "__main__":
     prepare_variables_and_warn(dirs, options)
     execute_installscript(options, files_to_archive, module_use)
     for tarball in options.tarballs:
-        print "Storing source archive:", tarball
+        print "Archiving file:", tarball
     for u in options.urls:
         print "For more details about this code, see URL:", u
     print hashdir.hashdir(dirs.prefix), os.path.abspath(os.path.expanduser(dirs.prefix))
