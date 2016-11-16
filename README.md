@@ -57,7 +57,7 @@ ddvento@laramie1 zlib $ ls -lt
 total 560
 -rw-rw-r-- 1 ddvento consult      0 Oct  7 10:48 hpci.fileinfo.log
 -rw-rw-r-- 1 ddvento consult    609 Oct  7 10:48 hpci.main.log
--rw-rw-r-- 1 ddvento consult    209 Oct  7 10:48 hpci.build-zlib-1.2.8-14743.log
+-rw-rw-r-- 1 ddvento consult    209 Oct  7 10:48 hpci.build-zlib-1.2.8-20161116T114509.log
 -rw-rw-r-- 1 ddvento consult    250 Oct  7 10:48 hpci.modules.log
 -rw-rw-r-- 1 ddvento consult   3853 Oct  7 10:48 hpci.env.log
 -rwxrw-r-- 1 ddvento consult      0 Oct  7 10:45 build-zlib-1.2.8
@@ -75,7 +75,7 @@ drwxrwxr-x 2 ddvento consult 4096 Oct  7 10:48 BUILD_DIR
 ddvento@laramie1 zlib $ ls -l /picnic/scratch/ddvento/test_installs/zlib/1.2.8/BUILD_DIR/
 total 768
 -rw-rw-r-- 1 ddvento consult      0 Oct  7 10:48 build-zlib-1.2.8
--rw-rw-r-- 1 ddvento consult    209 Oct  7 10:48 hpci.build-zlib-1.2.8-14743.log
+-rw-rw-r-- 1 ddvento consult    209 Oct  7 10:48 hpci.build-zlib-1.2.8-20161116T114509.log
 -rw-rw-r-- 1 ddvento consult   3853 Oct  7 10:48 hpci.env.log
 -rw-rw-r-- 1 ddvento consult      0 Oct  7 10:48 hpci.fileinfo.log
 -rw-rw-r-- 1 ddvento consult    609 Oct  7 10:48 hpci.main.log
@@ -88,7 +88,7 @@ So `HPCinstall` has done the following:
      - `hpci.modules.log` contains the list of all the loaded modules, right before the script is executed
      - `hpci.main.log` contains a log of what happened, including the checksum of the installed directory
      - :star: `hpci.fileinfo.log` with some information about the files it installed
-     - `hpci.build-zlib-1.2.8-14743.txt` contains the stdout and stderr produced by running `build-zlib-1.2.8` (in this case nothing)
+     - `hpci.build-zlib-1.2.8-20161116T114509.txt` contains the stdout and stderr produced by running `build-zlib-1.2.8` (in this case nothing)
  - made the `build-zlib-1.2.8` script executable (we did not make so in 3. when we created it)
  - created the directory `/picnic/scratch/ddvento/test_installs/zlib/1.2.8/BUILD_DIR/` (and all the necessary parents)
  - copied in the directory of the previous bullet the five `hpci.*.log` plus the source archive and the `build-zlib-1.2.8` scripts for reproducibility
@@ -141,7 +141,8 @@ and compare its output to the one in `/path/to/installed/directory/BUILD_DIR/hpc
 
  3. The install directory should not exist, to prevent involuntary clobbering. Use the `--force` option to allow `HPCinstall` to clobber previous builds. Note that the path is not currently cleaned up before rerunning the install script, so manually cleaning may still be desired.
 
- 4. The number (14743 in this case) at the end of the install script log `hpci.build-zlib-1.2.8-14743.txt` is the PID of the execution.
+ 4. The string (20161116T114509 in this case) at the end of the install script log `hpci.build-zlib-1.2.8-20161116T114509.txt` is the shortened isoformat of the date and time when the script ran,
+in this case 2016 Nov 16th at Time 11:45:09
 It is added to avoid deleting the log from previous attempts, so one can compare the current erros with the previous one(s) in
 case of failures, to see if any progress has been made. To reduce clutter, the other logs (modules, env, etc) are clobbered
 because tend to have more obvious content and not error messages.
