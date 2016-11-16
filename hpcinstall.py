@@ -290,7 +290,7 @@ def stop_logging_current_session():
     tee.close_all_files()
 
 def wrap_command_for_stopping_on_errors(command):
-    shell = os.environ['SHELL']
+    shell = "/bin/bash" #os.environ['SHELL']
     if "csh" in shell:
         prefix = shell + " -e -c '"
         suffix = "'"
@@ -384,7 +384,7 @@ def archive_in(prefix, files_to_archive):
             shutil.copytree(somefile, build_dir + os.path.basename(somefile), symlinks=True)
 
 def how_to_call_yourself(args, yourself, pwd, opt):
-    shell = [os.environ['SHELL']]
+    shell = ["/bin/bash"] #os.environ['SHELL']
     if "bash" in shell[0]:
         shell.append('-l')
     shell.append('-c')
