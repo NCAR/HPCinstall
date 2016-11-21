@@ -56,9 +56,8 @@ def test_config_data_dirs():
         assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
 
 def test_config_data_environment():
-    # note some dirs have the slash some don't and the expected ones do not match
     data = ( "scratch_tree: /glade/scratch\n"       # dirs are mandatory so including them anyway
-             "sw_install_dir: /glade/apps/opt/\n"
+             "sw_install_dir: /glade/apps/opt\n"
              "environment_prefix: ml python\n"
              "mod_install_dir: /glade/apps/opt/modulefiles\n")
     expected = {"scratch_tree": "/glade/scratch/", "sw_install_dir": "/glade/apps/opt", "mod_install_dir": "/glade/apps/opt/modulefiles", "environment_prefix": "ml python"}
