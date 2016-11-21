@@ -329,12 +329,12 @@ def identify_compiler_mpi():
             compiler += "/" + os.environ['LMOD_COMPILER_VERSION'].strip()
             mpi = os.environ.get('LMOD_FAMILY_MPI','').strip()
             if mpi:
-                mpi = "/" + mpi + "/" + os.environ['LMOD_MPI_VERSION'].strip()
+                mpi += "/" + os.environ['LMOD_MPI_VERSION'].strip() + "/"
     except KeyError, ke:
         for broken_key in ke.args:
             print >> sys.stderr, "Error:", broken_key, "not set"
         sys.exit(1)
-    return compiler + mpi
+    return mpi + compiler
 
 def parse_installscript_for_directives(install_script_str, argument = ""):
     directive = "#HPCI " + argument
