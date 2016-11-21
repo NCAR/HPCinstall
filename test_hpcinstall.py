@@ -45,7 +45,7 @@ def stub_os():              # stub os, replacing "import os"
 
 # not testing print_invocation_info() since it's harmless and hard to test
 
-def test_essential_config_data():
+def test_config_data_dirs():
     # note some dirs have the slash some don't and the expected ones do not match
     data = ( "scratch_tree: /glade/scratch\n"
              "sw_install_dir: /glade/apps/opt/\n"
@@ -55,9 +55,9 @@ def test_essential_config_data():
     for key in parsed:
         assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
 
-def test_optional_config_data():
+def test_config_data_environment():
     # note some dirs have the slash some don't and the expected ones do not match
-    data = ( "scratch_tree: /glade/scratch\n"
+    data = ( "scratch_tree: /glade/scratch\n"       # dirs are mandatory so including them anyway
              "sw_install_dir: /glade/apps/opt/\n"
              "environment_prefix: ml python\n"
              "mod_install_dir: /glade/apps/opt/modulefiles\n")
