@@ -165,11 +165,11 @@ def parse_command_line_arguments(list_of_files):
         defaults = parse_config_data(open(config_filename))
         args.defaults = defaults
     except KeyError:
-        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
+        print >> sys.stderr, term.bold_red("Error: " + config_filename + " does not contain the expected fields"), list_of_dirs
         should_exit = True
     except IOError as e:
         print >> sys.stderr, e
-        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
+        print >> sys.stderr, term.bold_red("Cannot set " + list_of_dirs +  " -- ABORTING")
         should_exit = True
 
     args.modules_to_load = modules_to_load
@@ -179,12 +179,11 @@ def parse_command_line_arguments(list_of_files):
     tarballs = parse_installscript_for_directives(install_script_str, "-a")
     parsed_tarballs = []
     for tarball in tarballs:
-        print "Original", tarball
         for globbed_tarball in glob.iglob(tarball):
             t = os.path.abspath(os.path.expanduser(globbed_tarball))
             parsed_tarballs.append(t)
             if not os.access(t, os.R_OK):
-                print >> sys.stderr, "Troubles accessing file:", t
+                print >> sys.stderr, term.bold_red("Troubles accessing file: " + t)
                 should_exit = True
             else:
                 list_of_files.append(t)
@@ -241,7 +240,7 @@ def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
         moduledir = os.path.abspath(basepath + "/modulefiles/")
 
     if os.path.exists(prefix) and not options.force:
-        print >> sys.stderr, "ERROR: Path already exists:", prefix
+        print >> sys.stderr, term.bold_red("ERROR: Path already exists: " + prefix)
         sys.exit(1)
     directories = namedtuple('Directories', ['prefix','basemoduledir','idepmoduledir','cdepmoduledir'])
     suffix = my_dep
@@ -313,12 +312,12 @@ def subcall(command, log=None, use_popen = False, debug=False, stop_on_errors=Fa
         return subprocess.call(command, shell=True)
 
 def log_full_env(files_to_archive, module_use):
-    print "Saving environment status in", env_log, "...",
+    print term.bold_green("Saving environment status in " + env_log + "..."),
     subcall(module_use + "env", env_log)
     print "Done."
     files_to_archive.append(env_log)
 
-    print "Saving module list in", module_log, "...",
+    print term.bold_green("Saving module list in " + module_log + "..."),
     subcall(module_use + "module list", module_log)
     print "Done.\n"
     files_to_archive.append(module_log)
