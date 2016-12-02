@@ -2,6 +2,8 @@
 import argparse, os, stat, shutil, sys, subprocess, yaml, datetime, re, glob
 from collections import namedtuple, OrderedDict
 import tee, hashdir
+import blessed
+term = blessed.Terminal()
 
 HPCi_log = "hpci.main.log"
 env_log = "hpci.env.log"
@@ -13,15 +15,15 @@ def print_invocation_info():
         running_user = "csgteam (invoked by " + os.environ['SUDO_USER'] + ")"
     else:
         running_user = os.environ['USER']
-    print "On", datetime.datetime.now().isoformat(), running_user
-    print "called HPCinstall from", os.path.realpath(__file__)
-    print "invoked as",
+    print term.bold_magenta("On " + str(datetime.datetime.now().isoformat()) + " " + running_user)
+    print term.bold_magenta("called HPCinstall from " + os.path.realpath(__file__))
+    print term.bold_magenta("invoked as"),
     arguments = list(sys.argv)
     try:
         ssh_position = arguments.index("--nossh")
         arguments.pop(ssh_position)
     except ValueError:
-        print >> sys.stderr, "INTERNAL ERROR: Wrong ssh invocation, please report it to https://github.com/NCAR/HPCinstall/issues/"
+        print >> sys.stderr, term.bold_red("INTERNAL ERROR: Wrong ssh invocation, please report it to https://github.com/NCAR/HPCinstall/issues/")
         sys.exit(2)
     try:
         arguments.pop(ssh_position) # was ssh_position + 1
@@ -57,8 +59,8 @@ def parse_config_data(yaml_data):
 def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
     if len(sw_structure) < 3:
-        print >> sys.stderr, "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
-        print >> sys.stderr, "Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives"
+        print >> sys.stderr, term.bold_red("The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead.")
+        print >> sys.stderr, term.bold_red("Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives")
         sys.exit(1)
 
     try:
@@ -66,8 +68,8 @@ def parse_installscript_filename(filename):
         if version < 0:
             raise ValueError()
     except ValueError:
-        print >> sys.stderr, "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
-        print >> sys.stderr, "Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives"
+        print >> sys.stderr, term.bold_red("The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead.")
+        print >> sys.stderr, term.bold_red("Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives")
         sys.exit(1)
 
     return sw_structure[1] + "/" + sw_structure[2]
@@ -264,7 +266,7 @@ def prepare_variables_and_warn(dirs, options):
                  ('HPCI_MOD_DIR_CDEP', dirs.cdepmoduledir),
                  ])
 
-    print "Setting environmental variables:"
+    print term.bold_green("Setting environmental variables:")
     for key in variables:
         os.environ[key] = variables[key]
         print "{:<17}".format(key), "=", variables[key]
@@ -351,7 +353,7 @@ def parse_installscript_for_directives(install_script_str, argument = ""):
 def execute_installscript(options, files_to_archive, module_use):
     current_perm = os.stat(options.install_script.name)
     os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
-    print "Running ./" + options.install_script.name, "..."
+    print term.bold_green("Running ./" + options.install_script.name + "...")
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "hpci." + os.path.basename(options.install_script.name)  + "-" + str(
      datetime.datetime.now().isoformat().split(".")[0].replace("-", "").replace(":", "")) + ".log" #  20161116T114145
@@ -365,7 +367,7 @@ def execute_installscript(options, files_to_archive, module_use):
     stop_logging_current_session()
     files_to_archive.append(log)
     start_logging_current_session(files_to_archive, continuation=True)
-    print "Done running ./" + options.install_script.name, "- exited with code", p.returncode
+    print term.bold_green("Done running ./" + options.install_script.name + " - exited with code " + str(p.returncode))
     if p.returncode != 0:
         fake_opt = lambda: None
         fake_opt.csgteam = True
@@ -436,7 +438,7 @@ if __name__ == "__main__":
         print "Archiving file:", tarball
     for u in options.urls:
         print "For more details about this code, see URL:", u
-    print hashdir.hashdir(dirs.prefix), os.path.abspath(os.path.expanduser(dirs.prefix))
+    print term.bold_green("Hashdir:"), hashdir.hashdir(dirs.prefix), os.path.abspath(os.path.expanduser(dirs.prefix))
     stop_logging_current_session()
     hashlog = "hpci.fileinfo.log"
     redirect_output(hashlog)
