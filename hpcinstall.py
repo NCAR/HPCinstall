@@ -106,7 +106,7 @@ def parse_command_line_arguments(list_of_files):
     try:
         args = parser.parse_args()
     except IOError, e:
-        print >> sys.stderr, "Troubles accessing <install-software-ver> file"
+        print >> sys.stderr, term.bold_red("Troubles accessing <install-software-ver> file")
         print >> sys.stderr, e
         print
         parser.print_help()
@@ -118,13 +118,13 @@ def parse_command_line_arguments(list_of_files):
     if len(stuff) == 0:
         modules_to_load = ""
         if len(legacy_stuff) > 0:
-            print >> sys.stderr, "Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated."
-            print >> sys.stderr, "                   Must use the named '#HPCI -x foo' directive instead."
+            print >> sys.stderr, term.bold_red("Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated.")
+            print >> sys.stderr, term.bold_red("                   Must use the named '#HPCI -x foo' directive instead.")
             should_exit = True
     else:
         if len(legacy_stuff) != len(stuff):
-            print >> sys.stderr, "ERROR: anoymous '#HPCI foo' directives are not supported anymore"
-            print >> sys.stderr, "       use '#HPCI -x foo' directives instead."
+            print >> sys.stderr, term.bold_red("ERROR: anoymous '#HPCI foo' directives are not supported anymore")
+            print >> sys.stderr, term.bold_red("       use '#HPCI -x foo' directives instead.")
             should_exit = True
         mtl_list = parse_installscript_for_directives(install_script_str, "-x")
         modules_to_load = "; ".join(mtl_list)
@@ -133,7 +133,7 @@ def parse_command_line_arguments(list_of_files):
 
     # Make sure user doesn't preserve environment during system install
     if args.preserve and args.csgteam:
-        print >> sys.stderr, "ERROR: preserve environment not allowed for system installation (-c)."
+        print >> sys.stderr, term.bold_red("ERROR: preserve environment not allowed for system installation (-c).")
         should_exit = True
 
     arg_sudo_user = args.nossh
@@ -146,7 +146,7 @@ def parse_command_line_arguments(list_of_files):
                    log="/dev/null",            # don't output anything (output already happened in the ssh call)
                    debug=args.debug,           # use specified debug level
                   ) != 0:
-            print >> sys.stderr, "Modules from", args.install_script.name, "are not loadable:"
+            print >> sys.stderr, term.bold_red("Modules from " + args.install_script.name + " are not loadable:")
             print >> sys.stderr, modules_to_load
             should_exit = True
 
@@ -156,7 +156,7 @@ def parse_command_line_arguments(list_of_files):
                 os.environ['SUDO_USER'] = arg_sudo_user
             else:
                 if env_sudo_user != arg_sudo_user:
-                    print >> sys.stderr, "ERROR: Can't figure out the actual user invoking csgteam"
+                    print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
                     should_exit = True
 
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
@@ -191,7 +191,7 @@ def parse_command_line_arguments(list_of_files):
     args.tarballs = parsed_tarballs
 
     if len(urls) == 0 and len(tarballs) == 0:
-        print >> sys.stderr, "ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided"
+        print >> sys.stderr, term.bold_red("ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided")
         should_exit = True
 
     for u in urls:
@@ -202,7 +202,7 @@ def parse_command_line_arguments(list_of_files):
     progname = parse_installscript_for_directives(install_script_str, "-n")
     progver  = parse_installscript_for_directives(install_script_str, "-v")
     if len(progname) > 1 or len(progver) > 1:
-        print >> sys.stderr, "'#HPCI -n software' and '#HPCI -v version' can't be specified more than once"
+        print >> sys.stderr, term.bold_red("'#HPCI -n software' and '#HPCI -v version' can't be specified more than once")
         should_exit = True
 
     if should_exit:
