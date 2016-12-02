@@ -195,7 +195,7 @@ def parse_command_line_arguments(list_of_files):
 
     for u in urls:
         if not validate_url(u):
-            print >> sys.stderr, "Not a valid URL:", u
+            print >> sys.stderr, term.bold_red("URL specified in install script " + args.install_script.name  + " is not a valid URL: " + u)
             should_exit = True
 
     progname = parse_installscript_for_directives(install_script_str, "-n")
@@ -222,7 +222,7 @@ def ask_confirmation_for(options, msg):
         answer = sys.stdin.readline()
         print
         if answer.lower().strip() != "yes":
-            print >> sys.stderr, "You did not say an ethusiastic 'yes', aborting..."
+            print >> sys.stderr, term.bold_red("You did not say an ethusiastic 'yes', aborting...")
             sys.exit(1)
 
 def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
@@ -305,7 +305,7 @@ def subcall(command, log=None, use_popen = False, debug=False, stop_on_errors=Fa
     if log:
         command += " &> " + log
     if debug:
-        print >> sys.stderr, "DEBUG:", command
+        print >> sys.stderr, term.bold_blue("DEBUG: " + command)
     if use_popen:
         return subprocess.Popen(command, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
     else:
@@ -333,7 +333,7 @@ def identify_compiler_mpi():
                 mpi += "/" + os.environ['LMOD_MPI_VERSION'].strip() + "/"
     except KeyError, ke:
         for broken_key in ke.args:
-            print >> sys.stderr, "Error:", broken_key, "not set"
+            print >> sys.stderr, term.bold_red("Error: " + broken_key + " not set")
         sys.exit(1)
     return mpi + compiler
 
@@ -434,9 +434,9 @@ if __name__ == "__main__":
     prepare_variables_and_warn(dirs, options)
     execute_installscript(options, files_to_archive, module_use)
     for tarball in options.tarballs:
-        print "Archiving file:", tarball
+        print term.blue("Archiving file: " + tarball)
     for u in options.urls:
-        print "For more details about this code, see URL:", u
+        print term.blue("For more details about this code, see URL: " + u)
     print term.bold_green("Hashdir:"), hashdir.hashdir(dirs.prefix), os.path.abspath(os.path.expanduser(dirs.prefix))
     stop_logging_current_session()
     hashlog = "hpci.fileinfo.log"
