@@ -227,7 +227,9 @@ def ask_confirmation_for(options, msg):
             print >> sys.stderr, term.bold_red("You did not say an ethusiastic 'yes', aborting...")
             sys.exit(1)
 
-def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
+def get_prefix_and_moduledir(options, my_dep):
+    default_dirs = options.defaults
+    my_prog = options.prog + "/" + options.vers
     if options.csgteam:
         if os.environ['USER'] != "csgteam":
             ask_confirmation_for(options, "Should sudo into 'csgteam' to install as such. Continue anyway? ")
@@ -427,7 +429,7 @@ if __name__ == "__main__":
         sys.exit(subprocess.call(exe_cmd, shell = use_shell))
 
     comp_mpi = identify_compiler_mpi()
-    dirs = get_prefix_and_moduledir(options, options.prog, comp_mpi, options.defaults)
+    dirs = get_prefix_and_moduledir(options, comp_mpi)
     module_use = ""
 #   TODO: figure out if this has any value
 #    if not dirs.moduledir in os.environ['MODULEPATH']:
