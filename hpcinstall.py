@@ -72,7 +72,7 @@ def parse_installscript_filename(filename):
         print >> sys.stderr, term.bold_red("Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives")
         sys.exit(1)
 
-    return sw_structure[1] + "/" + sw_structure[2]
+    return sw_structure[1], sw_structure[2]
 
 def validate_url(u):
     # cut and paste from django with localhost removed, no test needed
