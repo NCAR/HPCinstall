@@ -239,9 +239,14 @@ def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
         prefix    = os.path.abspath(basepath + "/" + my_prog + "/" + my_dep)
         moduledir = os.path.abspath(basepath + "/modulefiles/")
 
-    if os.path.exists(prefix) and not options.force:
-        print >> sys.stderr, term.bold_red("ERROR: Path already exists: " + prefix)
-        sys.exit(1)
+    if os.path.exists(prefix):
+        if not options.force:
+            print >> sys.stderr, term.bold_red("ERROR: Path already exists: " + prefix)
+            sys.exit(1)
+        else:
+            ask_confirmation_for(options, "WARNING: " + prefix +
+                                 " already exists and you speficied --force to delete it. Continue? ")
+            shutil.rmtree(prefix)
     directories = namedtuple('Directories', ['prefix','basemoduledir','idepmoduledir','cdepmoduledir'])
     suffix = my_dep
     if suffix == "":
