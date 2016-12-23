@@ -115,9 +115,12 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
 def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
     # not testing file_already_exist() and corresponding forcing
     stub_os.environ["USER"] = "csgteam"
+    opt.prog = "foo"
+    opt.vers = "1.2.3"
+    opt.defaults = dirs
     opt.csgteam = True
     hpcinstall.os = stub_os
-    d = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", "", dirs)
+    d = hpcinstall.get_prefix_and_moduledir(opt, "")
     assert d.prefix        == os.path.abspath(dirs["sw_install_dir"] + "/foo/1.2.3/") + "/"
     assert d.basemoduledir == os.path.abspath(dirs["mod_install_dir"]) + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["mod_install_dir"]) + "/idep/"
