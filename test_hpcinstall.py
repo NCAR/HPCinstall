@@ -43,6 +43,15 @@ def stub_os():              # stub os, replacing "import os"
     stub_os.path = os.path
     return stub_os
 
+def test_howto_push_to_github():
+    expected = ("mkdir -p working-copy-of-repo/sw/ver/mpi/ver/comp/ver/ && "
+                "cp install-script  working-copy-of-repo/sw/ver/mpi/ver/comp/ver/ && "
+                "cd working-copy-of-repo && "
+                "git add sw/ver/mpi/ver/comp/ver/ && "
+                'git -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "sw ver installation on `date`" && '
+                "git push")
+    assert hpcinstall.howto_push_to_github() == expected
+
 # not testing print_invocation_info() since it's harmless and hard to test
 
 def test_config_data_dirs():
