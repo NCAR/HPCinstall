@@ -100,6 +100,7 @@ def parse_command_line_arguments(list_of_files):
     # do not add a command line argument named urls, because it will be overridden (see below)
     # do not add a command line argument named tarballs, because it will be overridden (see below)
     # do not add a command line argument named prog, because it will be overridden (see below)
+    # do not add a command line argument named vers, because it will be overridden (see below)
     # do not add a command line argument named sudo-user or sudo_user, because it will be overridden (see below)
 
     should_exit = False
@@ -210,9 +211,10 @@ def parse_command_line_arguments(list_of_files):
         sys.exit(1)
 
     if len(progname) == 1 and len(progver) == 1:
-        args.prog = progname[0] + "/" + progver[0]
+        args.prog = progname[0]
+        args.vers  = progver[0]
     else:
-        args.prog = parse_installscript_filename(args.install_script.name)
+        args.prog, args.vers = parse_installscript_filename(args.install_script.name)
 
     return args
 
@@ -258,13 +260,10 @@ def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
     return d
 
 def prepare_variables_and_warn(dirs, options):
-    name = options.prog.split("/")[0]       # 0 is software name
-    version = options.prog.split("/")[1]    # 1 is software version
-
     variables = OrderedDict([
                  ('HPCI_SW_DIR',       dirs.prefix),
-                 ('HPCI_SW_NAME',      name),
-                 ('HPCI_SW_VERSION',   version),
+                 ('HPCI_SW_NAME',      options.prog),
+                 ('HPCI_SW_VERSION',   options.vers),
                  ('HPCI_MOD_DIR',      dirs.basemoduledir),
                  ('HPCI_MOD_DIR_IDEP', dirs.idepmoduledir),
                  ('HPCI_MOD_DIR_CDEP', dirs.cdepmoduledir),
