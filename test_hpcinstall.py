@@ -77,8 +77,8 @@ def test_missing_config_data():
         hpcinstall.parse_config_data(data)
 
 def test_parse_installscript_filename():
-    sw = hpcinstall.parse_installscript_filename("build-mysoftware-3.2.6")
-    assert sw == "mysoftware/3.2.6"
+    sw, ver = hpcinstall.parse_installscript_filename("build-mysoftware-3.2.6")
+    assert (sw, ver) == ("mysoftware", "3.2.6")
     with pytest.raises(SystemExit):
         hpcinstall.parse_installscript_filename("incorrect_name")
     with pytest.raises(SystemExit):
