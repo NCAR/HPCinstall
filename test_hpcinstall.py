@@ -95,7 +95,10 @@ def test_parse_installscript_filename():
 def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     # not testing file_already_exist() and corresponding forcing
     hpcinstall.os = stub_os
-    d = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", "gnu/4.4.1", dirs)
+    opt.prog = "foo"
+    opt.vers = "1.2.3"
+    opt.defaults = dirs
+    d = hpcinstall.get_prefix_and_moduledir(opt, "gnu/4.4.1")
     assert d.prefix        == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3/gnu/4.4.1") + "/"
     assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
@@ -103,7 +106,7 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
 
     stub_os.environ['INSTALL_TEST_BASEPATH'] = "/I_want_this_tree_instead"
     hpcinstall.os = stub_os
-    d = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", "", dirs)
+    d = hpcinstall.get_prefix_and_moduledir(opt, "")
     assert d.prefix        == os.path.abspath("/I_want_this_tree_instead/foo/1.2.3") + "/"
     assert d.basemoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles/idep") + "/"
