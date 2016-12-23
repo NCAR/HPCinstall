@@ -59,8 +59,13 @@ def test_config_data_environment():
     data = ( "scratch_tree: /glade/scratch\n"       # dirs are mandatory so including them anyway
              "sw_install_dir: /glade/apps/opt\n"
              "environment_prefix: ml python\n"
-             "mod_install_dir: /glade/apps/opt/modulefiles\n")
-    expected = {"scratch_tree": "/glade/scratch/", "sw_install_dir": "/glade/apps/opt", "mod_install_dir": "/glade/apps/opt/modulefiles", "environment_prefix": "ml python"}
+             "mod_install_dir: /glade/apps/opt/modulefiles\n"
+             "script_repo: ~csgteam/.hpcinstall/chey-install-scripts\n")
+    expected = {"scratch_tree":    "/glade/scratch/",
+                "sw_install_dir":  "/glade/apps/opt",
+                "mod_install_dir": "/glade/apps/opt/modulefiles",
+                "script_repo":     "~csgteam/.hpcinstall/chey-install-scripts",
+                "environment_prefix": "ml python"}
     parsed = hpcinstall.parse_config_data(data)
     for key in expected:
         assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
