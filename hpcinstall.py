@@ -418,8 +418,8 @@ def how_to_call_yourself(args, yourself, pwd, opt):
     
     return new_invocation, use_shell
 
-def howto_push_to_github():
-    return ""
+def howto_push_to_github(args):
+    return "mkdir -p " + args.defaults['script_repo']
 
 # execution starts here
 if __name__ == "__main__":
