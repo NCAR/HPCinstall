@@ -73,7 +73,7 @@ def test_config_data_dirs():
 def test_config_data_environment():
     data = ( "scratch_tree: /glade/scratch\n"       # dirs are mandatory so including them anyway
              "sw_install_dir: /glade/apps/opt\n"
-             "pyton_cmd: /path/to/my/python\n"
+             "python_cmd: /path/to/my/python\n"
              "mod_install_dir: /glade/apps/opt/modulefiles\n"
              "git_cmd: /path/to/my/git\n"
              "script_repo: ~csgteam/.hpcinstall/chey-install-scripts\n")
