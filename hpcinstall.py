@@ -52,7 +52,7 @@ def parse_config_data(yaml_data):
                                       os.path.expanduser(
                                          config[dirname]))) + "/"
 
-    others = ['environment_prefix', 'script_repo']
+    others = ['environment_prefix', 'script_repo', 'git_cmd']
     for thing in others:
         if thing in config:
             default_dirs[thing] = config[thing]
@@ -421,7 +421,7 @@ def how_to_call_yourself(args, yourself, pwd, opt):
 
 def howto_push_to_github(args, shortprefix):
     dir = args.defaults['script_repo'] + shortprefix
-    git = "git"
+    git = args.defaults.get('git_cmd', 'git')
     mkdir = "mkdir -p " + dir + " && "
     cp = "cp " + args.install_script.name + " " + dir + " && "
     cd = "cd " + args.defaults['script_repo'] + " && "
