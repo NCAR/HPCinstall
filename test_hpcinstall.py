@@ -73,7 +73,7 @@ def test_config_data_dirs():
 def test_config_data_environment():
     data = ( "scratch_tree: /glade/scratch\n"       # dirs are mandatory so including them anyway
              "sw_install_dir: /glade/apps/opt\n"
-             "environment_prefix: ml python\n"
+             "python_cmd: /path/to/my/python\n"
              "mod_install_dir: /glade/apps/opt/modulefiles\n"
              "git_cmd: /path/to/my/git\n"
              "script_repo: ~csgteam/.hpcinstall/chey-install-scripts\n")
@@ -82,7 +82,7 @@ def test_config_data_environment():
                 "mod_install_dir": "/glade/apps/opt/modulefiles",
                 "script_repo":     "~csgteam/.hpcinstall/chey-install-scripts",
                 "git_cmd":         "/path/to/my/git",
-                "environment_prefix": "ml python"}
+                "python_cmd": "/path/to/my/python"}
     parsed = hpcinstall.parse_config_data(data)
     for key in expected:
         assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
@@ -264,10 +264,10 @@ def test_how_to_call_yourself_with_preserve(opt):
 
 def test_how_to_call_yourself_with_environment(opt):
     opt.modules_to_load = "ml intel;"
-    opt.defaults['environment_prefix'] = "ml python"
+    opt.defaults['python_cmd'] = "/the/good/python"
     args = ['./hpcinstall', 'build-example-1.2.3']
     expected = (['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
-                "'ml purge; ml python; ml intel; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 --nossh'"], False)
+                "'ml purge; ml intel; cd /the/pwd/; /the/good/python /some/strange/dir/hpcinstall build-example-1.2.3 --nossh'"], False)
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
     assert actual == expected
 

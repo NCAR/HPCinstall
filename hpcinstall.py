@@ -52,7 +52,7 @@ def parse_config_data(yaml_data):
                                       os.path.expanduser(
                                          config[dirname]))) + "/"
 
-    others = ['environment_prefix', 'script_repo', 'git_cmd']
+    others = ['python_cmd', 'script_repo', 'git_cmd']
     for thing in others:
         if thing in config:
             default_dirs[thing] = config[thing]
@@ -398,6 +398,9 @@ def how_to_call_yourself(args, yourself, pwd, opt):
     # Should support for other shells be added, needs to be done at least in
     # wrap_command_for_stopping_on_errors() too.
     shell = ["/bin/bash"] #os.environ['SHELL']
+    python = opt.defaults.get('python_cmd', '')
+    if python:
+        python += " "
     if "bash" in shell[0]:
         shell.append('-l')
     shell.append('-c')
@@ -405,15 +408,13 @@ def how_to_call_yourself(args, yourself, pwd, opt):
     args_copy[0] = os.path.abspath(yourself + "/hpcinstall")
     reset_env_hack = "--nossh " + os.environ.get('SUDO_USER', '')
     args_copy.append(reset_env_hack.strip())
-    comb_cmd = opt.modules_to_load + " cd " + pwd + "; " + " ".join(args_copy)
+    comb_cmd = opt.modules_to_load + " cd " + pwd + "; " + python + " ".join(args_copy)
 
     if opt.preserve:
         new_invocation = comb_cmd
         use_shell = True
     else:
         module_prefix = "ml purge; "
-        if opt.defaults.get('environment_prefix'):
-            module_prefix += opt.defaults['environment_prefix'] + "; "
         new_invocation = ["ssh","-t","localhost"] + shell + ["'" + module_prefix + comb_cmd + "'"]
         use_shell = False
     
