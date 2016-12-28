@@ -74,11 +74,13 @@ def test_config_data_environment():
              "sw_install_dir: /glade/apps/opt\n"
              "environment_prefix: ml python\n"
              "mod_install_dir: /glade/apps/opt/modulefiles\n"
+             "git_cmd: /path/to/my/git\n"
              "script_repo: ~csgteam/.hpcinstall/chey-install-scripts\n")
     expected = {"scratch_tree":    "/glade/scratch/",
                 "sw_install_dir":  "/glade/apps/opt",
                 "mod_install_dir": "/glade/apps/opt/modulefiles",
                 "script_repo":     "~csgteam/.hpcinstall/chey-install-scripts",
+                "git_cmd":         "/path/to/my/git",
                 "environment_prefix": "ml python"}
     parsed = hpcinstall.parse_config_data(data)
     for key in expected:
