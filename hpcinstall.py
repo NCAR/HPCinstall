@@ -2,6 +2,8 @@
 import argparse, os, stat, shutil, sys, subprocess, yaml, datetime, re, glob
 from collections import namedtuple, OrderedDict
 import tee, hashdir
+import blessed
+term = blessed.Terminal()
 
 HPCi_log = "hpci.main.log"
 env_log = "hpci.env.log"
@@ -13,15 +15,15 @@ def print_invocation_info():
         running_user = "csgteam (invoked by " + os.environ['SUDO_USER'] + ")"
     else:
         running_user = os.environ['USER']
-    print "On", datetime.datetime.now().isoformat(), running_user
-    print "called HPCinstall from", os.path.realpath(__file__)
-    print "invoked as",
+    print term.bold_magenta("On " + str(datetime.datetime.now().isoformat()) + " " + running_user)
+    print term.bold_magenta("called HPCinstall from " + os.path.realpath(__file__))
+    print term.bold_magenta("invoked as"),
     arguments = list(sys.argv)
     try:
         ssh_position = arguments.index("--nossh")
         arguments.pop(ssh_position)
     except ValueError:
-        print >> sys.stderr, "INTERNAL ERROR: Wrong ssh invocation, please report it to https://github.com/NCAR/HPCinstall/issues/"
+        print >> sys.stderr, term.bold_red("INTERNAL ERROR: Wrong ssh invocation, please report it to https://github.com/NCAR/HPCinstall/issues/")
         sys.exit(2)
     try:
         arguments.pop(ssh_position) # was ssh_position + 1
@@ -49,16 +51,18 @@ def parse_config_data(yaml_data):
                                    os.path.expandvars(
                                       os.path.expanduser(
                                          config[dirname]))) + "/"
-    my_env = 'environment_prefix'
-    if my_env in config:
-        default_dirs[my_env] = config[my_env]
+
+    others = ['environment_prefix', 'script_repo']
+    for thing in others:
+        if thing in config:
+            default_dirs[thing] = config[thing]
     return default_dirs
 
 def parse_installscript_filename(filename):
     sw_structure = filename.split("-")
     if len(sw_structure) < 3:
-        print >> sys.stderr, "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
-        print >> sys.stderr, "Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives"
+        print >> sys.stderr, term.bold_red("The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead.")
+        print >> sys.stderr, term.bold_red("Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives")
         sys.exit(1)
 
     try:
@@ -66,11 +70,11 @@ def parse_installscript_filename(filename):
         if version < 0:
             raise ValueError()
     except ValueError:
-        print >> sys.stderr, "The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead."
-        print >> sys.stderr, "Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives"
+        print >> sys.stderr, term.bold_red("The software name and version must be specified as <build-software-version>. Got '" + filename + "' instead.")
+        print >> sys.stderr, term.bold_red("Or you may use any filename, by including #HPCI -n software' and '#HPCI -v version' directives")
         sys.exit(1)
 
-    return sw_structure[1] + "/" + sw_structure[2]
+    return sw_structure[1], sw_structure[2]
 
 def validate_url(u):
     # cut and paste from django with localhost removed, no test needed
@@ -98,13 +102,14 @@ def parse_command_line_arguments(list_of_files):
     # do not add a command line argument named urls, because it will be overridden (see below)
     # do not add a command line argument named tarballs, because it will be overridden (see below)
     # do not add a command line argument named prog, because it will be overridden (see below)
+    # do not add a command line argument named vers, because it will be overridden (see below)
     # do not add a command line argument named sudo-user or sudo_user, because it will be overridden (see below)
 
     should_exit = False
     try:
         args = parser.parse_args()
     except IOError, e:
-        print >> sys.stderr, "Troubles accessing <install-software-ver> file"
+        print >> sys.stderr, term.bold_red("Troubles accessing <install-software-ver> file")
         print >> sys.stderr, e
         print
         parser.print_help()
@@ -116,13 +121,13 @@ def parse_command_line_arguments(list_of_files):
     if len(stuff) == 0:
         modules_to_load = ""
         if len(legacy_stuff) > 0:
-            print >> sys.stderr, "Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated."
-            print >> sys.stderr, "                   Must use the named '#HPCI -x foo' directive instead."
+            print >> sys.stderr, term.bold_red("Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated.")
+            print >> sys.stderr, term.bold_red("                   Must use the named '#HPCI -x foo' directive instead.")
             should_exit = True
     else:
         if len(legacy_stuff) != len(stuff):
-            print >> sys.stderr, "ERROR: anoymous '#HPCI foo' directives are not supported anymore"
-            print >> sys.stderr, "       use '#HPCI -x foo' directives instead."
+            print >> sys.stderr, term.bold_red("ERROR: anoymous '#HPCI foo' directives are not supported anymore")
+            print >> sys.stderr, term.bold_red("       use '#HPCI -x foo' directives instead.")
             should_exit = True
         mtl_list = parse_installscript_for_directives(install_script_str, "-x")
         modules_to_load = "; ".join(mtl_list)
@@ -131,7 +136,7 @@ def parse_command_line_arguments(list_of_files):
 
     # Make sure user doesn't preserve environment during system install
     if args.preserve and args.csgteam:
-        print >> sys.stderr, "ERROR: preserve environment not allowed for system installation (-c)."
+        print >> sys.stderr, term.bold_red("ERROR: preserve environment not allowed for system installation (-c).")
         should_exit = True
 
     arg_sudo_user = args.nossh
@@ -144,7 +149,7 @@ def parse_command_line_arguments(list_of_files):
                    log="/dev/null",            # don't output anything (output already happened in the ssh call)
                    debug=args.debug,           # use specified debug level
                   ) != 0:
-            print >> sys.stderr, "Modules from", args.install_script.name, "are not loadable:"
+            print >> sys.stderr, term.bold_red("Modules from " + args.install_script.name + " are not loadable:")
             print >> sys.stderr, modules_to_load
             should_exit = True
 
@@ -154,7 +159,7 @@ def parse_command_line_arguments(list_of_files):
                 os.environ['SUDO_USER'] = arg_sudo_user
             else:
                 if env_sudo_user != arg_sudo_user:
-                    print >> sys.stderr, "ERROR: Can't figure out the actual user invoking csgteam"
+                    print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
                     should_exit = True
 
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
@@ -163,11 +168,11 @@ def parse_command_line_arguments(list_of_files):
         defaults = parse_config_data(open(config_filename))
         args.defaults = defaults
     except KeyError:
-        print >> sys.stderr, "Error:", config_filename, "does not contain the expected fields", list_of_dirs
+        print >> sys.stderr, term.bold_red("Error: " + config_filename + " does not contain the expected fields"), list_of_dirs
         should_exit = True
     except IOError as e:
         print >> sys.stderr, e
-        print >> sys.stderr, "Cannot set", list_of_dirs, "-- ABORTING"
+        print >> sys.stderr, term.bold_red("Cannot set " + list_of_dirs +  " -- ABORTING")
         should_exit = True
 
     args.modules_to_load = modules_to_load
@@ -177,30 +182,29 @@ def parse_command_line_arguments(list_of_files):
     tarballs = parse_installscript_for_directives(install_script_str, "-a")
     parsed_tarballs = []
     for tarball in tarballs:
-        print "Original", tarball
         for globbed_tarball in glob.iglob(tarball):
             t = os.path.abspath(os.path.expanduser(globbed_tarball))
             parsed_tarballs.append(t)
             if not os.access(t, os.R_OK):
-                print >> sys.stderr, "Troubles accessing file:", t
+                print >> sys.stderr, term.bold_red("Troubles accessing file: " + t)
                 should_exit = True
             else:
                 list_of_files.append(t)
     args.tarballs = parsed_tarballs
 
     if len(urls) == 0 and len(tarballs) == 0:
-        print >> sys.stderr, "ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided"
+        print >> sys.stderr, term.bold_red("ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided")
         should_exit = True
 
     for u in urls:
         if not validate_url(u):
-            print >> sys.stderr, "Not a valid URL:", u
+            print >> sys.stderr, term.bold_red("URL specified in install script " + args.install_script.name  + " is not a valid URL: " + u)
             should_exit = True
 
     progname = parse_installscript_for_directives(install_script_str, "-n")
     progver  = parse_installscript_for_directives(install_script_str, "-v")
     if len(progname) > 1 or len(progver) > 1:
-        print >> sys.stderr, "'#HPCI -n software' and '#HPCI -v version' can't be specified more than once"
+        print >> sys.stderr, term.bold_red("'#HPCI -n software' and '#HPCI -v version' can't be specified more than once")
         should_exit = True
 
     if should_exit:
@@ -209,9 +213,10 @@ def parse_command_line_arguments(list_of_files):
         sys.exit(1)
 
     if len(progname) == 1 and len(progver) == 1:
-        args.prog = progname[0] + "/" + progver[0]
+        args.prog = progname[0]
+        args.vers  = progver[0]
     else:
-        args.prog = parse_installscript_filename(args.install_script.name)
+        args.prog, args.vers = parse_installscript_filename(args.install_script.name)
 
     return args
 
@@ -221,10 +226,12 @@ def ask_confirmation_for(options, msg):
         answer = sys.stdin.readline()
         print
         if answer.lower().strip() != "yes":
-            print >> sys.stderr, "You did not say an ethusiastic 'yes', aborting..."
+            print >> sys.stderr, term.bold_red("You did not say an ethusiastic 'yes', aborting...")
             sys.exit(1)
 
-def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
+def get_prefix_and_moduledir(options, my_dep):
+    default_dirs = options.defaults
+    my_prog = options.prog + "/" + options.vers
     if options.csgteam:
         if os.environ['USER'] != "csgteam":
             ask_confirmation_for(options, "Should sudo into 'csgteam' to install as such. Continue anyway? ")
@@ -238,9 +245,14 @@ def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
         prefix    = os.path.abspath(basepath + "/" + my_prog + "/" + my_dep)
         moduledir = os.path.abspath(basepath + "/modulefiles/")
 
-    if os.path.exists(prefix) and not options.force:
-        print >> sys.stderr, "ERROR: Path already exists:", prefix
-        sys.exit(1)
+    if os.path.exists(prefix):
+        if not options.force:
+            print >> sys.stderr, term.bold_red("ERROR: Path already exists: " + prefix)
+            sys.exit(1)
+        else:
+            ask_confirmation_for(options, "WARNING: " + prefix +
+                                 " already exists and you speficied --force to delete it. Continue? ")
+            shutil.rmtree(prefix)
     directories = namedtuple('Directories', ['prefix','basemoduledir','idepmoduledir','cdepmoduledir'])
     suffix = my_dep
     if suffix == "":
@@ -252,19 +264,16 @@ def get_prefix_and_moduledir(options, my_prog, my_dep, default_dirs):
     return d
 
 def prepare_variables_and_warn(dirs, options):
-    name = options.prog.split("/")[0]       # 0 is software name
-    version = options.prog.split("/")[1]    # 1 is software version
-
     variables = OrderedDict([
                  ('HPCI_SW_DIR',       dirs.prefix),
-                 ('HPCI_SW_NAME',      name),
-                 ('HPCI_SW_VERSION',   version),
+                 ('HPCI_SW_NAME',      options.prog),
+                 ('HPCI_SW_VERSION',   options.vers),
                  ('HPCI_MOD_DIR',      dirs.basemoduledir),
                  ('HPCI_MOD_DIR_IDEP', dirs.idepmoduledir),
                  ('HPCI_MOD_DIR_CDEP', dirs.cdepmoduledir),
                  ])
 
-    print "Setting environmental variables:"
+    print term.bold_green("Setting environmental variables:")
     for key in variables:
         os.environ[key] = variables[key]
         print "{:<17}".format(key), "=", variables[key]
@@ -304,19 +313,19 @@ def subcall(command, log=None, use_popen = False, debug=False, stop_on_errors=Fa
     if log:
         command += " &> " + log
     if debug:
-        print >> sys.stderr, "DEBUG:", command
+        print >> sys.stderr, term.bold_blue("DEBUG: " + command)
     if use_popen:
         return subprocess.Popen(command, stderr=subprocess.STDOUT, stdout = subprocess.PIPE, shell=True)
     else:
         return subprocess.call(command, shell=True)
 
 def log_full_env(files_to_archive, module_use):
-    print "Saving environment status in", env_log, "...",
+    print term.bold_green("Saving environment status in " + env_log + "..."),
     subcall(module_use + "env", env_log)
     print "Done."
     files_to_archive.append(env_log)
 
-    print "Saving module list in", module_log, "...",
+    print term.bold_green("Saving module list in " + module_log + "..."),
     subcall(module_use + "module list", module_log)
     print "Done.\n"
     files_to_archive.append(module_log)
@@ -332,7 +341,7 @@ def identify_compiler_mpi():
                 mpi += "/" + os.environ['LMOD_MPI_VERSION'].strip() + "/"
     except KeyError, ke:
         for broken_key in ke.args:
-            print >> sys.stderr, "Error:", broken_key, "not set"
+            print >> sys.stderr, term.bold_red("Error: " + broken_key + " not set")
         sys.exit(1)
     return mpi + compiler
 
@@ -351,7 +360,7 @@ def parse_installscript_for_directives(install_script_str, argument = ""):
 def execute_installscript(options, files_to_archive, module_use):
     current_perm = os.stat(options.install_script.name)
     os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
-    print "Running ./" + options.install_script.name, "..."
+    print term.bold_green("Running ./" + options.install_script.name + "...")
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "hpci." + os.path.basename(options.install_script.name)  + "-" + str(
      datetime.datetime.now().isoformat().split(".")[0].replace("-", "").replace(":", "")) + ".log" #  20161116T114145
@@ -365,7 +374,7 @@ def execute_installscript(options, files_to_archive, module_use):
     stop_logging_current_session()
     files_to_archive.append(log)
     start_logging_current_session(files_to_archive, continuation=True)
-    print "Done running ./" + options.install_script.name, "- exited with code", p.returncode
+    print term.bold_green("Done running ./" + options.install_script.name + " - exited with code " + str(p.returncode))
     if p.returncode != 0:
         fake_opt = lambda: None
         fake_opt.csgteam = True
@@ -422,7 +431,7 @@ if __name__ == "__main__":
         sys.exit(subprocess.call(exe_cmd, shell = use_shell))
 
     comp_mpi = identify_compiler_mpi()
-    dirs = get_prefix_and_moduledir(options, options.prog, comp_mpi, options.defaults)
+    dirs = get_prefix_and_moduledir(options, comp_mpi)
     module_use = ""
 #   TODO: figure out if this has any value
 #    if not dirs.moduledir in os.environ['MODULEPATH']:
@@ -433,10 +442,10 @@ if __name__ == "__main__":
     prepare_variables_and_warn(dirs, options)
     execute_installscript(options, files_to_archive, module_use)
     for tarball in options.tarballs:
-        print "Archiving file:", tarball
+        print term.blue("Archiving file: " + tarball)
     for u in options.urls:
-        print "For more details about this code, see URL:", u
-    print hashdir.hashdir(dirs.prefix), os.path.abspath(os.path.expanduser(dirs.prefix))
+        print term.blue("For more details about this code, see URL: " + u)
+    print term.bold_green("Hashdir:"), hashdir.hashdir(dirs.prefix), os.path.abspath(os.path.expanduser(dirs.prefix))
     stop_logging_current_session()
     hashlog = "hpci.fileinfo.log"
     redirect_output(hashlog)

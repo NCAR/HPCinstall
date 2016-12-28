@@ -43,6 +43,15 @@ def stub_os():              # stub os, replacing "import os"
     stub_os.path = os.path
     return stub_os
 
+def test_howto_push_to_github():
+    expected = ("mkdir -p working-copy-of-repo/sw/ver/mpi/ver/comp/ver/ && "
+                "cp install-script  working-copy-of-repo/sw/ver/mpi/ver/comp/ver/ && "
+                "cd working-copy-of-repo && "
+                "git add sw/ver/mpi/ver/comp/ver/ && "
+                'git -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "sw ver installation on `date`" && '
+                "git push")
+    assert hpcinstall.howto_push_to_github() == expected
+
 # not testing print_invocation_info() since it's harmless and hard to test
 
 def test_config_data_dirs():
@@ -59,8 +68,13 @@ def test_config_data_environment():
     data = ( "scratch_tree: /glade/scratch\n"       # dirs are mandatory so including them anyway
              "sw_install_dir: /glade/apps/opt\n"
              "environment_prefix: ml python\n"
-             "mod_install_dir: /glade/apps/opt/modulefiles\n")
-    expected = {"scratch_tree": "/glade/scratch/", "sw_install_dir": "/glade/apps/opt", "mod_install_dir": "/glade/apps/opt/modulefiles", "environment_prefix": "ml python"}
+             "mod_install_dir: /glade/apps/opt/modulefiles\n"
+             "script_repo: ~csgteam/.hpcinstall/chey-install-scripts\n")
+    expected = {"scratch_tree":    "/glade/scratch/",
+                "sw_install_dir":  "/glade/apps/opt",
+                "mod_install_dir": "/glade/apps/opt/modulefiles",
+                "script_repo":     "~csgteam/.hpcinstall/chey-install-scripts",
+                "environment_prefix": "ml python"}
     parsed = hpcinstall.parse_config_data(data)
     for key in expected:
         assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
@@ -77,8 +91,8 @@ def test_missing_config_data():
         hpcinstall.parse_config_data(data)
 
 def test_parse_installscript_filename():
-    sw = hpcinstall.parse_installscript_filename("build-mysoftware-3.2.6")
-    assert sw == "mysoftware/3.2.6"
+    sw, ver = hpcinstall.parse_installscript_filename("build-mysoftware-3.2.6")
+    assert (sw, ver) == ("mysoftware", "3.2.6")
     with pytest.raises(SystemExit):
         hpcinstall.parse_installscript_filename("incorrect_name")
     with pytest.raises(SystemExit):
@@ -95,7 +109,10 @@ def test_parse_installscript_filename():
 def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     # not testing file_already_exist() and corresponding forcing
     hpcinstall.os = stub_os
-    d = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", "gnu/4.4.1", dirs)
+    opt.prog = "foo"
+    opt.vers = "1.2.3"
+    opt.defaults = dirs
+    d = hpcinstall.get_prefix_and_moduledir(opt, "gnu/4.4.1")
     assert d.prefix        == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3/gnu/4.4.1") + "/"
     assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
@@ -103,7 +120,7 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
 
     stub_os.environ['INSTALL_TEST_BASEPATH'] = "/I_want_this_tree_instead"
     hpcinstall.os = stub_os
-    d = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", "", dirs)
+    d = hpcinstall.get_prefix_and_moduledir(opt, "")
     assert d.prefix        == os.path.abspath("/I_want_this_tree_instead/foo/1.2.3") + "/"
     assert d.basemoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles/idep") + "/"
@@ -112,9 +129,12 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
 def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
     # not testing file_already_exist() and corresponding forcing
     stub_os.environ["USER"] = "csgteam"
+    opt.prog = "foo"
+    opt.vers = "1.2.3"
+    opt.defaults = dirs
     opt.csgteam = True
     hpcinstall.os = stub_os
-    d = hpcinstall.get_prefix_and_moduledir(opt, "foo/1.2.3", "", dirs)
+    d = hpcinstall.get_prefix_and_moduledir(opt, "")
     assert d.prefix        == os.path.abspath(dirs["sw_install_dir"] + "/foo/1.2.3/") + "/"
     assert d.basemoduledir == os.path.abspath(dirs["mod_install_dir"]) + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["mod_install_dir"]) + "/idep/"
