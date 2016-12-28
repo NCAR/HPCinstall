@@ -429,7 +429,7 @@ def howto_push_to_github(args, shortprefix):
     commit = (git + ' -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "'
              + args.prog + " v" + args.vers + ' installation on `date` in `hostname`" && ')
     push = git + " push"
-    return mkdir + cp + cd + add + commit + "echo not pushing" #+ push
+    return mkdir + cp + cd + add + commit + push
 
 # execution starts here
 if __name__ == "__main__":
@@ -466,3 +466,7 @@ if __name__ == "__main__":
     restore_output()
     files_to_archive.append(hashlog)
     archive_in(dirs.prefix, files_to_archive)
+
+    if options.csgteam:
+        exe_cmd = howto_push_to_github(options, dirs.relativeprefix)
+        sys.exit(subprocess.call(exe_cmd, shell=True))
