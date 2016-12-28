@@ -3,5 +3,6 @@ python:
   - "2.7"
 # command to install dependencies
 #install: "pip install xxx" # none needed
+install: "pip install six" # not sure why this is now manually required
 # command to run tests
 script: py.test
