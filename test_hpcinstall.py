@@ -45,9 +45,10 @@ def stub_os():              # stub os, replacing "import os"
 
 def test_howto_push_to_github(opt):
     opt.defaults['script_repo'] = "~/.hpcinstall/ys-install-scripts"
+    opt.install_script.name = "netcdf-mpi-1.2.3"
     dirs = "/software/1.2.3/mpt/4.1.5/intel/16.0.3/"
     expected = ("mkdir -p ~/.hpcinstall/ys-install-scripts/software/1.2.3/mpt/4.1.5/intel/16.0.3/ && "
-                "cp install-script  ~/.hpcinstall/ys-install-scripts/software/1.2.3/mpt/4.1.5/intel/16.0.3/ && "
+                "cp netcdf-mpi-1.2.3 ~/.hpcinstall/ys-install-scripts/software/1.2.3/mpt/4.1.5/intel/16.0.3/ && "
                 "cd ~/.hpcinstall/ys-install-scripts && "
                 "git add software/1.2.3/mpt/4.1.5/intel/16.0.3/ && "
                 'git -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "sw ver installation on `date`" && '
