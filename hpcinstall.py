@@ -418,6 +418,9 @@ def how_to_call_yourself(args, yourself, pwd, opt):
     
     return new_invocation, use_shell
 
+def howto_push_to_github():
+    return ""
+
 # execution starts here
 if __name__ == "__main__":
     files_to_archive = []
