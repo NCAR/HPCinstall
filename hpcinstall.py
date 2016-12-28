@@ -253,11 +253,12 @@ def get_prefix_and_moduledir(options, my_dep):
             ask_confirmation_for(options, "WARNING: " + prefix +
                                  " already exists and you speficied --force to delete it. Continue? ")
             shutil.rmtree(prefix)
-    directories = namedtuple('Directories', ['prefix','basemoduledir','idepmoduledir','cdepmoduledir'])
+    directories = namedtuple('Directories', ['prefix','basemoduledir','idepmoduledir','cdepmoduledir', 'relativeprefix'])
     suffix = my_dep
     if suffix == "":
         suffix = "cdep"
     d = directories(prefix        =                 prefix + "/",
+                    relativeprefix= os.path.abspath("/" + my_prog + "/" + my_dep) + "/",
                     basemoduledir =                 moduledir + "/",
                     idepmoduledir =                 moduledir + "/idep/",
                     cdepmoduledir = os.path.abspath(moduledir + "/" + suffix) + "/" )
