@@ -118,6 +118,7 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
     assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/gnu/4.4.1") + "/"
+    assert d.relativeprefix == "/foo/1.2.3/gnu/4.4.1/"
 
     stub_os.environ['INSTALL_TEST_BASEPATH'] = "/I_want_this_tree_instead"
     hpcinstall.os = stub_os
@@ -126,6 +127,7 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     assert d.basemoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles/idep") + "/"
     assert d.cdepmoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles/cdep") + "/"     # not sure what to do for the cdep variable when there is no compiler dependency
+    assert d.relativeprefix == "/foo/1.2.3/"
 
 def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
     # not testing file_already_exist() and corresponding forcing
