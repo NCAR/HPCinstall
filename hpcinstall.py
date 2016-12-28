@@ -423,8 +423,9 @@ def howto_push_to_github(args, shortprefix):
     dir = args.defaults['script_repo'] + shortprefix
     mkdir = "mkdir -p " + dir + " && "
     cp = "cp " + args.install_script.name + " " + dir + " && "
-    cd = "cd " + dir + " && "
-    return mkdir + cp + cd
+    cd = "cd " + args.defaults['script_repo'] + " && "
+    add = "git add " + shortprefix[1:] + " && "                    # remove the trailing slash
+    return mkdir + cp + cd + add
 
 # execution starts here
 if __name__ == "__main__":
