@@ -425,7 +425,8 @@ def howto_push_to_github(args, shortprefix):
     cp = "cp " + args.install_script.name + " " + dir + " && "
     cd = "cd " + args.defaults['script_repo'] + " && "
     add = "git add " + shortprefix[1:] + " && "                    # remove the trailing slash
-    commit = 'git -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "sw ver installation on `date`" && '
+    commit = ('git -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "'
+              + args.prog + " v" + args.vers + ' installation on `date` in `hostname`" && ')
     push = "git push"
     return mkdir + cp + cd + add + commit #+ push
 
