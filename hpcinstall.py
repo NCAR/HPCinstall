@@ -52,7 +52,7 @@ def parse_config_data(yaml_data):
                                       os.path.expanduser(
                                          config[dirname]))) + "/"
 
-    others = ['environment_prefix', 'script_repo', 'git_cmd']
+    others = ['python_cmd', 'script_repo', 'git_cmd']
     for thing in others:
         if thing in config:
             default_dirs[thing] = config[thing]
@@ -412,8 +412,6 @@ def how_to_call_yourself(args, yourself, pwd, opt):
         use_shell = True
     else:
         module_prefix = "ml purge; "
-        if opt.defaults.get('environment_prefix'):
-            module_prefix += opt.defaults['environment_prefix'] + "; "
         new_invocation = ["ssh","-t","localhost"] + shell + ["'" + module_prefix + comb_cmd + "'"]
         use_shell = False
     
