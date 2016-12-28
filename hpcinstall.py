@@ -421,14 +421,15 @@ def how_to_call_yourself(args, yourself, pwd, opt):
 
 def howto_push_to_github(args, shortprefix):
     dir = args.defaults['script_repo'] + shortprefix
+    git = "git"
     mkdir = "mkdir -p " + dir + " && "
     cp = "cp " + args.install_script.name + " " + dir + " && "
     cd = "cd " + args.defaults['script_repo'] + " && "
-    add = "git add " + shortprefix[1:] + " && "                    # remove the trailing slash
-    commit = ('git -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "'
-              + args.prog + " v" + args.vers + ' installation on `date` in `hostname`" && ')
-    push = "git push"
-    return mkdir + cp + cd + add + commit #+ push
+    add = git + " add " + shortprefix[1:] + " && "                    # remove the trailing slash
+    commit = (git + ' -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "'
+             + args.prog + " v" + args.vers + ' installation on `date` in `hostname`" && ')
+    push = git + " push"
+    return mkdir + cp + cd + add + commit + "echo not pushing" #+ push
 
 # execution starts here
 if __name__ == "__main__":
