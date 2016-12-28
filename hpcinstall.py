@@ -422,7 +422,7 @@ def how_to_call_yourself(args, yourself, pwd, opt):
 def howto_push_to_github(args, shortprefix):
     dir = args.defaults['script_repo'] + shortprefix
     mkdir = "mkdir -p " + dir + " && "
-    cp = "cp install-script " + dir + " && "
+    cp = "cp " + args.install_script.name + " " + dir + " && "
     cd = "cd " + dir + " && "
     return mkdir + cp + cd
 
