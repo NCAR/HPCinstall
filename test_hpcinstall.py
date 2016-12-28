@@ -45,6 +45,7 @@ def stub_os():              # stub os, replacing "import os"
 
 def test_howto_push_to_github(opt):
     opt.defaults['script_repo'] = "~/.hpcinstall/ys-install-scripts"
+    #opt.defaults['git_cmd'] = "/some/odd/path/git"
     opt.install_script.name = "netcdf-mpi-1.2.3"
     opt.prog = "netcdf-mpi"
     opt.vers = "1.2.3"
