@@ -43,14 +43,20 @@ def stub_os():              # stub os, replacing "import os"
     stub_os.path = os.path
     return stub_os
 
-def test_howto_push_to_github():
-    expected = ("mkdir -p working-copy-of-repo/sw/ver/mpi/ver/comp/ver/ && "
-                "cp install-script  working-copy-of-repo/sw/ver/mpi/ver/comp/ver/ && "
-                "cd working-copy-of-repo && "
-                "git add sw/ver/mpi/ver/comp/ver/ && "
-                'git -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "sw ver installation on `date`" && '
+def test_howto_push_to_github(opt):
+    opt.defaults['script_repo'] = "~/.hpcinstall/ys-install-scripts"
+    #opt.defaults['git_cmd'] = "/some/odd/path/git"
+    opt.install_script.name = "netcdf-mpi-1.2.3"
+    opt.prog = "netcdf-mpi"
+    opt.vers = "1.2.3"
+    dirs = "/software/1.2.3/mpt/4.1.5/intel/16.0.3/"
+    expected = ("mkdir -p ~/.hpcinstall/ys-install-scripts/software/1.2.3/mpt/4.1.5/intel/16.0.3/ && "
+                "cp netcdf-mpi-1.2.3 ~/.hpcinstall/ys-install-scripts/software/1.2.3/mpt/4.1.5/intel/16.0.3/ && "
+                "cd ~/.hpcinstall/ys-install-scripts && "
+                "git add software/1.2.3/mpt/4.1.5/intel/16.0.3/ && "
+                'git -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "netcdf-mpi v1.2.3 installation on `date` in `hostname`" && '
                 "git push")
-    assert hpcinstall.howto_push_to_github() == expected
+    assert hpcinstall.howto_push_to_github(opt, dirs) == expected
 
 # not testing print_invocation_info() since it's harmless and hard to test
 
@@ -69,11 +75,13 @@ def test_config_data_environment():
              "sw_install_dir: /glade/apps/opt\n"
              "environment_prefix: ml python\n"
              "mod_install_dir: /glade/apps/opt/modulefiles\n"
+             "git_cmd: /path/to/my/git\n"
              "script_repo: ~csgteam/.hpcinstall/chey-install-scripts\n")
     expected = {"scratch_tree":    "/glade/scratch/",
                 "sw_install_dir":  "/glade/apps/opt",
                 "mod_install_dir": "/glade/apps/opt/modulefiles",
                 "script_repo":     "~csgteam/.hpcinstall/chey-install-scripts",
+                "git_cmd":         "/path/to/my/git",
                 "environment_prefix": "ml python"}
     parsed = hpcinstall.parse_config_data(data)
     for key in expected:
@@ -117,6 +125,7 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
     assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/gnu/4.4.1") + "/"
+    assert d.relativeprefix == "/foo/1.2.3/gnu/4.4.1/"
 
     stub_os.environ['INSTALL_TEST_BASEPATH'] = "/I_want_this_tree_instead"
     hpcinstall.os = stub_os
@@ -125,6 +134,7 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     assert d.basemoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles/idep") + "/"
     assert d.cdepmoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles/cdep") + "/"     # not sure what to do for the cdep variable when there is no compiler dependency
+    assert d.relativeprefix == "/foo/1.2.3/"
 
 def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
     # not testing file_already_exist() and corresponding forcing
