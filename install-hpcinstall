@@ -25,8 +25,8 @@ mkdir -p $HPCI_SW_DIR
 cp *.py *.pyc README.md config.hpcinstall.yaml $HPCI_SW_DIR
 cp -r hpcinstall hashdir $HPCI_SW_DIR                           # symbolic links
 
-# copy also this directory (library dependence)
-cp -r yaml $HPCI_SW_DIR
+# copy also these directories (library dependence)
+cp -r yaml blessed wcwidth $HPCI_SW_DIR
 
 mkdir -p $HPCI_MOD_DIR/system/$HPCI_SW_NAME/
 cat << EOF > $HPCI_MOD_DIR/system/$HPCI_SW_NAME/${HPCI_SW_VERSION}.lua
