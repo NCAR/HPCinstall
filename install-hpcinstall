@@ -37,7 +37,7 @@ help([[
 HPCinstall is supposed to be used by members of the CSG team
 ]])
 
-append_path("PATH","$HPCI_SW_DIR")
+prepend_path("PATH","$HPCI_SW_DIR")
 EOF
 
 echo You may restore the previous status of the repo with
