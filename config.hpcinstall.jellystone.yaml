@@ -1,4 +1,5 @@
 scratch_tree: /picnic/scratch
-sw_install_dir: /picnic/u/apps/la/opt/
-mod_install_dir: ~/CheyenneModules/${SUDO_USER}/CheyenneModules/la
-script_repo: ~/.hpcinstall/chey-install-scripts
+sw_install_dir: /glade/apps/opt/
+mod_install_dir: /glade/apps/opt/modulefiles/js/
+python_cmd: /glade/apps/opt/python/2.7.5/gnu-westmere/4.7.2/bin/python
+script_repo: ~/.hpcinstall/ys-install-scripts
