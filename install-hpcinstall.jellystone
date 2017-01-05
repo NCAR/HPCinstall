@@ -1,0 +1,36 @@
+#!/bin/bash
+#HPCI -n hpcinstall
+#HPCI -v 1.0.3
+#HPCI -u https://github.com/NCAR/HPCinstall/
+
+# jellystone does not have a viable git binary
+echo "You must manually checkout tag ${HPCI_SW_VERSION}, from Laramie."
+echo "Have you done so (yes/no, your answer will not be echoed to the terminal)?"
+read -e -p " " choice
+
+if [ "$choice" != "yes" ]; then
+    echo "You did not answer 'yes'."
+    exit 1
+fi
+
+mkdir -p $HPCI_SW_DIR
+cp *.py *.pyc README.md config.hpcinstall.yaml $HPCI_SW_DIR
+cp -r hpcinstall hashdir $HPCI_SW_DIR                           # symbolic links
+
+# copy also these directories (library dependence)
+cp -r yaml blessed wcwidth $HPCI_SW_DIR
+
+mkdir -p $HPCI_MOD_DIR/system/$HPCI_SW_NAME/
+cat << EOF > $HPCI_MOD_DIR/system/$HPCI_SW_NAME/${HPCI_SW_VERSION}.lua
+require("posix")
+whatis("HPCinstall v${HPCI_SW_VERSION}")
+
+help([[
+HPCinstall is supposed to be used by members of the CSG team
+]])
+
+prepend_path("PATH","$HPCI_SW_DIR")
+EOF
+
+echo You may restore the previous status of the repo with
+echo git checkout $branch
