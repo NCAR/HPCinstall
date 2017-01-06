@@ -98,6 +98,13 @@ def test_missing_config_data():
         data = "mod_install_dir: /glade/apps/opt/modulefiles\n"         # missing directories
         hpcinstall.parse_config_data(data)
 
+    data = ( "scratch_tree: foo\n"                # dirs are mandatory so including them
+             "sw_install_dir: bar\n"              # everything else should be optional
+             "mod_install_dir: baz\n")
+    parsed = hpcinstall.parse_config_data(data)
+    assert parsed is not None
+    # not asserting anything here, assertions are in test_config_data_environment()
+
 def test_parse_installscript_filename():
     sw, ver = hpcinstall.parse_installscript_filename("build-mysoftware-3.2.6")
     assert (sw, ver) == ("mysoftware", "3.2.6")
