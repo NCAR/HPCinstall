@@ -32,6 +32,7 @@ def opt():                                                          # stub optio
     install_script = lambda : None                                  # fake file object
     install_script.name = "build-mysoftware-1.2.3"                  # with this filename
     opt.install_script = install_script                             # stuffed as an option
+    # make sure no script repo by default
     return opt
 
 @pytest.fixture
@@ -44,6 +45,9 @@ def stub_os():              # stub os, replacing "import os"
     return stub_os
 
 def test_howto_push_to_github(opt):
+    # no script repo by default, should cause no git pushing
+    assert hpcinstall.howto_push_to_github(opt, "somedir") == ""
+
     opt.defaults['script_repo'] = "~/.hpcinstall/ys-install-scripts"
     #opt.defaults['git_cmd'] = "/some/odd/path/git"
     opt.install_script.name = "netcdf-mpi-1.2.3"
