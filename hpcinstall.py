@@ -421,6 +421,8 @@ def how_to_call_yourself(args, yourself, pwd, opt):
     return new_invocation, use_shell
 
 def howto_push_to_github(args, shortprefix):
+    if not args.defaults.get('script_repo', ''):
+        return ""
     dir = args.defaults['script_repo'] + shortprefix
     git = args.defaults.get('git_cmd', 'git')
     mkdir = "mkdir -p " + dir + " && "
@@ -470,4 +472,5 @@ if __name__ == "__main__":
 
     if options.csgteam:
         exe_cmd = howto_push_to_github(options, dirs.relativeprefix)
-        sys.exit(subprocess.call(exe_cmd, shell=True))
+        if exe_cmd:
+            sys.exit(subprocess.call(exe_cmd, shell=True))

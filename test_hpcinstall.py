@@ -32,6 +32,7 @@ def opt():                                                          # stub optio
     install_script = lambda : None                                  # fake file object
     install_script.name = "build-mysoftware-1.2.3"                  # with this filename
     opt.install_script = install_script                             # stuffed as an option
+    # make sure no script repo by default
     return opt
 
 @pytest.fixture
@@ -44,6 +45,9 @@ def stub_os():              # stub os, replacing "import os"
     return stub_os
 
 def test_howto_push_to_github(opt):
+    # no script repo by default, should cause no git pushing
+    assert hpcinstall.howto_push_to_github(opt, "somedir") == ""
+
     opt.defaults['script_repo'] = "~/.hpcinstall/ys-install-scripts"
     #opt.defaults['git_cmd'] = "/some/odd/path/git"
     opt.install_script.name = "netcdf-mpi-1.2.3"
@@ -97,6 +101,13 @@ def test_missing_config_data():
     with pytest.raises(KeyError):
         data = "mod_install_dir: /glade/apps/opt/modulefiles\n"         # missing directories
         hpcinstall.parse_config_data(data)
+
+    data = ( "scratch_tree: foo\n"                # dirs are mandatory so including them
+             "sw_install_dir: bar\n"              # everything else should be optional
+             "mod_install_dir: baz\n")
+    parsed = hpcinstall.parse_config_data(data)
+    assert parsed is not None
+    # not asserting anything here, assertions are in test_config_data_environment()
 
 def test_parse_installscript_filename():
     sw, ver = hpcinstall.parse_installscript_filename("build-mysoftware-3.2.6")
