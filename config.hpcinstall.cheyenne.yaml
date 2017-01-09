@@ -1,0 +1,4 @@
+scratch_tree: /glade/scratch2
+sw_install_dir: /glade/u/apps/ch/opt/
+mod_install_dir: ~/CheyenneModules/${SUDO_USER}/CheyenneModules/chey
+script_repo: ~/.hpcinstall/chey-install-scripts

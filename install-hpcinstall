@@ -1,6 +1,6 @@
 #!/bin/bash
 #HPCI -n hpcinstall
-#HPCI -v 1.0.2
+#HPCI -v 1.0.4
 #HPCI -x ml git
 #HPCI -u https://github.com/NCAR/HPCinstall/
 
