@@ -169,7 +169,7 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
     assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/mpi/1.2.3/gnu/4.4.1") + "/"
-    assert d.relativeprefix == "/foo/1.2.3/gnu/4.4.1/mpi/1.2.3"
+    assert d.relativeprefix == "/foo/1.2.3/gnu/4.4.1/mpi/1.2.3/"
 
     stub_os.environ['INSTALL_TEST_BASEPATH'] = "/I_want_this_tree_instead"
     hpcinstall.os = stub_os
