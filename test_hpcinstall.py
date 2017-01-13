@@ -197,9 +197,10 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
 
 # not testing string_or_file() since it's trivial and hard to test
 
-def test_identify_compiler_mpi_none(stub_os):
+def test_verify_compiler_mpi_none(stub_os, opt, dirs):
     hpcinstall.os = stub_os                          # no environmental variables
-    comp_mpi = hpcinstall.identify_compiler_mpi()
+    opt.defaults = dirs
+    comp_mpi = hpcinstall.verify_compiler_mpi(opt)
     assert comp_mpi == ''
 
 def test_identify_compiler_only(stub_os):
