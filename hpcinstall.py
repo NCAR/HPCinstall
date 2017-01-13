@@ -331,7 +331,7 @@ def log_full_env(files_to_archive, module_use):
     print "Done.\n"
     files_to_archive.append(module_log)
 
-def identify_compiler_mpi():
+def verify_compiler_mpi(options):
     compiler = os.environ.get('LMOD_FAMILY_COMPILER','').strip()
     mpi = ""
     try:
@@ -344,7 +344,12 @@ def identify_compiler_mpi():
         for broken_key in ke.args:
             print >> sys.stderr, term.bold_red("Error: " + broken_key + " not set")
         sys.exit(1)
-    return mpi + compiler
+    vars = ('LMOD_FAMILY_COMPILER', 'LMOD_COMPILER_VERSION', 'LMOD_FAMILY_MPI', 'LMOD_MPI_VERSION')
+    for v in vars:
+        if not v in options.defaults['sw_install_struct']:
+            print >> sys.stderr, term.bold_red("Warning: " + v + " not used in sw_install_struct of config.hpcinstall.yaml")
+        if not v in options.defaults['mod_install_struct']:
+            print >> sys.stderr, term.bold_red("Warning: " + v + " not used in mod_install_struct of config.hpcinstall.yaml")
 
 def parse_installscript_for_directives(install_script_str, argument = ""):
     directive = "#HPCI " + argument
@@ -446,7 +451,7 @@ if __name__ == "__main__":
         exe_cmd, use_shell = how_to_call_yourself(sys.argv, script_dir, os.getcwd(), options)
         sys.exit(subprocess.call(exe_cmd, shell = use_shell))
 
-    comp_mpi = identify_compiler_mpi()
+    verify_compiler_mpi(options)
     dirs = get_prefix_and_moduledir(options, comp_mpi)
     module_use = ""
 #   TODO: figure out if this has any value
