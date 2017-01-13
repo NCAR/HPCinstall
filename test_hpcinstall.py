@@ -18,7 +18,9 @@ def run_before_after():
 def dirs():                    # stub dirs
     dirs = {}
     dirs["sw_install_dir"]  = "/glade/apps/"
+    dirs["sw_install_struct"] = "${COMP}/${COMP_VER}/${MPI}/${MPI_VER}"
     dirs["mod_install_dir"] = "/glade/mods/"
+    dirs["mod_install_struct"] = "${MPI}/${MPI_VER}/{COMP}/${COMP_VER}"
     dirs["scratch_tree"]    = "/glade/scra/"
     return dirs
 
@@ -68,9 +70,18 @@ def test_config_data_dirs():
     # note some dirs have the slash some don't and the expected ones do not match
     data = ( "scratch_tree: /glade/scratch\n"
              "sw_install_dir: /glade/apps/opt/\n"
-             "mod_install_dir: /glade/apps/opt/modulefiles\n")
-    expected = {"scratch_tree": "/glade/scratch/", "sw_install_dir": "/glade/apps/opt", "mod_install_dir": "/glade/apps/opt/modulefiles"}
+             "sw_install_struct: ${C}/${CV}/${M}/${MV}\n"
+             "mod_install_dir: /glade/apps/opt/modulefiles\n"
+             "mod_install_struct: ${M}/${MV}/${C}/${CV}\n"
+             )
+    expected = {"scratch_tree": "/glade/scratch/",
+                "sw_install_dir": "/glade/apps/opt",
+                "sw_install_struct": "${C}/${CV}/${M}/${MV}",
+                "mod_install_dir": "/glade/apps/opt/modulefiles",
+                "mod_install_struct": "${M}/${MV}/${C}/${CV}"
+               }
     parsed = hpcinstall.parse_config_data(data)
+    assert len(expected) == len(parsed)
     for key in parsed:
         assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
 
