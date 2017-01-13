@@ -229,20 +229,20 @@ def ask_confirmation_for(options, msg):
             print >> sys.stderr, term.bold_red("You did not say an ethusiastic 'yes', aborting...")
             sys.exit(1)
 
-def get_prefix_and_moduledir(options, my_dep):
+def get_prefix_and_moduledir(options, bin_dep, mod_dep):
     default_dirs = options.defaults
     my_prog = options.prog + "/" + options.vers
     if options.csgteam:
         if os.environ['USER'] != "csgteam":
             ask_confirmation_for(options, "Should sudo into 'csgteam' to install as such. Continue anyway? ")
-        prefix    = os.path.abspath(default_dirs["sw_install_dir"] + "/" + my_prog + "/" + my_dep)
+        prefix    = os.path.abspath(default_dirs["sw_install_dir"] + "/" + my_prog + "/" + bin_dep)
         moduledir = os.path.abspath(default_dirs["mod_install_dir"])
     else:
         if "INSTALL_TEST_BASEPATH" in os.environ:
             basepath = os.environ['INSTALL_TEST_BASEPATH']
         else:
             basepath = default_dirs["scratch_tree"] + os.environ['USER'] + "/test_installs/"
-        prefix    = os.path.abspath(basepath + "/" + my_prog + "/" + my_dep)
+        prefix    = os.path.abspath(basepath + "/" + my_prog + "/" + bin_dep)
         moduledir = os.path.abspath(basepath + "/modulefiles/")
 
     if os.path.exists(prefix):
@@ -254,14 +254,15 @@ def get_prefix_and_moduledir(options, my_dep):
                                  " already exists and you speficied --force to delete it. Continue? ")
             shutil.rmtree(prefix)
     directories = namedtuple('Directories', ['prefix','basemoduledir','idepmoduledir','cdepmoduledir', 'relativeprefix'])
-    suffix = my_dep
-    if suffix == "":
-        suffix = "cdep"
+    if mod_dep == "":
+        cdep_dir = "not_compiler_dependent"
+    else:
+        cdep_dir = os.path.abspath(moduledir + "/" + mod_dep) + "/"
     d = directories(prefix        =                 prefix + "/",
-                    relativeprefix= os.path.abspath("/" + my_prog + "/" + my_dep) + "/",
+                    relativeprefix= os.path.abspath("/" + my_prog + "/" + bin_dep) + "/",
                     basemoduledir =                 moduledir + "/",
                     idepmoduledir =                 moduledir + "/idep/",
-                    cdepmoduledir = os.path.abspath(moduledir + "/" + suffix) + "/" )
+                    cdepmoduledir = cdep_dir)
     return d
 
 def prepare_variables_and_warn(dirs, options):
@@ -330,6 +331,9 @@ def log_full_env(files_to_archive, module_use):
     subcall(module_use + "module list", module_log)
     print "Done.\n"
     files_to_archive.append(module_log)
+
+def identify_compiler_mpi(options):
+    verify_compiler_mpi(options)
 
 def verify_compiler_mpi(options):
     compiler = os.environ.get('LMOD_FAMILY_COMPILER','').strip()
@@ -451,8 +455,8 @@ if __name__ == "__main__":
         exe_cmd, use_shell = how_to_call_yourself(sys.argv, script_dir, os.getcwd(), options)
         sys.exit(subprocess.call(exe_cmd, shell = use_shell))
 
-    verify_compiler_mpi(options)
-    dirs = get_prefix_and_moduledir(options, comp_mpi)
+    bin_comp_mpi, mod_comp_mpi = identify_compiler_mpi(options)
+    dirs = get_prefix_and_moduledir(options, bin_comp_mpi, mod_comp_mpi)
     module_use = ""
 #   TODO: figure out if this has any value
 #    if not dirs.moduledir in os.environ['MODULEPATH']:
