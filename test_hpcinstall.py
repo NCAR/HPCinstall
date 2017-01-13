@@ -201,7 +201,6 @@ def test_verify_compiler_mpi_none(stub_os, opt, dirs):
     hpcinstall.os = stub_os                          # no environmental variables
     opt.defaults = dirs
     comp_mpi = hpcinstall.verify_compiler_mpi(opt)
-    assert comp_mpi == ''
 
 def test_verify_compiler_no_version(stub_os, opt, dirs):
     hpcinstall.os = stub_os
