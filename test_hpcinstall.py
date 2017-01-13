@@ -210,24 +210,16 @@ def test_verify_compiler_no_version(stub_os, opt, dirs):
     with pytest.raises(SystemExit):
         comp_mpi = hpcinstall.verify_compiler_mpi(opt)
 
-def test_identify_compiler_and_mpi(stub_os):
-    hpcinstall.os = stub_os
-    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
-    stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
-    stub_os.environ['LMOD_FAMILY_MPI'] = "mpt"
-    stub_os.environ['LMOD_MPI_VERSION'] = "4.5.6"
-    comp_mpi = hpcinstall.identify_compiler_mpi()
-    assert comp_mpi == 'mpt/4.5.6/intel/1.2.3'
-
-def test_identify_compiler_and_mpi_no_version(stub_os):
+def test_verify_compiler_and_mpi_no_version(stub_os, opt, dirs):
     hpcinstall.os = stub_os
     stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
     stub_os.environ['LMOD_FAMILY_MPI'] = "mpt"
+    opt.defaults = dirs
     with pytest.raises(SystemExit):
-        comp_mpi = hpcinstall.identify_compiler_mpi()
+        comp_mpi = hpcinstall.verify_compiler_mpi(opt)
     stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
     with pytest.raises(SystemExit):
-        comp_mpi = hpcinstall.identify_compiler_mpi()
+        comp_mpi = hpcinstall.verify_compiler_mpi(opt)
 
 def test_parse_installscript_for_modules_legacy():
     data = ("#!/bin/bash\n"
