@@ -86,15 +86,19 @@ def test_config_data_dirs():
         assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
 
 def test_config_data_environment():
-    data = ( "scratch_tree: /glade/scratch\n"       # dirs are mandatory so including them anyway
+    data = ( "scratch_tree: /glade/scratch\n"       # dirs and struct are mandatory so including them anyway
              "sw_install_dir: /glade/apps/opt\n"
+             "sw_install_struct: ${C}/${CV}/${M}/${MV}\n"
              "python_cmd: /path/to/my/python\n"
              "mod_install_dir: /glade/apps/opt/modulefiles\n"
+             "mod_install_struct: ${M}/${MV}/${C}/${CV}\n"
              "git_cmd: /path/to/my/git\n"
              "script_repo: ~csgteam/.hpcinstall/chey-install-scripts\n")
     expected = {"scratch_tree":    "/glade/scratch/",
                 "sw_install_dir":  "/glade/apps/opt",
+                "sw_install_struct": "${C}/${CV}/${M}/${MV}",
                 "mod_install_dir": "/glade/apps/opt/modulefiles",
+                "mod_install_struct": "${M}/${MV}/${C}/${CV}",
                 "script_repo":     "~csgteam/.hpcinstall/chey-install-scripts",
                 "git_cmd":         "/path/to/my/git",
                 "python_cmd": "/path/to/my/python"}
@@ -103,19 +107,30 @@ def test_config_data_environment():
         assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
 
 def test_missing_config_data():
-    # note some dirs have the slash some don't and the expected ones do not match
     data = ( "scratch_tree: /glade/scratch\n"
+             "sw_install_struct: abc\n"
+             "mod_install_struct: xyz\n"
              "sw_install_dir: /glade/apps/opt/\n")                      # missing directory
     with pytest.raises(KeyError):
         hpcinstall.parse_config_data(data)
 
+    data = ( "scratch_tree: /glade/scratch\n"
+             "sw_install_dir: bar\n"
+             "mod_install_struct: xyz\n"
+             "sw_install_dir: /glade/apps/opt/\n")                      # missing struct
     with pytest.raises(KeyError):
-        data = "mod_install_dir: /glade/apps/opt/modulefiles\n"         # missing directories
         hpcinstall.parse_config_data(data)
 
-    data = ( "scratch_tree: foo\n"                # dirs are mandatory so including them
+    with pytest.raises(KeyError):
+        data = "mod_install_dir: /glade/apps/opt/modulefiles\n"         # missing lots
+        hpcinstall.parse_config_data(data)
+
+    data = ( "scratch_tree: foo\n"                # dirs and struct are mandatory so including them
              "sw_install_dir: bar\n"              # everything else should be optional
-             "mod_install_dir: baz\n")
+             "mod_install_dir: baz\n"
+             "sw_install_struct: abc\n"
+             "mod_install_struct: xyz\n"
+           )
     parsed = hpcinstall.parse_config_data(data)
     assert parsed is not None
     # not asserting anything here, assertions are in test_config_data_environment()
