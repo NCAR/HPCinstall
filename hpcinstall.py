@@ -334,6 +334,9 @@ def log_full_env(files_to_archive, module_use):
 
 def identify_compiler_mpi(options):
     verify_compiler_mpi(options)
+    bin_comp_mpi = ''
+    mod_comp_mpi = ''
+    return bin_comp_mpi, mod_comp_mpi
 
 def verify_compiler_mpi(options):
     compiler = os.environ.get('LMOD_FAMILY_COMPILER','').strip()
