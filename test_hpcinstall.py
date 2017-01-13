@@ -157,20 +157,27 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     opt.prog = "foo"
     opt.vers = "1.2.3"
     opt.defaults = dirs
-    d = hpcinstall.get_prefix_and_moduledir(opt, "gnu/4.4.1")
+    d = hpcinstall.get_prefix_and_moduledir(opt, "gnu/4.4.1", "gnu/4.4.1")
     assert d.prefix        == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3/gnu/4.4.1") + "/"
     assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
     assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/gnu/4.4.1") + "/"
     assert d.relativeprefix == "/foo/1.2.3/gnu/4.4.1/"
 
+    d = hpcinstall.get_prefix_and_moduledir(opt, "gnu/4.4.1/mpi/1.2.3", "mpi/1.2.3/gnu/4.4.1")
+    assert d.prefix        == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3/gnu/4.4.1/mpi/1.2.3") + "/"
+    assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
+    assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
+    assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/mpi/1.2.3/gnu/4.4.1") + "/"
+    assert d.relativeprefix == "/foo/1.2.3/gnu/4.4.1/mpi/1.2.3"
+
     stub_os.environ['INSTALL_TEST_BASEPATH'] = "/I_want_this_tree_instead"
     hpcinstall.os = stub_os
-    d = hpcinstall.get_prefix_and_moduledir(opt, "")
+    d = hpcinstall.get_prefix_and_moduledir(opt, "", "")
     assert d.prefix        == os.path.abspath("/I_want_this_tree_instead/foo/1.2.3") + "/"
     assert d.basemoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles/idep") + "/"
-    assert d.cdepmoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles/cdep") + "/"     # not sure what to do for the cdep variable when there is no compiler dependency
+    assert d.cdepmoduledir == "not_compiler_dependent"
     assert d.relativeprefix == "/foo/1.2.3/"
 
 def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
@@ -181,11 +188,11 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
     opt.defaults = dirs
     opt.csgteam = True
     hpcinstall.os = stub_os
-    d = hpcinstall.get_prefix_and_moduledir(opt, "")
+    d = hpcinstall.get_prefix_and_moduledir(opt, "", "")
     assert d.prefix        == os.path.abspath(dirs["sw_install_dir"] + "/foo/1.2.3/") + "/"
     assert d.basemoduledir == os.path.abspath(dirs["mod_install_dir"]) + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["mod_install_dir"]) + "/idep/"
-    assert d.cdepmoduledir == os.path.abspath(dirs["mod_install_dir"]) + "/cdep/"                     # not sure what to do for the cdep variable when there is no compiler dependency
+    assert d.cdepmoduledir == "not_compiler_dependent"
 
 # not testing justify() since it's only pretty-printing (no need to test behavior)
 
