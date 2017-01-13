@@ -211,6 +211,17 @@ def test_identify_compiler_mpi(stub_os, opt, dirs):
     assert bin_comp_mpi == ''
     assert mod_comp_mpi == ''
 
+    stub_os.environ['COMP'] = 'intel'
+    stub_os.environ['COMP_VER'] = '16.0.1'
+    stub_os.environ['MPI'] = 'mpt'
+    stub_os.environ['MPI_VER'] = '2.15b'
+    dirs["sw_install_struct"] = "${COMP}/${COMP_VER}/${MPI}/${MPI_VER}"
+    dirs["mod_install_struct"] = "${MPI}/${MPI_VER}/{COMP}/${COMP_VER}"
+    opt.defaults = dirs
+    bin_comp_mpi, mod_comp_mpi = hpcinstall.identify_compiler_mpi(opt)
+    assert bin_comp_mpi == 'intel/16.0.1/mpt/2.15b'
+    assert mod_comp_mpi == 'mpt/2.15b/intel/16.0.1'
+
 def test_verify_compiler_mpi_none(stub_os, opt, dirs):
     hpcinstall.os = stub_os                          # no environmental variables
     opt.defaults = dirs
