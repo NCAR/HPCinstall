@@ -204,17 +204,24 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
 
 # not testing string_or_file() since it's trivial and hard to test
 
+def test_identify_compiler_mpi(stub_os, opt, dirs):
+    hpcinstall.os = stub_os                          # no environmental variables
+    opt.defaults = dirs
+    bin_comp_mpi, mod_comp_mpi = hpcinstall.identify_compiler_mpi(opt)
+    assert bin_comp_mpi == ''
+    assert mod_comp_mpi == ''
+
 def test_verify_compiler_mpi_none(stub_os, opt, dirs):
     hpcinstall.os = stub_os                          # no environmental variables
     opt.defaults = dirs
-    comp_mpi = hpcinstall.verify_compiler_mpi(opt)
+    hpcinstall.verify_compiler_mpi(opt)
 
 def test_verify_compiler_no_version(stub_os, opt, dirs):
     hpcinstall.os = stub_os
     stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
     opt.defaults = dirs
     with pytest.raises(SystemExit):
-        comp_mpi = hpcinstall.verify_compiler_mpi(opt)
+        hpcinstall.verify_compiler_mpi(opt)
 
 def test_verify_compiler_and_mpi_no_version(stub_os, opt, dirs):
     hpcinstall.os = stub_os
@@ -222,10 +229,10 @@ def test_verify_compiler_and_mpi_no_version(stub_os, opt, dirs):
     stub_os.environ['LMOD_FAMILY_MPI'] = "mpt"
     opt.defaults = dirs
     with pytest.raises(SystemExit):
-        comp_mpi = hpcinstall.verify_compiler_mpi(opt)
+        hpcinstall.verify_compiler_mpi(opt)
     stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
     with pytest.raises(SystemExit):
-        comp_mpi = hpcinstall.verify_compiler_mpi(opt)
+        hpcinstall.verify_compiler_mpi(opt)
 
 def test_parse_installscript_for_modules_legacy():
     data = ("#!/bin/bash\n"
