@@ -8,7 +8,7 @@ term = blessed.Terminal()
 HPCi_log = "hpci.main.log"
 env_log = "hpci.env.log"
 module_log = "hpci.modules.log"
-list_of_dirs =['scratch_tree', 'sw_install_dir', 'mod_install_dir' ]
+list_of_dirs =['scratch_tree', 'sw_install_dir', 'mod_install_dir', 'sw_install_struct', 'mod_install_struct' ]
 
 def print_invocation_info():
     if os.environ['USER'] == "csgteam":
