@@ -203,18 +203,12 @@ def test_verify_compiler_mpi_none(stub_os, opt, dirs):
     comp_mpi = hpcinstall.verify_compiler_mpi(opt)
     assert comp_mpi == ''
 
-def test_identify_compiler_only(stub_os):
+def test_verify_compiler_no_version(stub_os, opt, dirs):
     hpcinstall.os = stub_os
     stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
-    stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
-    comp_mpi = hpcinstall.identify_compiler_mpi()
-    assert comp_mpi == 'intel/1.2.3'
-
-def test_identify_compiler_no_version(stub_os):
-    hpcinstall.os = stub_os
-    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    opt.defaults = dirs
     with pytest.raises(SystemExit):
-        comp_mpi = hpcinstall.identify_compiler_mpi()
+        comp_mpi = hpcinstall.verify_compiler_mpi(opt)
 
 def test_identify_compiler_and_mpi(stub_os):
     hpcinstall.os = stub_os
