@@ -332,10 +332,14 @@ def log_full_env(files_to_archive, module_use):
     print "Done.\n"
     files_to_archive.append(module_log)
 
+def expandvars_in_bash(expression):
+    return subprocess.check_output(["bash", "-c", "echo -n \"{}\"".format(os.path.expandvars(expression))
+                                   ])
+
 def identify_compiler_mpi(options):
     verify_compiler_mpi(options)
-    bin_comp_mpi = ''
-    mod_comp_mpi = ''
+    bin_comp_mpi = expandvars_in_bash(options.defaults['sw_install_struct'])
+    mod_comp_mpi = expandvars_in_bash(options.defaults['mod_install_struct'])
     return bin_comp_mpi, mod_comp_mpi
 
 def verify_compiler_mpi(options):
