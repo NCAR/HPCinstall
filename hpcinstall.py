@@ -333,7 +333,10 @@ def log_full_env(files_to_archive, module_use):
     files_to_archive.append(module_log)
 
 def expandvars_in_bash(expression):
-    return os.path.normpath(subprocess.check_output(["bash", "-c", 'echo -n "' + expression + '"']))
+    value = os.path.normpath(subprocess.check_output(["bash", "-c", 'echo -n "' + expression + '"']))
+    if value =='/':
+        value = ''
+    return value
 
 def identify_compiler_mpi(options):
     verify_compiler_mpi(options)
