@@ -14,11 +14,38 @@ def run_before_after():
     hpcinstall.os = old_os
     hpcinstall.ask_confirmation_for = old_ask
 
+from contextlib import contextmanager
+@contextmanager
+def my_env_variables(stub_os):
+    overwritten = {}
+    for var in stub_os.environ:
+        if var in os.environ:
+            print "Saving", var, "currently", os.environ[var] + ".",
+            overwritten[var] = os.environ[var]
+        else:
+            print "No", var, "to save.",
+        print "Setting", var, "to", stub_os.environ[var]
+        os.environ[var] = stub_os.environ[var]
+    try:
+        yield stub_os
+    finally:
+        print "---"
+        for var in stub_os.environ:
+            print "evaluating", var, "...",
+            if var in overwritten:
+                print "restoring"
+                os.environ[var] = overwritten[var]
+            else:
+                print "deleting"
+                del os.environ[var]
+
 @pytest.fixture
 def dirs():                    # stub dirs
     dirs = {}
     dirs["sw_install_dir"]  = "/glade/apps/"
+    dirs["sw_install_struct"] = "${COMP}/${COMP_VER}/${MPI}/${MPI_VER}"
     dirs["mod_install_dir"] = "/glade/mods/"
+    dirs["mod_install_struct"] = "${MPI}/${MPI_VER}/${COMP}/${COMP_VER}"
     dirs["scratch_tree"]    = "/glade/scra/"
     return dirs
 
@@ -68,43 +95,70 @@ def test_config_data_dirs():
     # note some dirs have the slash some don't and the expected ones do not match
     data = ( "scratch_tree: /glade/scratch\n"
              "sw_install_dir: /glade/apps/opt/\n"
-             "mod_install_dir: /glade/apps/opt/modulefiles\n")
-    expected = {"scratch_tree": "/glade/scratch/", "sw_install_dir": "/glade/apps/opt", "mod_install_dir": "/glade/apps/opt/modulefiles"}
+             "sw_install_struct: ${C}/${CV}/${M}/${MV}\n"
+             "mod_install_dir: /glade/apps/opt/modulefiles\n"
+             "mod_install_struct: ${M}/${MV}/${C}/${CV}\n"
+             )
+    expected = {"scratch_tree": "/glade/scratch/",
+                "sw_install_dir": "/glade/apps/opt/",
+                "sw_install_struct": "${C}/${CV}/${M}/${MV}",
+                "mod_install_dir": "/glade/apps/opt/modulefiles/",
+                "mod_install_struct": "${M}/${MV}/${C}/${CV}"
+               }
     parsed = hpcinstall.parse_config_data(data)
+    assert len(expected) == len(parsed)
     for key in parsed:
-        assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
+        print key
+        assert expected[key] == parsed[key]
 
 def test_config_data_environment():
-    data = ( "scratch_tree: /glade/scratch\n"       # dirs are mandatory so including them anyway
+    data = ( "scratch_tree: /glade/scratch\n"       # dirs and struct are mandatory so including them anyway
              "sw_install_dir: /glade/apps/opt\n"
+             "sw_install_struct: ${C}/${CV}/${M}/${MV}\n"
              "python_cmd: /path/to/my/python\n"
              "mod_install_dir: /glade/apps/opt/modulefiles\n"
+             "mod_install_struct: ${M}/${MV}/${C}/${CV}\n"
              "git_cmd: /path/to/my/git\n"
              "script_repo: ~csgteam/.hpcinstall/chey-install-scripts\n")
     expected = {"scratch_tree":    "/glade/scratch/",
-                "sw_install_dir":  "/glade/apps/opt",
-                "mod_install_dir": "/glade/apps/opt/modulefiles",
+                "sw_install_dir":  "/glade/apps/opt/",
+                "sw_install_struct": "${C}/${CV}/${M}/${MV}",
+                "mod_install_dir": "/glade/apps/opt/modulefiles/",
+                "mod_install_struct": "${M}/${MV}/${C}/${CV}",
                 "script_repo":     "~csgteam/.hpcinstall/chey-install-scripts",
                 "git_cmd":         "/path/to/my/git",
                 "python_cmd": "/path/to/my/python"}
     parsed = hpcinstall.parse_config_data(data)
+    assert len(expected) == len(parsed)
     for key in expected:
-        assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
+        print key
+        assert expected[key] == parsed[key]
 
 def test_missing_config_data():
-    # note some dirs have the slash some don't and the expected ones do not match
     data = ( "scratch_tree: /glade/scratch\n"
+             "sw_install_struct: abc\n"
+             "mod_install_struct: xyz\n"
              "sw_install_dir: /glade/apps/opt/\n")                      # missing directory
     with pytest.raises(KeyError):
         hpcinstall.parse_config_data(data)
 
+    data = ( "scratch_tree: /glade/scratch\n"
+             "sw_install_dir: bar\n"
+             "mod_install_struct: xyz\n"
+             "sw_install_dir: /glade/apps/opt/\n")                      # missing struct
     with pytest.raises(KeyError):
-        data = "mod_install_dir: /glade/apps/opt/modulefiles\n"         # missing directories
         hpcinstall.parse_config_data(data)
 
-    data = ( "scratch_tree: foo\n"                # dirs are mandatory so including them
+    with pytest.raises(KeyError):
+        data = "mod_install_dir: /glade/apps/opt/modulefiles\n"         # missing lots
+        hpcinstall.parse_config_data(data)
+
+    data = ( "scratch_tree: foo\n"                # dirs and struct are mandatory so including them
              "sw_install_dir: bar\n"              # everything else should be optional
-             "mod_install_dir: baz\n")
+             "mod_install_dir: baz\n"
+             "sw_install_struct: abc\n"
+             "mod_install_struct: xyz\n"
+           )
     parsed = hpcinstall.parse_config_data(data)
     assert parsed is not None
     # not asserting anything here, assertions are in test_config_data_environment()
@@ -131,20 +185,27 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     opt.prog = "foo"
     opt.vers = "1.2.3"
     opt.defaults = dirs
-    d = hpcinstall.get_prefix_and_moduledir(opt, "gnu/4.4.1")
+    d = hpcinstall.get_prefix_and_moduledir(opt, "gnu/4.4.1", "gnu/4.4.1")
     assert d.prefix        == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3/gnu/4.4.1") + "/"
     assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
     assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/gnu/4.4.1") + "/"
     assert d.relativeprefix == "/foo/1.2.3/gnu/4.4.1/"
 
+    d = hpcinstall.get_prefix_and_moduledir(opt, "gnu/4.4.1/mpi/1.2.3", "mpi/1.2.3/gnu/4.4.1")
+    assert d.prefix        == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3/gnu/4.4.1/mpi/1.2.3") + "/"
+    assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
+    assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
+    assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/mpi/1.2.3/gnu/4.4.1") + "/"
+    assert d.relativeprefix == "/foo/1.2.3/gnu/4.4.1/mpi/1.2.3/"
+
     stub_os.environ['INSTALL_TEST_BASEPATH'] = "/I_want_this_tree_instead"
     hpcinstall.os = stub_os
-    d = hpcinstall.get_prefix_and_moduledir(opt, "")
+    d = hpcinstall.get_prefix_and_moduledir(opt, "", "")
     assert d.prefix        == os.path.abspath("/I_want_this_tree_instead/foo/1.2.3") + "/"
     assert d.basemoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles") + "/"
     assert d.idepmoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles/idep") + "/"
-    assert d.cdepmoduledir == os.path.abspath("/I_want_this_tree_instead/modulefiles/cdep") + "/"     # not sure what to do for the cdep variable when there is no compiler dependency
+    assert d.cdepmoduledir == "not_compiler_dependent"
     assert d.relativeprefix == "/foo/1.2.3/"
 
 def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
@@ -155,11 +216,11 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
     opt.defaults = dirs
     opt.csgteam = True
     hpcinstall.os = stub_os
-    d = hpcinstall.get_prefix_and_moduledir(opt, "")
+    d = hpcinstall.get_prefix_and_moduledir(opt, "", "")
     assert d.prefix        == os.path.abspath(dirs["sw_install_dir"] + "/foo/1.2.3/") + "/"
     assert d.basemoduledir == os.path.abspath(dirs["mod_install_dir"]) + "/"
     assert d.idepmoduledir == os.path.abspath(dirs["mod_install_dir"]) + "/idep/"
-    assert d.cdepmoduledir == os.path.abspath(dirs["mod_install_dir"]) + "/cdep/"                     # not sure what to do for the cdep variable when there is no compiler dependency
+    assert d.cdepmoduledir == "not_compiler_dependent"
 
 # not testing justify() since it's only pretty-printing (no need to test behavior)
 
@@ -171,42 +232,48 @@ def test_get_prefix_and_moduledir_for_csgteam(dirs, opt, stub_os):
 
 # not testing string_or_file() since it's trivial and hard to test
 
-def test_identify_compiler_mpi_none(stub_os):
+def test_identify_compiler_mpi(stub_os, opt, dirs):
     hpcinstall.os = stub_os                          # no environmental variables
-    comp_mpi = hpcinstall.identify_compiler_mpi()
-    assert comp_mpi == ''
+    opt.defaults = dirs
+    bin_comp_mpi, mod_comp_mpi = hpcinstall.identify_compiler_mpi(opt)
+    assert bin_comp_mpi == ''
+    assert mod_comp_mpi == ''
 
-def test_identify_compiler_only(stub_os):
+    stub_os.environ['COMP'] = 'intel'
+    stub_os.environ['COMP_VER'] = '16.0.1'
+    stub_os.environ['MPI'] = 'mpt'
+    stub_os.environ['MPI_VER'] = '2.15b'
+# the following not strictly needed, but don't want to rely on default's dir
+    dirs["sw_install_struct"] = "${COMP}/${COMP_VER}/${MPI}/${MPI_VER}"
+    dirs["mod_install_struct"] = "${MPI}/${MPI_VER}/${COMP}/${COMP_VER}"
+    opt.defaults = dirs
+    with my_env_variables(stub_os):
+        bin_comp_mpi, mod_comp_mpi = hpcinstall.identify_compiler_mpi(opt)
+    assert bin_comp_mpi == 'intel/16.0.1/mpt/2.15b'
+    assert mod_comp_mpi == 'mpt/2.15b/intel/16.0.1'
+
+def test_verify_compiler_mpi_none(stub_os, opt, dirs):
+    hpcinstall.os = stub_os                          # no environmental variables
+    opt.defaults = dirs
+    hpcinstall.verify_compiler_mpi(opt)
+
+def test_verify_compiler_no_version(stub_os, opt, dirs):
     hpcinstall.os = stub_os
     stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
-    stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
-    comp_mpi = hpcinstall.identify_compiler_mpi()
-    assert comp_mpi == 'intel/1.2.3'
-
-def test_identify_compiler_no_version(stub_os):
-    hpcinstall.os = stub_os
-    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
+    opt.defaults = dirs
     with pytest.raises(SystemExit):
-        comp_mpi = hpcinstall.identify_compiler_mpi()
+        hpcinstall.verify_compiler_mpi(opt)
 
-def test_identify_compiler_and_mpi(stub_os):
+def test_verify_compiler_and_mpi_no_version(stub_os, opt, dirs):
     hpcinstall.os = stub_os
     stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
-    stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
     stub_os.environ['LMOD_FAMILY_MPI'] = "mpt"
-    stub_os.environ['LMOD_MPI_VERSION'] = "4.5.6"
-    comp_mpi = hpcinstall.identify_compiler_mpi()
-    assert comp_mpi == 'mpt/4.5.6/intel/1.2.3'
-
-def test_identify_compiler_and_mpi_no_version(stub_os):
-    hpcinstall.os = stub_os
-    stub_os.environ['LMOD_FAMILY_COMPILER'] = "intel"
-    stub_os.environ['LMOD_FAMILY_MPI'] = "mpt"
+    opt.defaults = dirs
     with pytest.raises(SystemExit):
-        comp_mpi = hpcinstall.identify_compiler_mpi()
+        hpcinstall.verify_compiler_mpi(opt)
     stub_os.environ['LMOD_COMPILER_VERSION'] = "1.2.3"
     with pytest.raises(SystemExit):
-        comp_mpi = hpcinstall.identify_compiler_mpi()
+        hpcinstall.verify_compiler_mpi(opt)
 
 def test_parse_installscript_for_modules_legacy():
     data = ("#!/bin/bash\n"

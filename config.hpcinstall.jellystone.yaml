@@ -2,3 +2,5 @@ scratch_tree: /picnic/scratch
 sw_install_dir: /glade/apps/opt/
 mod_install_dir: /glade/apps/opt/modulefiles/js/
 python_cmd: /glade/apps/opt/python/2.7.5/gnu-westmere/4.7.2/bin/python
+sw_install_struct: ${LMOD_FAMILY_COMPILER}
+mod_install_struct: ${LMOD_FAMILY_COMPILER}
