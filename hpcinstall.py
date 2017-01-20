@@ -8,7 +8,10 @@ term = blessed.Terminal()
 HPCi_log = "hpci.main.log"
 env_log = "hpci.env.log"
 module_log = "hpci.modules.log"
-list_of_dirs =['scratch_tree', 'sw_install_dir', 'mod_install_dir', 'sw_install_struct', 'mod_install_struct' ]
+config_options = {'list_of_dirs':   ['scratch_tree', 'sw_install_dir', 'mod_install_dir'],
+                  'install_struct': ['sw_install_struct', 'mod_install_struct' ],
+                  'optional':       ['python_cmd', 'script_repo', 'git_cmd'],
+                 }
 
 def print_invocation_info():
     if os.environ['USER'] == "csgteam":
@@ -44,16 +47,18 @@ def parse_config_data(yaml_data):
     default_dirs = {}
     config = yaml.safe_load(yaml_data)
     if not config:
-        raise KeyError(list_of_dirs)
+        raise KeyError(config_options['list_of_dirs'] + config_options['install_struct'])
 
-    for dirname in list_of_dirs:
+    for dirname in config_options['list_of_dirs']:
         default_dirs[dirname] = os.path.abspath(
                                    os.path.expandvars(
                                       os.path.expanduser(
                                          config[dirname]))) + "/"
 
-    others = ['python_cmd', 'script_repo', 'git_cmd']
-    for thing in others:
+    for thing in config_options['install_struct']: # mandatory
+        default_dirs[thing] = config[thing]
+
+    for thing in config_options['optional']:
         if thing in config:
             default_dirs[thing] = config[thing]
     return default_dirs
@@ -167,12 +172,12 @@ def parse_command_line_arguments(list_of_files):
     try:
         defaults = parse_config_data(open(config_filename))
         args.defaults = defaults
-    except KeyError:
-        print >> sys.stderr, term.bold_red("Error: " + config_filename + " does not contain the expected fields"), list_of_dirs
+    except KeyErrori, e:
+        print >> sys.stderr, term.bold_red("Error: " + config_filename + " does not contain the expected fields"), e.args[0]
         should_exit = True
     except IOError as e:
         print >> sys.stderr, e
-        print >> sys.stderr, term.bold_red("Cannot set " + list_of_dirs +  " -- ABORTING")
+        print >> sys.stderr, term.bold_red("Cannot read " + config_filename +  " -- ABORTING")
         should_exit = True
 
     args.modules_to_load = modules_to_load
