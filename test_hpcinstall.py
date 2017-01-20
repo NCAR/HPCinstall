@@ -108,6 +108,7 @@ def test_config_data_dirs():
     parsed = hpcinstall.parse_config_data(data)
     assert len(expected) == len(parsed)
     for key in parsed:
+        print key
         assert expected[key] == parsed[key]
 
 def test_config_data_environment():
@@ -130,6 +131,7 @@ def test_config_data_environment():
     parsed = hpcinstall.parse_config_data(data)
     assert len(expected) == len(parsed)
     for key in expected:
+        print key
         assert expected[key] == parsed[key]
 
 def test_missing_config_data():
