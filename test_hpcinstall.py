@@ -100,15 +100,15 @@ def test_config_data_dirs():
              "mod_install_struct: ${M}/${MV}/${C}/${CV}\n"
              )
     expected = {"scratch_tree": "/glade/scratch/",
-                "sw_install_dir": "/glade/apps/opt",
+                "sw_install_dir": "/glade/apps/opt/",
                 "sw_install_struct": "${C}/${CV}/${M}/${MV}",
-                "mod_install_dir": "/glade/apps/opt/modulefiles",
+                "mod_install_dir": "/glade/apps/opt/modulefiles/",
                 "mod_install_struct": "${M}/${MV}/${C}/${CV}"
                }
     parsed = hpcinstall.parse_config_data(data)
     assert len(expected) == len(parsed)
     for key in parsed:
-        assert os.path.abspath(expected[key]) == os.path.abspath(parsed[key])
+        assert expected[key] == parsed[key]
 
 def test_config_data_environment():
     data = ( "scratch_tree: /glade/scratch\n"       # dirs and struct are mandatory so including them anyway
