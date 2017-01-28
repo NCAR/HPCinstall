@@ -135,9 +135,7 @@ def parse_command_line_arguments(list_of_files):
             print >> sys.stderr, term.bold_red("       use '#HPCI -x foo' directives instead.")
             should_exit = True
         mtl_list = parse_installscript_for_directives(install_script_str, "-x")
-        modules_to_load = "; ".join(mtl_list)
-        if len(mtl_list) > 0:
-            modules_to_load += ";"
+        modules_to_load = "module purge; " + "; ".join(mtl_list)
 
     # Make sure user doesn't preserve environment during system install
     if args.preserve and args.csgteam:
@@ -148,7 +146,7 @@ def parse_command_line_arguments(list_of_files):
     args.nossh = "--nossh" in sys.argv
 
     # Run test during execution step (not during initial pass)
-    if args.nossh:
+    if not args.nossh:
         if subcall(modules_to_load,            # try loading modules
                    stop_on_errors=True,        # stop at the first failure
                    log="/dev/null",            # don't output anything (output already happened in the ssh call)
@@ -172,7 +170,7 @@ def parse_command_line_arguments(list_of_files):
     try:
         defaults = parse_config_data(open(config_filename))
         args.defaults = defaults
-    except KeyErrori, e:
+    except KeyError, e:
         print >> sys.stderr, term.bold_red("Error: " + config_filename + " does not contain the expected fields"), e.args[0]
         should_exit = True
     except IOError as e:
