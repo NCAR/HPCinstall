@@ -136,8 +136,6 @@ def parse_command_line_arguments(list_of_files):
             should_exit = True
         mtl_list = parse_installscript_for_directives(install_script_str, "-x")
         modules_to_load = "module purge; " + "; ".join(mtl_list)
-        if len(mtl_list) > 0:
-            modules_to_load += ";"
 
     # Make sure user doesn't preserve environment during system install
     if args.preserve and args.csgteam:
