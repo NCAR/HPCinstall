@@ -151,3 +151,6 @@ because tend to have more obvious content and not error messages.
 
  5. The csgteam install is interactive! It may ask a bunch of questions. We may need to discuss in the group meeting whether or not this is desired, it can be easily changed if appropriate, as well as if we want the script to know about picnic and whatsnot
 
+6. :bangbang: :bangbang: Last, but not least, one **IMPORTANT CONSIDERATION ABOUT POSSIBLY INTERACTIVE SCRIPTS** :bangbang: :bangbang: The way `HPCInstall` talks to the subshell is such that you could miss a question and the installation may seem to hang. This happens for example when running `unzip` which will print something like 
+```replace directory/file? [y]es, [n]o, [A]ll, [N]one, [r]ename:```
+if the content of the file you are unzipping will clobber existing ones. This is very complicated to fix (see https://github.com/NCAR/HPCinstall/issues/72 for details), but a easy workaround is to just hit enter if the installation will seem to hang. The enter will flush the buffer and show the question, however a caveat is that it may also accept the default choice which might not be what you want. See if the program you are running has a non-interactive option (e.g. `unzip -o`)
