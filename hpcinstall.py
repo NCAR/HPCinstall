@@ -134,8 +134,8 @@ def parse_command_line_arguments(list_of_files):
             print >> sys.stderr, term.bold_red("ERROR: anoymous '#HPCI foo' directives are not supported anymore")
             print >> sys.stderr, term.bold_red("       use '#HPCI -x foo' directives instead.")
             should_exit = True
-        mtl_list = parse_installscript_for_directives(install_script_str, "-x")
-        modules_to_load = "module purge; " + "; ".join(mtl_list)
+        exec_list = parse_installscript_for_directives(install_script_str, "-x")
+        modules_to_load = "module purge; " + "; ".join(exec_list)
 
     # Make sure user doesn't preserve environment during system install
     if args.preserve and args.csgteam:
@@ -370,15 +370,12 @@ def verify_compiler_mpi(options):
 
 def parse_installscript_for_directives(install_script_str, argument = ""):
     directive = "#HPCI " + argument
-    executing_lines = []
+    directive_content = []
     for line in install_script_str.splitlines(True):
         if line.startswith(directive):
-            exe_line = line.replace(directive, "", 1).split(" #")[0].strip()
-            executing_lines.append(exe_line)
-#    modules_to_run = "; ".join(executing_lines)
-#    if len(modules_to_run) > 0:
-#        modules_to_run += ";"
-    return executing_lines
+            direct_line = line.replace(directive, "", 1).split(" #")[0].strip()
+            directive_content.append(direct_line)
+    return directive_content
 
 def execute_installscript(options, files_to_archive, module_use):
     current_perm = os.stat(options.install_script.name)
