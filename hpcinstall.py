@@ -385,7 +385,11 @@ def parse_installscript_for_modules(install_script_str):
         modules_to_load += "; ml " + " ".join(mtlo_list)
     if len(mtlp_list) > 0:
         modules_to_load += "; ml " + " ".join(mtlp_list)
-    return modules_to_load, ",".join(mtlp_list)
+    quoted_mtlp_list = []
+    for mod in mtlp_list:
+        for m in mod.split(" "):
+            quoted_mtlp_list.append('"' + m + '"')
+    return modules_to_load, ",".join(quoted_mtlp_list)
 
 def execute_installscript(options, files_to_archive, module_use):
     current_perm = os.stat(options.install_script.name)
