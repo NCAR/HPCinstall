@@ -145,7 +145,7 @@ def parse_command_line_arguments(list_of_files):
     arg_sudo_user = args.nossh
     args.nossh = "--nossh" in sys.argv
 
-    # Run test during execution step (not during initial pass)
+    # Run test during initial pass
     if not args.nossh:
         if subcall(modules_to_load,            # try loading modules
                    stop_on_errors=True,        # stop at the first failure
@@ -155,7 +155,8 @@ def parse_command_line_arguments(list_of_files):
             print >> sys.stderr, term.bold_red("Modules from " + args.install_script.name + " are not loadable:")
             print >> sys.stderr, modules_to_load
             should_exit = True
-
+    # Check who issued the ssh during execution step (not during initial pass)
+    else:
         env_sudo_user = os.environ.get('SUDO_USER', '')
         if arg_sudo_user is not None:
             if env_sudo_user == '':
