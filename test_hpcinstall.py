@@ -283,7 +283,7 @@ def test_parse_installscript_for_modules_noprereq():
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
 
-    mtl, prereq = hpcinstall.parse_installscript_for_modules(install_script)
+    mtl, prereq = hpcinstall.parse_installscript_for_modules(data)
     assert mtl == "module load gnu; ml ncarcompilers/1.0 ncarenv"
 
 def test_parse_installscript_for_modules_prereq_multiple_lines():
@@ -298,7 +298,7 @@ def test_parse_installscript_for_modules_prereq_multiple_lines():
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
 
-    mtl, prereq = hpcinstall.parse_installscript_for_modules(install_script)
+    mtl, prereq = hpcinstall.parse_installscript_for_modules(data)
     assert mtl == "module load gnu; export FOO=bar; ml ncarcompilers/1.0 ncarenv; ml netcdf; ml python numpy/12.0.3; ml matplotlib"
     assert prereq == '"python","numpy/12.0.3","matplotlib"'
 
@@ -311,7 +311,7 @@ def test_parse_installscript_for_modules_prereq():
             "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
             "echo Just kidding, done nothing\n")
 
-    mtl, prereq = hpcinstall.parse_installscript_for_modules(install_script)
+    mtl, prereq = hpcinstall.parse_installscript_for_modules(data)
     assert mtl == "module load gnu; ml ncarcompilers/1.0 ncarenv; ml python numpy/12.0.3"
     assert prereq == '"python","numpy/12.0.3"'
 
