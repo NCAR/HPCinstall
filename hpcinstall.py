@@ -380,7 +380,11 @@ def parse_installscript_for_modules(install_script_str):
     exec_list = parse_installscript_for_directives(install_script_str, "-x")
     mtlo_list = parse_installscript_for_directives(install_script_str, "-l")
     mtlp_list = parse_installscript_for_directives(install_script_str, "-p")
-    modules_to_load = "module purge; " + "; ".join(exec_list) + "; ml " + " ".join(mtlo_list) + "; ml " + " ".join(mtlp_list)
+    modules_to_load = "module purge; " + "; ".join(exec_list)
+    if len(mtlo_list) > 0:
+        modules_to_load += "; ml " + " ".join(mtlo_list)
+    if len(mtlp_list) > 0:
+        modules_to_load += "; ml " + " ".join(mtlp_list)
     return modules_to_load, ",".join(mtlp_list)
 
 def execute_installscript(options, files_to_archive, module_use):
