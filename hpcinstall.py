@@ -108,6 +108,7 @@ def parse_command_line_arguments(list_of_files):
     # do not add a command line argument named tarballs, because it will be overridden (see below)
     # do not add a command line argument named prog, because it will be overridden (see below)
     # do not add a command line argument named vers, because it will be overridden (see below)
+    # do not add a command line argument named prereq, because it will be overridden (see below)
     # do not add a command line argument named sudo-user or sudo_user, because it will be overridden (see below)
 
     should_exit = False
@@ -135,6 +136,7 @@ def parse_command_line_arguments(list_of_files):
             print >> sys.stderr, term.bold_red("       use '#HPCI -x foo' directives instead.")
             should_exit = True
         modules_to_load, modules_prereq = parse_installscript_for_modules(install_script_str)
+        args.prereq = modules_prereq
 
     # Make sure user doesn't preserve environment during system install
     if args.preserve and args.csgteam:
@@ -276,6 +278,7 @@ def prepare_variables_and_warn(dirs, options):
                  ('HPCI_MOD_DIR',      dirs.basemoduledir),
                  ('HPCI_MOD_DIR_IDEP', dirs.idepmoduledir),
                  ('HPCI_MOD_DIR_CDEP', dirs.cdepmoduledir),
+                 ('HPCI_MOD_PREREQ',   options.prereq),
                  ])
 
     print term.bold_green("Setting environmental variables:")
@@ -389,7 +392,7 @@ def parse_installscript_for_modules(install_script_str):
     for mod in mtlp_list:
         for m in mod.split(" "):
             quoted_mtlp_list.append('"' + m + '"')
-    return modules_to_load, ",".join(quoted_mtlp_list)
+    return modules_to_load + "; ", ",".join(quoted_mtlp_list)
 
 def execute_installscript(options, files_to_archive, module_use):
     current_perm = os.stat(options.install_script.name)
