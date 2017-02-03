@@ -300,7 +300,7 @@ def test_parse_installscript_for_modules_prereq_multiple_lines():
             "echo Just kidding, done nothing\n")
 
     mtl, prereq = hpcinstall.parse_installscript_for_modules(data)
-    assert mtl == "module purge; module load gnu; export FOO=bar; ml ncarcompilers/1.0 ncarenv; ml netcdf; ml python numpy/12.0.3; ml matplotlib"
+    assert mtl == "module purge; module load gnu; export FOO=bar; ml ncarcompilers/1.0 ncarenv netcdf; ml python numpy/12.0.3 matplotlib"
     assert prereq == '"python","numpy/12.0.3","matplotlib"'
 
 def test_parse_installscript_for_modules_prereq():
