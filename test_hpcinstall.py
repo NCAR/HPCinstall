@@ -284,7 +284,7 @@ def test_parse_installscript_for_modules_noprereq():
             "echo Just kidding, done nothing\n")
 
     mtl, prereq = hpcinstall.parse_installscript_for_modules(data)
-    assert mtl == "module purge; module load gnu; ml ncarcompilers/1.0 ncarenv"
+    assert mtl == "module purge; module load gnu; ml ncarcompilers/1.0 ncarenv; "
     assert prereq == ""
 
 def test_parse_installscript_for_modules_prereq_multiple_lines():
@@ -300,7 +300,7 @@ def test_parse_installscript_for_modules_prereq_multiple_lines():
             "echo Just kidding, done nothing\n")
 
     mtl, prereq = hpcinstall.parse_installscript_for_modules(data)
-    assert mtl == "module purge; module load gnu; export FOO=bar; ml ncarcompilers/1.0 ncarenv netcdf; ml python numpy/12.0.3 matplotlib"
+    assert mtl == "module purge; module load gnu; export FOO=bar; ml ncarcompilers/1.0 ncarenv netcdf; ml python numpy/12.0.3 matplotlib; "
     assert prereq == '"python","numpy/12.0.3","matplotlib"'
 
 def test_parse_installscript_for_modules_prereq():
@@ -313,7 +313,7 @@ def test_parse_installscript_for_modules_prereq():
             "echo Just kidding, done nothing\n")
 
     mtl, prereq = hpcinstall.parse_installscript_for_modules(data)
-    assert mtl == "module purge; module load gnu; ml ncarcompilers/1.0 ncarenv; ml python numpy/12.0.3"
+    assert mtl == "module purge; module load gnu; ml ncarcompilers/1.0 ncarenv; ml python numpy/12.0.3; "
     assert prereq == '"python","numpy/12.0.3"'
 
 def test_parse_installscript_for_modules_legacy():
