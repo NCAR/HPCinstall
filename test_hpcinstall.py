@@ -275,6 +275,46 @@ def test_verify_compiler_and_mpi_no_version(stub_os, opt, dirs):
     with pytest.raises(SystemExit):
         hpcinstall.verify_compiler_mpi(opt)
 
+def test_parse_installscript_for_modules_noprereq():
+    data = ("#!/bin/bash\n"
+            "#\n"
+            "#HPCI -x module load gnu\n"
+            "#HPCI -l ncarcompilers/1.0 ncarenv\n"
+            "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
+            "echo Just kidding, done nothing\n")
+
+    mtl, prereq = hpcinstall.parse_installscript_for_modules(install_script)
+    assert mtl == "module load gnu; ml ncarcompilers/1.0 ncarenv"
+
+def test_parse_installscript_for_modules_prereq_multiple_lines():
+    data = ("#!/bin/bash\n"
+            "#\n"
+            "#HPCI -x module load gnu\n"
+            "#HPCI -x export FOO=bar\n"
+            "#HPCI -l ncarcompilers/1.0 ncarenv\n"
+            "#HPCI -l netcdf\n"
+            "#HPCI -p python numpy/12.0.3\n"
+            "#HPCI -p matplotlib\n"
+            "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
+            "echo Just kidding, done nothing\n")
+
+    mtl, prereq = hpcinstall.parse_installscript_for_modules(install_script)
+    assert mtl == "module load gnu; export FOO=bar; ml ncarcompilers/1.0 ncarenv; ml netcdf; ml python numpy/12.0.3; ml matplotlib"
+    assert prereq == '"python","numpy/12.0.3","matplotlib"'
+
+def test_parse_installscript_for_modules_prereq():
+    data = ("#!/bin/bash\n"
+            "#\n"
+            "#HPCI -x module load gnu\n"
+            "#HPCI -l ncarcompilers/1.0 ncarenv\n"
+            "#HPCI -p python numpy/12.0.3\n"
+            "echo Installing $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.\n"
+            "echo Just kidding, done nothing\n")
+
+    mtl, prereq = hpcinstall.parse_installscript_for_modules(install_script)
+    assert mtl == "module load gnu; ml ncarcompilers/1.0 ncarenv; ml python numpy/12.0.3"
+    assert prereq == '"python","numpy/12.0.3"'
+
 def test_parse_installscript_for_modules_legacy():
     data = ("#!/bin/bash\n"
             "#\n"
