@@ -43,60 +43,63 @@ that you install with `pip install` or `git clone`)
 into the file) and run again `hpcinstall build-zlib-1.2.8`
 4. The install script `build-zlib-1.2.8` we created is almost empty, so it does nothing,
 but `HPCinstall` still does something with it. The output of running
-`hpcinstall build-zlib-1.2.8` should be something like:
- ```
-Saving environment status in hpci.env.log ... Done.
-Saving module list in hpci.modules.log ... Done.
+`hpcinstall build-zlib-1.2.8` should be something like (if the terminal supports it, it'll
+use colored output):
 
-On 2016-10-21T16:08:24.802860 ddvento
-called HPCinstall from /picnic/u/home/ddvento/github/HPCinstall/trunk/hpcinstall
-invoked as /picnic/u/home/ddvento/github/HPCinstall/trunk/hpcinstall build-zlib-1.2.8
+```
+Saving environment status in hpci.env.log... Done.
+Saving module list in hpci.modules.log... Done.
+
+On 2017-02-10T11:44:27.494285 ddvento
+called HPCinstall from /glade/u/home/ddvento/github/HPCinstall/yellowstone/hpcinstall.py
+invoked as /glade/u/home/ddvento/github/HPCinstall/yellowstone/hpcinstall build-zlib-1.2.8
 
 Setting environmental variables:
-HPCI_SW_DIR       = /picnic/scratch/ddvento/test_installs/zlib/1.2.8/
+HPCI_SW_DIR       = /glade/scratch/ddvento/test_installs/zlib/1.2.8/
 HPCI_SW_NAME      = zlib
 HPCI_SW_VERSION   = 1.2.8
-HPCI_MOD_DIR      = /picnic/scratch/ddvento/test_installs/modulefiles/
-HPCI_MOD_DIR_IDEP = /picnic/scratch/ddvento/test_installs/modulefiles/idep/
-HPCI_MOD_DIR_CDEP = /picnic/scratch/ddvento/test_installs/modulefiles/cdep/
-
-Running ./build-zlib-1.2.8 ...
+HPCI_MOD_DIR      = /glade/scratch/ddvento/test_installs/modulefiles/
+HPCI_MOD_DIR_IDEP = /glade/scratch/ddvento/test_installs/modulefiles/idep/
+HPCI_MOD_DIR_CDEP = /glade/scratch/ddvento/test_installs/modulefiles/
+HPCI_MOD_PREREQ   = 
+Running ./build-zlib-1.2.8...
 Done running ./build-zlib-1.2.8 - exited with code 0
-Storing source archive: ../zlib-1.2.8.tar.gz
-d41d8cd98f00b204e9800998ecf8427e /picnic/scratch/ddvento/test_installs/zlib/1.2.8
+Archiving file: /glade/u/home/ddvento/github/HPCinstall/zlib-1.2.8.tar.gz
+Hashdir: d41d8cd98f00b204e9800998ecf8427e /glade/scratch/ddvento/test_installs/zlib/1.2.8
 Connection to localhost closed.
 ```
+
  Let's look at what `HPCinstall` has done in the current directory:
  ```
-ddvento@laramie1 zlib $ ls -lt
-total 560
--rw-rw-r-- 1 ddvento consult      0 Oct  7 10:48 hpci.fileinfo.log
--rw-rw-r-- 1 ddvento consult    609 Oct  7 10:48 hpci.main.log
--rw-rw-r-- 1 ddvento consult    209 Oct  7 10:48 hpci.build-zlib-1.2.8-20161116T114509.log
--rw-rw-r-- 1 ddvento consult    250 Oct  7 10:48 hpci.modules.log
--rw-rw-r-- 1 ddvento consult   3853 Oct  7 10:48 hpci.env.log
--rwxrw-r-- 1 ddvento consult      0 Oct  7 10:45 build-zlib-1.2.8
--rw-rw-r-- 1 ddvento consult 571091 Apr 28  2013 zlib-1.2.8.tar.gz
+  ddvento@yslogin6 /glade/u/home/ddvento/github/HPCinstall/yellowstone $ ls -lt
+total 256
+-rw-rw-r-- 1 ddvento consult     0 Feb 10 11:44 hpci.fileinfo.log
+-rw-rw-r-- 1 ddvento consult   955 Feb 10 11:44 hpci.main.log
+-rw-rw-r-- 1 ddvento consult     0 Feb 10 11:44 hpci.build-zlib-1.2.8-20170210T114427.log
+-rw-rw-r-- 1 ddvento consult    43 Feb 10 11:44 hpci.modules.log
+-rw-rw-r-- 1 ddvento consult  3297 Feb 10 11:44 hpci.env.log
+-rwxrw-r-- 1 ddvento consult    50 Feb 10 11:44 build-zlib-1.2.8
 ```
-:new: Now it also create a `hpci.fileinfo.log` with some information about
-the files it installed (in this case it's empty because it did not
-install any file, since our test scritp `build-zlib-1.2.8` does nothing).
+Peek at those files to see what they are. The two empty ones are
+`hpci.fileinfo.log` (with some information about the files it installed)
+and the one with the long name (with the actual standard output/error from
+running the `build-zlib-1.2.8` file). Both are empty because our script did
+nothing.
  
- and also let's look at `/picnic/scratch/ddvento/test_installs/zlib/1.2.8/` (value of `$HPCI_SW_DIR` mentioned above):
+ and also let's look at `/glade/scratch/ddvento/test_installs/zlib/1.2.8/` (value of `$HPCI_SW_DIR` seen above):
  ```
-ddvento@laramie1 zlib $ ls -l /picnic/scratch/ddvento/test_installs/zlib/1.2.8/
+ ddvento@yslogin6 /glade/u/home/ddvento/github/HPCinstall/yellowstone $ ls -l /glade/scratch/ddvento/test_installs/zlib/1.2.8/
 total 0
-drwxrwxr-x 2 ddvento consult 4096 Oct  7 10:48 BUILD_DIR
-
-ddvento@laramie1 zlib $ ls -l /picnic/scratch/ddvento/test_installs/zlib/1.2.8/BUILD_DIR/
-total 768
--rw-rw-r-- 1 ddvento consult      0 Oct  7 10:48 build-zlib-1.2.8
--rw-rw-r-- 1 ddvento consult    209 Oct  7 10:48 hpci.build-zlib-1.2.8-20161116T114509.log
--rw-rw-r-- 1 ddvento consult   3853 Oct  7 10:48 hpci.env.log
--rw-rw-r-- 1 ddvento consult      0 Oct  7 10:48 hpci.fileinfo.log
--rw-rw-r-- 1 ddvento consult    609 Oct  7 10:48 hpci.main.log
--rw-rw-r-- 1 ddvento consult    250 Oct  7 10:48 hpci.modules.log
--rw-rw-r-- 1 ddvento consult 571091 Oct  7 10:48 zlib-1.2.8.tar.gz
+drwxrwxr-x 2 ddvento consult 512 Feb 10 11:44 BUILD_DIR
+ddvento@yslogin6 /glade/u/home/ddvento/github/HPCinstall/yellowstone $ ls -l /glade/scratch/ddvento/test_installs/zlib/1.2.8/BUILD_DIR/
+total 256
+-rw-rw-r-- 1 ddvento consult     50 Feb 10 11:44 build-zlib-1.2.8
+-rw-rw-r-- 1 ddvento consult      0 Feb 10 11:44 hpci.build-zlib-1.2.8-20170210T114427.log
+-rw-rw-r-- 1 ddvento consult   3297 Feb 10 11:44 hpci.env.log
+-rw-rw-r-- 1 ddvento consult      0 Feb 10 11:44 hpci.fileinfo.log
+-rw-rw-r-- 1 ddvento consult    955 Feb 10 11:44 hpci.main.log
+-rw-rw-r-- 1 ddvento consult     43 Feb 10 11:44 hpci.modules.log
+-rw-rw-r-- 1 ddvento consult 571091 Feb 10 11:44 zlib-1.2.8.tar.gz
 ```
 So `HPCinstall` has done the following:
  - created the five `hpci.*.log` files in current directory:
