@@ -366,9 +366,9 @@ def verify_compiler_mpi(options):
     vars = ('LMOD_FAMILY_COMPILER', 'LMOD_COMPILER_VERSION', 'LMOD_FAMILY_MPI', 'LMOD_MPI_VERSION')
     for v in vars:
         if not v in options.defaults['sw_install_struct']:
-            print >> sys.stderr, term.bold_red("Warning: " + v + " not used in sw_install_struct of config.hpcinstall.yaml")
+            print >> sys.stderr, term.on_black_bold_yellow("Warning: " + v + " not used in sw_install_struct of config.hpcinstall.yaml")
         if not v in options.defaults['mod_install_struct']:
-            print >> sys.stderr, term.bold_red("Warning: " + v + " not used in mod_install_struct of config.hpcinstall.yaml")
+            print >> sys.stderr, term.on_black_bold_yellow("Warning: " + v + " not used in mod_install_struct of config.hpcinstall.yaml")
 
 def parse_installscript_for_directives(install_script_str, argument = ""):
     directive = "#HPCI " + argument
