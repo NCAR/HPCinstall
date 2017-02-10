@@ -396,7 +396,8 @@ def parse_installscript_for_modules(install_script_str):
 
 def execute_installscript(options, files_to_archive, module_use):
     current_perm = os.stat(options.install_script.name)
-    os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
+    if not options.csgteam:   # too often this fail for csgteam
+        os.chmod(options.install_script.name, current_perm.st_mode | stat.S_IEXEC)
     print term.bold_green("Running ./" + options.install_script.name + "...")
     stop_logging_current_session()                                  # log the output of the script in a different dir
     log = "hpci." + os.path.basename(options.install_script.name)  + "-" + str(
