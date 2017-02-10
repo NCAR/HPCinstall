@@ -92,7 +92,70 @@ Your script can and should communicate with HPCInstall some important matters, u
  setting the `$HPCI_MOD_PREREQ` environmental variable
 
 ## Environmental variables
+
+HPCInstall will set the following environmental variables:
+
+```
+HPCI_SW_DIR        # where to install the software
+HPCI_SW_NAME       # software_name of the sw being installed
+HPCI_SW_VERSION    # software_version of the sw being installed
+HPCI_MOD_DIR       # directory where to create module, generic
+HPCI_MOD_DIR_IDEP  # directory where to create module, if compiler independant
+HPCI_MOD_DIR_CDEP  # directory where to create module, if compiler dependant
+HPCI_MOD_PREREQ    # module prerequisite
+```
+
+These environmental variables should be used by the install script.
  
+## Putting everything together
+
+And here is an example install script using directives and environmental variables:
+
+```
+#!/bin/bash
+#HPCI -n my_code
+#HPCI -v 1.2.3
+#HPCI -a ../my_code-1.2.3.tgz
+#HPCI -l ncarenv
+#HPCI -l gnu                # modules can be loaded on same line or multiple lines 
+#HPCI -p netcdf             # even if they are prerequisite modules, however, the order
+#HPCI -p ncl                # of their dependency must be respected
+#HPCI -p another_module
+#HPCI -p yet many other modules here
+
+set -e         # stop this script immediately should anything go wrong
+
+./configure --prefix=$HPCI_SW_DIR
+
+make
+
+make install
+
+# Create the module directory, if needed
+# if this were compiler-independent module $HPCI_MOD_DIR_IDEP would have been used
+mkdir -p $HPCI_MOD_DIR_CDEP/$HPCI_SW_NAME/
+
+# Create the module with the following template
+cat << EOF > $HPCI_MOD_DIR_CDEP/$HPCI_SW_NAME/${HPCI_SW_VERSION}.lua
+require("posix")
+
+whatis("$HPCI_SW_NAME v$HPCI_SW_VERSION")
+
+help([[
+This module loads my_code.
+See http://my_code.example.com/ for details.
+]])
+
+local verpath = "$HPCI_SW_DIR"                    -- specific version path
+local binpath = pathJoin(verpath, "bin")          -- internal python libs
+-- similarly for includes or others
+
+prepend_path("PATH", binpath)
+
+prereq($HPCI_MOD_PREREQ)
+EOF
+```
+
 ## Use example - zlib v1.2.8
 
 1. :point_right: Download the software to be installed. This could be part of the script, but I prefer
