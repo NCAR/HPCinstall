@@ -2,11 +2,14 @@
 
 # HPCinstall
 
-`HPCinstall` is a piece of software used to install other software.
+`HPCinstall` is a piece of software used to install other software in an HPC environment.
 What it does is simply to run a given install script, but it will
-help by automatize the stupid, clerical, tedious tasks, letting the script do only the complicated parts.
+help by automatize the clerical, tedious tasks, letting the script do only the complicated parts.
+It interfaces and helps create modulefiles (particularly for [lmod](https://github.com/TACC/Lmod))
+but it can be easily used also in a module-free environement
 
-See https://wiki.ucar.edu/display/csg/Module+and+installation+management+process for the workflow we agreed on
+See the [module and installation workflow](https://wiki.ucar.edu/display/csg/Module+and+installation+management+process)
+currently in use at NCAR/CISL.
 
 ## Features
  
