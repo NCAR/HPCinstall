@@ -11,7 +11,7 @@ but it can be easily used also in a module-free environement
 See the [module and installation workflow](https://wiki.ucar.edu/display/csg/Module+and+installation+management+process)
 currently in use at NCAR/CISL.
 
-## Features
+# Features
  
 Some of the features of `HPCinstall` are: 
 * :rocket: automatic log of everything (environment, log, script used for install, etc) 
@@ -23,8 +23,42 @@ Some of the features of `HPCinstall` are:
 * checksum verification of the installation (at install time and post-mortem with `hashdir`)
 * and more
  
-It is easier to show how it achieves these goals with an example
+# Use
 
+HPCInstall is simply invoked as
+
+```
+hpcinstall [options] filename
+```
+
+where `filename` is the build/install script for the software to be installed
+
+## Command line options
+
+The CLI options for HPCInstall are just a few:
+
+```
+usage: hpcinstall [-h] [-c] [-f] [-d] [-p] install-software-ver
+
+positional arguments:
+  install-software-ver  script in the current directory which does the build
+                        and install (do not use './', relative nor fully
+                        qualified paths)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c, --csgteam         Install as csgteam (default: False)
+  -f, --force           Force overwrite of existing install (default: False)
+  -d, --debug           Debug mode i.e. more verbose output (default: False)
+  -p, --preserve        Preserve current environment - not valid with
+                        --csgteam (default: False)
+```
+The most useful one is `--csgteam` which will cause the installation to be system-wide. The `--debug` and `--preserve` are useful for debugging issues, and the `--force` is a convenience option to remove the target installation directory, because otherwise HPCInstall will refuse to clobber it.
+
+## Directives
+
+## Environmental variables
+ 
 ## Use example - zlib v1.2.8
 
 1. :point_right: Download the software to be installed. This could be part of the script, but I prefer
@@ -217,3 +251,5 @@ You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
  flush the buffer and show the question, however a caveat is that it may also accept the
  default choice which might not be what you want. See if the program you are running has a
  non-interactive option (e.g. `unzip -o`)
+
+## Installation
