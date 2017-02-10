@@ -14,13 +14,14 @@ currently in use at NCAR/CISL.
 ## Features
  
 Some of the features of `HPCinstall` are: 
-* automatic log of everything (environment, log, script used for install, etc) 
-* automatic archive of the logs in the install directory
-* automatic generation of the install directory name (and module name) from
-the name and version of the software to be compiled and the loaded compiler/mpi modules (if appropriate).
-The structure of this directories names can be configured with the
-`sw_install_struct` and `mod_install_struct` config properties
+* :rocket: automatic log of everything (environment, log, script used for install, etc) 
+* :+1: automatic archive of the logs in the install directory
+* :smile: automatic generation of the install directory name (and module name) from
+ the name and version of the software to be compiled and the loaded compiler/mpi modules (if appropriate).
+ The structure of this directories names can be configured with the
+ `sw_install_struct` and `mod_install_struct` config properties
 * checksum verification of the installation (at install time and post-mortem with `hashdir`)
+* and more
  
 It is easier to show how it achieves these goals with an example
 
