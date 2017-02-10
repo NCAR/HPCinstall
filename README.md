@@ -350,3 +350,9 @@ You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
  non-interactive option (e.g. `unzip -o`)
 
 ## Installation
+
+HPCInstall can be simply copied in a directory and invoked with fully qualified path. Or
+that directory can be put in the `$PATH`. Strictly speaking that ends the installation.
+However there is configuration to be done, and it must be done by creating a
+`config.hpcinstall.yaml` file in the installation directory. See the ones for the machines
+I work on for some examples, probably later I will describe more.
