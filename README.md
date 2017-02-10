@@ -26,17 +26,19 @@ It is easier to show how it achieves these goals with an example
 
 ## Use example - zlib v1.2.8
 
-1. Download the software to be installed. I manually run `wget http://zlib.net/zlib-1.2.8.tar.gz`.
-2. Untar the tarball and cd into the directory. Create a file named `build-name-version`. 
-So in this case I run `touch build-zlib-1.2.8`.
-3. Load the `hpcinstall` module and run `hpcinstall build-zlib-1.2.8` :collision: You will get the
+1. :point_right: Download the software to be installed. This could be part of the script, but I prefer
+to manually run `wget http://zlib.net/zlib-1.2.8.tar.gz` (because the build may fail
+and need to re-run several times and I don't want to redownload the source several times)
+2. Untar the tarball and cd into the directory. 
+3. Create a file named `build-name-version`, e.g by running `touch build-zlib-1.2.8`.
+3. :+1: Load the `hpcinstall` module (or clone the trunk and specify full path) 
+4. :collision: Run `hpcinstall build-zlib-1.2.8` :collision: You will get the
 `ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided`
-(see https://github.com/NCAR/HPCinstall/issues/15 for details)
-4. You now you **must** specify one of the `-a`, or `-u` directive to document which
+4. :hand: You **have to** specify either or both the `-a`, or `-u` directive to document which
 source code you are using (`-u` is recommended
 *only* for software that you did not manually download a source archive, such as ones
 that you install with `pip install` or `git clone`)
-5. So run `echo "#HPCI -a ../zlib-1.2.8.tar.gz" > build-zlib-1.2.8` (to create that directive
+5. Run `echo "#HPCI -a ../zlib-1.2.8.tar.gz" > build-zlib-1.2.8` (to create that directive
 into the file) and run again `hpcinstall build-zlib-1.2.8`
 4. The install script `build-zlib-1.2.8` we created is almost empty, so it does nothing,
 but `HPCinstall` still does something with it. The output of running
