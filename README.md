@@ -20,8 +20,8 @@ Some of the features of `HPCinstall` are:
  the name and version of the software to be compiled and the loaded compiler/mpi modules (if appropriate).
  The structure of this directories names can be configured with the
  `sw_install_struct` and `mod_install_struct` config properties
-* checksum verification of the installation (at install time and post-mortem with `hashdir`)
-* and more
+* :white_check_mark: checksum verification of the installation (at install time and post-mortem with `hashdir`)
+* :beer: and more
  
 # Use
 
