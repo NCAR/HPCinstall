@@ -57,6 +57,40 @@ The most useful one is `--csgteam` which will cause the installation to be syste
 
 ## Directives
 
+Your script can and should communicate with HPCInstall some important matters, using _directives_ which are comments in the script of the form
+
+```
+#HPCI -n software_name     # software_name is what is under installation
+#HPCI -v software_version  # software_version of what is under installation
+#HPCI -a filename          # archive this file in the same way as the build logs
+#HPCI -x export FOO=bar    # execute this line, preferred way to change the environment
+#HPCI -l intel             # load these modules, prefferred way to do so
+#HPCI -p python numpy      # load these modules, and signal they are prerequisites
+```
+
+* All the directives, besides `-n` and `-v` can appear several times and they will be
+ managed in the order they appear.
+
+* The values set with `-n` and `-v` are usually used to construct the install
+ directory and module directory (depending on how HPCInstalled has been configured, see
+ the installation section below). 
+ 
+* The values set with `-a` is a file that will be copied in the directory with installation logs,
+ useful, e.g. to preserve a tarballs or other scripts (however use of [here
+ document](https://en.wikipedia.org/wiki/Here_document) is recommended)
+ 
+* Whatever follows `-x` is executed verbatim in the shell before invoking the script.
+ It could be simply included in the script instead of using this directive, however
+ using the directive will inform HPCInstall that these things will change the environment,
+ and that can be extremely useful especially when sourcing third part files (because HPCInstall
+ will automatically store the environment *after* running the `-x` commands, but *before*
+ anything else in the script is exectuted)
+ 
+* The `-l` and `-p` directives simply load the specified modules (without the need to write
+ `module load`) and will inform HPCInstall that the environment has changed, like in the previous
+ bullet. Moreover, the `-p` can help creating the module for the software under installation, by
+ setting the `$HPCI_MOD_PREREQ` environmental variable
+
 ## Environmental variables
  
 ## Use example - zlib v1.2.8
