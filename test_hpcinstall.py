@@ -85,7 +85,7 @@ def test_howto_push_to_github(opt):
                 "cp netcdf-mpi-1.2.3 ~/.hpcinstall/ys-install-scripts/software/1.2.3/mpt/4.1.5/intel/16.0.3/ && "
                 "cd ~/.hpcinstall/ys-install-scripts && "
                 "git add software/1.2.3/mpt/4.1.5/intel/16.0.3/ && "
-                'git -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "netcdf-mpi v1.2.3 installation on `date` in `hostname`" && '
+                'git -c "user.name=${SUDO_USER}" -c "user.email=${SUDO_USER}" commit -m "netcdf-mpi v1.2.3 install in `hostname` on `date`" && '
                 "git push")
     assert hpcinstall.howto_push_to_github(opt, dirs) == expected
 
