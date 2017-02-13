@@ -156,29 +156,7 @@ prereq($HPCI_MOD_PREREQ)
 EOF
 ```
 
-## Why one would want to use HPCInstall instead of a plain script?
-
-* Convenience
- * :+1: The above script will have only two lines changed when a new version of my_code is
-   released, namely the two lines specifying `1.2.3`
- * :rocket: Without the script doing anything, everything during the build process is
-   automatically logged and stored alongside the install directory:
-   environment variables, output/error logs, script used for install, etc.
- * :cloud: The install script is also pushed to a remote github repo (if HPCInstall is so configured at install time)
- * :smile: The install directory name (and related module directory and module name) are automatically generated
-   using HPCInstall configuration, without the script needing to do anything.
-    
-* Simplification of tests and verifications
- * :sunglasses: Nothing will need to change in the script between a test install and a production install
-   Just adding the `-c` command line argument the install will switch from test location
-   to production location
- * :white_check_mark: Checksums, and file properties are automatically computed and logged each time a
-   software is installed. The `hashdir` program is provided, to check if anybody changed anything when things
-   do not work anymore
-
-* Simply, the person doing the install can concentrate on the important things instead of the housekeeping.
-
-## Running it
+## How to run HPCInstall, and the logs it creates
 
 ```
 Saving environment status in hpci.env.log... Done.
@@ -351,6 +329,29 @@ You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
  flush the buffer and show the question, however a caveat is that it may also accept the
  default choice which might not be what you want. See if the program you are running has a
  non-interactive option (e.g. `unzip -o`)
+
+## Why one would want to use HPCInstall instead of a plain script?
+
+* Convenience
+ * :+1: The above script will have only two lines changed when a new version of my_code is
+   released, namely the two lines specifying `1.2.3`
+ * :rocket: Without the script doing anything, everything during the build process is
+   automatically logged and stored alongside the install directory:
+   environment variables, output/error logs, script used for install, etc.
+ * :cloud: The install script is also pushed to a remote github repo (if HPCInstall is so configured at install time)
+ * :smile: The install directory name (and related module directory and module name) are automatically generated
+   using HPCInstall configuration, without the script needing to do anything.
+    
+* Simplification of tests and verifications
+ * :sunglasses: Nothing will need to change in the script between a test install and a production install
+   Just adding the `-c` command line argument the install will switch from test location
+   to production location
+ * :white_check_mark: Checksums, and file properties are automatically computed and logged each time a
+   software is installed. The `hashdir` program is provided, to check if anybody changed anything when things
+   do not work anymore
+
+* Simply, the person doing the install can concentrate on the important things instead of the housekeeping.
+
 
 ## Installation
 
