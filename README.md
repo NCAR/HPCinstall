@@ -172,6 +172,29 @@ prereq($HPCI_MOD_PREREQ)
 EOF
 ```
 
+## Why one would want to use HPCInstall instead of a plain script?
+
+* Convenience
+ * :+1: The above script will have only two lines changed when a new version of my_code is
+   released, namely the two lines specifying `1.2.3`
+ * :rocket: Without the script doing anything, everything during the build process is
+   automatically logged and stored alongside the install directory:
+   environment variables, output/error logs, script used for install, etc.
+ * :cloud: The install script is also pushed to a remote github repo (if HPCInstall is so configured at install time)
+ * :smile: The install directory name (and related module directory and module name) are automatically generated
+   using HPCInstall configuration, without the script needing to do anything.
+
+* Simplification of tests and verifications
+ * :sunglasses: Nothing will need to change in the script between a test install and a production install
+   Just adding the `-c` command line argument the install will switch from test location
+   to production location
+ * :white_check_mark: Checksums, and file properties are automatically computed and logged each time a
+   software is installed. The `hashdir` program is provided, to check if anybody changed anything when things
+   do not work anymore
+
+* Simply, the person doing the install can concentrate on the important things instead of the housekeeping.
+
+
 ## How to run HPCInstall, and the logs it creates
 
 Simply run something like `hpcinstall build-mycode`. The `build-mycode` script does
@@ -238,18 +261,18 @@ automatically created by `HPCInstall`.
 
 If modules or environmental settings are created by the `-x`, `-l` and `-p` directives, their effect
 is logged into the `hpci.env.log` and `hpci.modules.log`. If they are done in the body of the
-script outside of a directive, they will be not.
+script outside of a directive, they will not.
 
 Note that in the `BUILD_DIR` tree, `HPCInstall` will also copy the script that ran, and anything
 specified under the `-a` (archive) directive, for reproducibility.
 
 ## Production installations
 
-The installations described above occur in a test_installs tree (configurable at the time `HPCInstall`
+The installations described above occur in a `test_installs` tree (configurable at the time `HPCInstall`
 is installed or at runtime with the `INSTALL_TEST_BASEPATH` or `HPCI_TEST_BASEPATH` environment
 variable). When satisfied with the user-level test install, a site-wide install in a global path
 may be desired. Since at NCAR this is done by the `csgteam` group which is different from root,
-at `--csgteam` or `-c` exists. Simply run:
+a `--csgteam` (abbreviated to `-c`) is available. Simply run:
 
 ```
 hpcinstall -c build-mycode
@@ -260,7 +283,7 @@ at the time `HPCInstall` was installed)
 
 ## Notes and other features
  
-* :fire: To verify the hash of an installation, checking if anybody has changed anything, run
+* To verify the hash of an installation, checking if anybody has changed anything, run
  ```
 hashdir -d /path/to/installed/directory
 ```
@@ -276,8 +299,8 @@ You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
 * :sparkles: After a successful `--csgteam` (root) install, the script is committed and
   pushed to the remote `script_repo` as configured at the time `HPCInstall` was installed.
 
-* :bangbang: :bangbang: Last, but not least, one **IMPORTANT CONSIDERATION ABOUT POSSIBLY
- INTERACTIVE SCRIPTS** :bangbang: :bangbang: The way `HPCInstall` talks to the subshell is
+* :fire: Last, but not least, one **IMPORTANT CONSIDERATION ABOUT POSSIBLY
+ INTERACTIVE SCRIPTS** :fire: The way `HPCInstall` talks to the subshell is
  such that you could miss a question and the installation may seem to hang. This happens for
  example when running `unzip` which will print something like 
  ```replace directory/file? [y]es, [n]o, [A]ll, [N]one, [r]ename:```
@@ -287,29 +310,6 @@ You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
  flush the buffer and show the question, however a caveat is that it may also accept the
  default choice which might not be what you want. See if the program you are running has a
  non-interactive option (e.g. `unzip -o`)
-
-## Why one would want to use HPCInstall instead of a plain script?
-
-* Convenience
- * :+1: The above script will have only two lines changed when a new version of my_code is
-   released, namely the two lines specifying `1.2.3`
- * :rocket: Without the script doing anything, everything during the build process is
-   automatically logged and stored alongside the install directory:
-   environment variables, output/error logs, script used for install, etc.
- * :cloud: The install script is also pushed to a remote github repo (if HPCInstall is so configured at install time)
- * :smile: The install directory name (and related module directory and module name) are automatically generated
-   using HPCInstall configuration, without the script needing to do anything.
-    
-* Simplification of tests and verifications
- * :sunglasses: Nothing will need to change in the script between a test install and a production install
-   Just adding the `-c` command line argument the install will switch from test location
-   to production location
- * :white_check_mark: Checksums, and file properties are automatically computed and logged each time a
-   software is installed. The `hashdir` program is provided, to check if anybody changed anything when things
-   do not work anymore
-
-* Simply, the person doing the install can concentrate on the important things instead of the housekeeping.
-
 
 ## Installation
 
