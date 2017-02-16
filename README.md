@@ -105,11 +105,19 @@ HPCI_MOD_DIR_CDEP  # directory where to create module, if compiler dependant
 HPCI_MOD_PREREQ    # module prerequisite
 ```
 
-These environmental variables should be used by the install script.
+These environmental variables should be used by the install script. Depending on how `hpcinstall`
+has been installed, these environmental variables can use the loaded modules (e.g. compiler)
+to build the appropriate directory structure, e.g. for where to install the software
+or where to create the modules. This can happen only if `HPCInstall` knows about the loaded
+modules, i.e. if they are loaded via a directive and not in the body of the script.
  
 ## Putting everything together
 
-And here is an example install script using directives and environmental variables:
+And here is an example install script using directives and environmental variables, similar to
+the `build-mycode-example` present in the repository. It can have any name. Only `bash`
+scripts are officially supported, and the recommended way to use anything non-bash is
+to have it in a [here  document](https://en.wikipedia.org/wiki/Here_document) or in a
+separate file, and invoke it from bash, as opposed to have a shebang for anything non-bash.
 
 ```
 #!/bin/bash
@@ -123,12 +131,11 @@ And here is an example install script using directives and environmental variabl
 #HPCI -p another_module
 #HPCI -p yet many other modules here
 
-set -e         # stop this script immediately should anything go wrong
+# terminate this script immediately should anything go wrong
+set -e
 
 ./configure --prefix=$HPCI_SW_DIR
-
 make
-
 make install
 
 # Create the module directory, if needed
@@ -164,75 +171,77 @@ EOF
 
 ## Running it
 
+Simply run something like `hpcinstall build-mycode`. The `build-mycode` script does
+not need to be executable, but will be made so by `HPCInstall` itself.
+You should see an output similar to:
+
 ```
 Saving environment status in hpci.env.log... Done.
 Saving module list in hpci.modules.log... Done.
 
-On 2017-02-10T11:44:27.494285 ddvento
-called HPCinstall from /glade/u/home/ddvento/github/HPCinstall/yellowstone/hpcinstall.py
-invoked as /glade/u/home/ddvento/github/HPCinstall/yellowstone/hpcinstall build-zlib-1.2.8
+On 2017-02-16T13:37:22.883029 ddvento
+called HPCinstall from /path/to/hpcinstall.py
+invoked as /path/to/hpcinstall build-mycode
 
 Setting environmental variables:
-HPCI_SW_DIR       = /glade/scratch/ddvento/test_installs/zlib/1.2.8/
-HPCI_SW_NAME      = zlib
-HPCI_SW_VERSION   = 1.2.8
+HPCI_SW_DIR       = /glade/scratch/ddvento/test_installs/my_code/1.2.3/gnu/4.8.2/
+HPCI_SW_NAME      = my_code
+HPCI_SW_VERSION   = 1.2.3
 HPCI_MOD_DIR      = /glade/scratch/ddvento/test_installs/modulefiles/
 HPCI_MOD_DIR_IDEP = /glade/scratch/ddvento/test_installs/modulefiles/idep/
-HPCI_MOD_DIR_CDEP = /glade/scratch/ddvento/test_installs/modulefiles/
-HPCI_MOD_PREREQ   = 
-Running ./build-zlib-1.2.8...
-Done running ./build-zlib-1.2.8 - exited with code 0
-Archiving file: /glade/u/home/ddvento/github/HPCinstall/zlib-1.2.8.tar.gz
-Hashdir: d41d8cd98f00b204e9800998ecf8427e /glade/scratch/ddvento/test_installs/zlib/1.2.8
+HPCI_MOD_DIR_CDEP = /glade/scratch/ddvento/test_installs/modulefiles/gnu/
+HPCI_MOD_PREREQ   = "netcdf","ncl"
+Running ./build-mycode-example...
+Value of SOMETHING=3
+This script pretends to be installing
+my_code version v1.2.3 in /glade/scratch/ddvento/test_installs/my_code/1.2.3/gnu/4.8.2/.
+And modules in one of /glade/scratch/ddvento/test_installs/modulefiles/
+or /glade/scratch/ddvento/test_installs/modulefiles/gnu/
+or /glade/scratch/ddvento/test_installs/modulefiles/idep/
+using prerequisite module "netcdf","ncl"
+PRETENDING TO BE RUNNING: ./configure --prefix=/glade/scratch/ddvento/test_installs/my_code/1.2.3/gnu/4.8.2/
+PRETENDING TO BE RUNNING: make and make install
+Done running ./build-mycode-example - exited with code 0
+For more details about this code, see URL: http://www.example.com
+Hashdir: d41d8cd98f00b204e9800998ecf8427e /glade/scratch/ddvento/test_installs/my_code/1.2.3/gnu/4.8.2
 Connection to localhost closed.
 ```
 
- Let's look at what `HPCinstall` has done in the current directory:
- ```
-  ddvento@yslogin6 /glade/u/home/ddvento/github/HPCinstall/yellowstone $ ls -lt
-total 256
--rw-rw-r-- 1 ddvento consult     0 Feb 10 11:44 hpci.fileinfo.log
--rw-rw-r-- 1 ddvento consult   955 Feb 10 11:44 hpci.main.log
--rw-rw-r-- 1 ddvento consult     0 Feb 10 11:44 hpci.build-zlib-1.2.8-20170210T114427.log
--rw-rw-r-- 1 ddvento consult    43 Feb 10 11:44 hpci.modules.log
--rw-rw-r-- 1 ddvento consult  3297 Feb 10 11:44 hpci.env.log
--rwxrw-r-- 1 ddvento consult    50 Feb 10 11:44 build-zlib-1.2.8
+Note the line that says:
+
 ```
-Peek at those files to see what they are. The two empty ones are
-`hpci.fileinfo.log` (with some information about the files it installed)
-and the one with the long name (with the actual standard output/error from
-running the `build-zlib-1.2.8` file). Both are empty because our script did
-nothing.
- 
- and also let's look at `/glade/scratch/ddvento/test_installs/zlib/1.2.8/` (value of `$HPCI_SW_DIR` seen above):
- ```
- ddvento@yslogin6 /glade/u/home/ddvento/github/HPCinstall/yellowstone $ ls -l /glade/scratch/ddvento/test_installs/zlib/1.2.8/
-total 0
-drwxrwxr-x 2 ddvento consult 512 Feb 10 11:44 BUILD_DIR
-ddvento@yslogin6 /glade/u/home/ddvento/github/HPCinstall/yellowstone $ ls -l /glade/scratch/ddvento/test_installs/zlib/1.2.8/BUILD_DIR/
-total 256
--rw-rw-r-- 1 ddvento consult     50 Feb 10 11:44 build-zlib-1.2.8
--rw-rw-r-- 1 ddvento consult      0 Feb 10 11:44 hpci.build-zlib-1.2.8-20170210T114427.log
--rw-rw-r-- 1 ddvento consult   3297 Feb 10 11:44 hpci.env.log
--rw-rw-r-- 1 ddvento consult      0 Feb 10 11:44 hpci.fileinfo.log
--rw-rw-r-- 1 ddvento consult    955 Feb 10 11:44 hpci.main.log
--rw-rw-r-- 1 ddvento consult     43 Feb 10 11:44 hpci.modules.log
--rw-rw-r-- 1 ddvento consult 571091 Feb 10 11:44 zlib-1.2.8.tar.gz
+Done running ./build-mycode-example - exited with code 0
 ```
-So `HPCinstall` has done the following:
- - created the five `hpci.*.log` files in current directory:
-     - `hpci.env.log` contains the list of all the environment variables in the
-     system, right before the script started executing
-     - `hpci.modules.log` contains the list of all the loaded modules, right before
-     the script is executed
-     - `hpci.main.log` contains a log of what happened, including the checksum of the installed directory
-     - :star: `hpci.fileinfo.log` with some information about the files it installed
-     - `hpci.build-zlib-1.2.8-20161116T114509.txt` contains the stdout and stderr
-     produced by running `build-zlib-1.2.8` (in this case nothing)
- - made the `build-zlib-1.2.8` script executable (we did not make so in 3. when we created it)
- - created the directory `/picnic/scratch/ddvento/test_installs/zlib/1.2.8/BUILD_DIR/` (and all the necessary parents)
- - copied in the directory of the previous bullet the five `hpci.*.log` plus the source
- archive and the `build-zlib-1.2.8` scripts for reproducibility
+
+:star: `HPCInstall` simply run the `bash` script as is, and by default bash scripts keep running even in case
+of errors. It is strongly recommended to use `set -e` as the example does, to force bash to stop when an error
+is encountered, in order to prevent partially failed builds to install.
+
+## Log files
+
+From the previous run, the following logs will be created in the running directory and will also be
+copied in the install directory in the `BUILD_DIR` subdirectory. Such a directory will be
+automatically created by `HPCInstall`.
+
+ - `hpci.env.log`: contains the list of all the environment variables in the
+    system, right before the script started executing
+ - `hpci.modules.log`: contains the list of all the loaded modules, right before
+    the script is executed
+ - `hpci.main.log`: contains a log of what happened, including the checksum of the installed directory
+ - `hpci.build-mycode-example-20170216T133722.log`: contains the stdout and stderr
+    produced by the script `build-mycode` itself. The suffix is the time of the run, to avoid
+    clobbering in case of repeated builds (e.g. when debugging a build issue)
+ - `hpci.fileinfo.log` with some information about the files it installed
+
+If modules or environmental settings are created by the `-x`, `-l` and `-p` directives, their effect
+is logged into the `hpci.env.log` and `hpci.modules.log`. If they are done in the body of the
+script outside of a directive, they will be not.
+
+Note that in the `BUILD_DIR` tree, `HPCInstall` will also copy the script that ran, and anything
+specified under the `-a` (archive) directive, for reproducibility.
+
+## More
+
  - note that it has not done anything with `/glade/scratch/ddvento/test_installs/modulefiles/`
  (other than setting the env var)
 5. A real install will need to do something, so let's put the following into `build-zlib-1.2.8`
@@ -254,9 +263,6 @@ that other script, since `HPCInstall` does not try to guess what your script is 
 ./configure --prefix=$HPCI_SW_DIR
 make && make install
 ```
-
-6. Note the `#HPCI -x` directive which will execute (source) whatever instruction you have
-there, like `module load such-and-such` or `export THIS_AND_THAT`
 
 6. run `hpcinstall build-zlib-1.2.8  -a ../zlib-1.2.8.tar.gz` and [go playing in the hallway](http://www.xkcd.com/303/)
 
