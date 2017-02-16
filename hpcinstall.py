@@ -243,8 +243,8 @@ def get_prefix_and_moduledir(options, bin_dep, mod_dep):
         prefix    = os.path.abspath(default_dirs["sw_install_dir"] + "/" + my_prog + "/" + bin_dep)
         moduledir = os.path.abspath(default_dirs["mod_install_dir"])
     else:
-        if "INSTALL_TEST_BASEPATH" in os.environ:
-            basepath = os.environ['INSTALL_TEST_BASEPATH']
+        if "HPCI_TEST_BASEPATH" in os.environ:
+            basepath = os.environ['HPCI_TEST_BASEPATH']
         else:
             basepath = default_dirs["scratch_tree"] + os.environ['USER'] + "/test_installs/"
         prefix    = os.path.abspath(basepath + "/" + my_prog + "/" + bin_dep)

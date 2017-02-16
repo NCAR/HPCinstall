@@ -269,7 +269,7 @@ specified under the `-a` (archive) directive, for reproducibility.
 ## Production installations
 
 The installations described above occur in a `test_installs` tree (configurable at the time `HPCInstall`
-is installed or at runtime with the `INSTALL_TEST_BASEPATH` or `HPCI_TEST_BASEPATH` environment
+is installed or at runtime with the `HPCI_TEST_BASEPATH` environment
 variable). When satisfied with the user-level test install, a site-wide install in a global path
 may be desired. Since at NCAR this is done by the `csgteam` group which is different from root,
 a `--csgteam` (abbreviated to `-c`) is available. Simply run:
