@@ -273,6 +273,9 @@ You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
 
 * :star: The `--csgteam` (root) install is interactive!
 
+* :sparkles: After a successful `--csgteam` (root) install, the script is committed and
+  pushed to the remote `script_repo` as configured at the time `HPCInstall` was installed.
+
 * :bangbang: :bangbang: Last, but not least, one **IMPORTANT CONSIDERATION ABOUT POSSIBLY
  INTERACTIVE SCRIPTS** :bangbang: :bangbang: The way `HPCInstall` talks to the subshell is
  such that you could miss a question and the installation may seem to hang. This happens for
