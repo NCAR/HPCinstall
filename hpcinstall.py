@@ -212,6 +212,16 @@ def parse_command_line_arguments(list_of_files):
         print >> sys.stderr, term.bold_red("'#HPCI -n software' and '#HPCI -v version' can't be specified more than once")
         should_exit = True
 
+    args.clobber = False
+    other_options = parse_installscript_for_directives(install_script_str, "-o")
+    for one_opt in other_options:
+        if one_opt == 'CLOBBER':
+            ask_confirmation_for(True, "WARNING!!! This will clobber the existing directory. Continue anyway? ")
+            args.clobber = True
+        else:
+            print >> sys.stderr, term.bold_red("Unsupported option #HPCI -o " + one_opt)
+            should_exit = True
+
     if should_exit:
         print >> sys.stderr, "" # just an empty line to make the output more clear in case of errors
         parser.print_help()
@@ -251,10 +261,10 @@ def get_prefix_and_moduledir(options, bin_dep, mod_dep):
         moduledir = os.path.abspath(basepath + "/modulefiles/")
 
     if os.path.exists(prefix):
-        if not options.force:
+        if not options.force and not options.clobber:
             print >> sys.stderr, term.bold_red("ERROR: Path already exists: " + prefix)
             sys.exit(1)
-        else:
+        if options.force:
             ask_confirmation_for(options.csgteam, "WARNING: " + prefix +
                                  " already exists and you speficied --force to delete it. Continue? ")
             shutil.rmtree(prefix)
