@@ -7,21 +7,20 @@
 #HPCI -l gnu                # modules can be loaded on same line or multiple lines 
 #HPCI -p netcdf             # even if they are prerequisite modules, however, the order
 #HPCI -p ncl                # of their dependency must be respected
-#HPCI -p another_module
-#HPCI -p yet many other modules here
 
 # terminate this script immediately should anything go wrong
 set -e
 
 echo Value of SOMETHING=$SOMETHING
 echo This script pretend to installing 
-echo $HPCI_SW_NAME version $HPCI_SW_VERSION in ${HPCI_SW_DIR}.
-echo And modules somewhere in $HPCI_MOD_DIR (or subdirs),
+echo $HPCI_SW_NAME version v${HPCI_SW_VERSION} in ${HPCI_SW_DIR}.
+echo And modules in one of $HPCI_MOD_DIR
+echo or $HPCI_MOD_DIR_CDEP
+echo or $HPCI_MOD_DIR_IDEP
 echo using prerequisite module $HPCI_MOD_PREREQ
 
-./configure --prefix=$HPCI_SW_DIR
-make
-make install
+echo PRETENDING TO BE RUNNING: ./configure --prefix=$HPCI_SW_DIR
+echo PRETENDING TO BE RUNNING: make and make install
 
 # Create the module directory, if needed
 # if this were compiler-independent module $HPCI_MOD_DIR_IDEP would have been used
