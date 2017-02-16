@@ -275,6 +275,16 @@ def test_verify_compiler_and_mpi_no_version(stub_os, opt, dirs):
     with pytest.raises(SystemExit):
         hpcinstall.verify_compiler_mpi(opt)
 
+def test_parse_installscript_for_modules_nomodules():
+    data = ("#!/bin/bash\n"
+            "#\n"
+            "#HPCI -n moduleless_script\n"
+            "echo Doing nothing\n")
+
+    mtl, prereq = hpcinstall.parse_installscript_for_modules(data)
+    assert prereq == ""
+    assert mtl == "module purge; "
+
 def test_parse_installscript_for_modules_noprereq():
     data = ("#!/bin/bash\n"
             "#\n"
