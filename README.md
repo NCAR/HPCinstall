@@ -91,8 +91,14 @@ Your script can and should communicate with HPCInstall some important matters, u
  
 * The `-l` and `-p` directives simply load the specified modules (without the need to write
  `module load`) and will inform HPCInstall that the environment has changed, like in the previous
- bullet. Moreover, the `-p` can help creating the module for the software under installation, by
+ bullet. HPCInstall will run `module purge` before anything else, and therefore any desired module
+ must be explicitly loaded. There is no directive for other module commands such as `reset` or
+ `use` however they can be run in the `-x` directive when needed.
+ Moreover, the `-p` can help creating the module for the software under installation, by
  setting the `$HPCI_MOD_PREREQ` environmental variable
+ 
+* The directives are exectuted in the order they appear, so if there are dependent modules (or
+ `module use` or other order-sensitive items, they are honored)
 
 ## Environmental variables
 
