@@ -225,8 +225,8 @@ def parse_command_line_arguments(list_of_files):
 
     return args
 
-def ask_confirmation_for(options, msg):
-    if options.csgteam:
+def ask_confirmation_for(really, msg):
+    if really:
         print msg,
         answer = sys.stdin.readline()
         print
@@ -239,7 +239,7 @@ def get_prefix_and_moduledir(options, bin_dep, mod_dep):
     my_prog = options.prog + "/" + options.vers
     if options.csgteam:
         if os.environ['USER'] != "csgteam":
-            ask_confirmation_for(options, "Should sudo into 'csgteam' to install as such. Continue anyway? ")
+            ask_confirmation_for(options.csgteam, "Should sudo into 'csgteam' to install as such. Continue anyway? ")
         prefix    = os.path.abspath(default_dirs["sw_install_dir"] + "/" + my_prog + "/" + bin_dep)
         moduledir = os.path.abspath(default_dirs["mod_install_dir"])
     else:
@@ -255,7 +255,7 @@ def get_prefix_and_moduledir(options, bin_dep, mod_dep):
             print >> sys.stderr, term.bold_red("ERROR: Path already exists: " + prefix)
             sys.exit(1)
         else:
-            ask_confirmation_for(options, "WARNING: " + prefix +
+            ask_confirmation_for(options.csgteam, "WARNING: " + prefix +
                                  " already exists and you speficied --force to delete it. Continue? ")
             shutil.rmtree(prefix)
     directories = namedtuple('Directories', ['prefix','basemoduledir','idepmoduledir','cdepmoduledir', 'relativeprefix'])
@@ -286,7 +286,7 @@ def prepare_variables_and_warn(dirs, options):
         os.environ[key] = variables[key]
         print "{:<17}".format(key), "=", variables[key]
 
-    ask_confirmation_for(options, "This will attempt global install in " + dirs.prefix +
+    ask_confirmation_for(options.csgteam, "This will attempt global install in " + dirs.prefix +
                          " by running ./" + options.install_script.name + " as " + os.environ['USER'] + ". Continue? ")
     return variables
 
@@ -417,9 +417,7 @@ def execute_installscript(options, files_to_archive, module_use):
     start_logging_current_session(files_to_archive, continuation=True)
     print term.bold_green("Done running ./" + options.install_script.name + " - exited with code " + str(p.returncode))
     if p.returncode != 0:
-        fake_opt = lambda: None
-        fake_opt.csgteam = True
-        ask_confirmation_for(fake_opt, "Running " + options.install_script.name + " failed. Archive logs anyway? ")
+        ask_confirmation_for(True, "Running " + options.install_script.name + " failed. Archive logs anyway? ")
     files_to_archive.append(options.install_script.name)
 
 def archive_in(prefix, files_to_archive):
