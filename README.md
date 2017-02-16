@@ -69,6 +69,7 @@ Your script can and should communicate with HPCInstall some important matters, u
 #HPCI -x export FOO=bar    # execute this line, preferred way to change the environment
 #HPCI -l intel             # load these modules, prefferred way to do so
 #HPCI -p python numpy      # load these modules, and signal they are prerequisites
+#HPCI -o CLOBBER           # clobber (overwrite without deleting) the existing install directory
 ```
 
 * All the directives, besides `-n` and `-v` can appear several times and they will be
@@ -77,6 +78,10 @@ Your script can and should communicate with HPCInstall some important matters, u
 * The values set with `-n` and `-v` are usually used to construct the install
  directory and module directory (depending on how HPCInstalled has been configured, see
  the installation section below). 
+
+* The `-o` directive can be used to set options, at the moment only CLOBBER is supported. It is
+ recommended that CLOBBER is not used unless strongly needed for particular use cases, and
+ to make sure it is used only when needed, a confirmation message is asked twice.
  
 * The values set with `-a` is a file that will be copied in the directory with installation logs,
  useful, e.g. to preserve a tarballs or other scripts (however use of [here
