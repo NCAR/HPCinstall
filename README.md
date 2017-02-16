@@ -53,7 +53,10 @@ optional arguments:
   -p, --preserve        Preserve current environment - not valid with
                         --csgteam (default: False)
 ```
-The most useful one is `--csgteam` which will cause the installation to be system-wide. The `--debug` and `--preserve` are useful for debugging issues, and the `--force` is a convenience option to remove the target installation directory, because otherwise HPCInstall will refuse to clobber it.
+The most useful one is `--csgteam` which will cause the installation to be system-wide.
+The `--debug` and `--preserve` are useful for debugging issues, and the `--force` is a
+convenience option to remove the target installation directory, because otherwise HPCInstall
+will refuse to clobber it.
 
 ## Directives
 
@@ -229,8 +232,8 @@ automatically created by `HPCInstall`.
     the script is executed
  - `hpci.main.log`: contains a log of what happened, including the checksum of the installed directory
  - `hpci.build-mycode-example-20170216T133722.log`: contains the stdout and stderr
-    produced by the script `build-mycode` itself. The suffix is the time of the run, to avoid
-    clobbering in case of repeated builds (e.g. when debugging a build issue)
+    produced by the script `build-mycode` itself. The suffix is the isoformat datetime of the run,
+    to avoid clobbering in case of repeated builds (e.g. when debugging a build issue)
  - `hpci.fileinfo.log` with some information about the files it installed
 
 If modules or environmental settings are created by the `-x`, `-l` and `-p` directives, their effect
@@ -240,53 +243,24 @@ script outside of a directive, they will be not.
 Note that in the `BUILD_DIR` tree, `HPCInstall` will also copy the script that ran, and anything
 specified under the `-a` (archive) directive, for reproducibility.
 
-## More
+## Production installations
 
- - note that it has not done anything with `/glade/scratch/ddvento/test_installs/modulefiles/`
- (other than setting the env var)
-5. A real install will need to do something, so let's put the following into `build-zlib-1.2.8`
-(only `bash` ufficially supported, however the bash
-script can call another script in `tcsh`, `python`, `R` or whatever -- in such case, remember to
-use the `#HPCI -a other_script.tcsh` to preserve
-that other script, since `HPCInstall` does not try to guess what your script is doing):
- ```
-#!/usr/bin/env bash
-#
-# Loading the latest GNU compiler and our wrappers
-# No other (default or otherwise) modules are loaded
-#HPCI -x ml gnu
-#HPCI -x module load ncarcompilers
-#
-# Storing the tarball
-#HPCI -a ../zlib-1.2.8.tar.gz
+The installations described above occur in a test_installs tree (configurable at the time `HPCInstall`
+is installed or at runtime with the `INSTALL_TEST_BASEPATH` or `HPCI_TEST_BASEPATH` environment
+variable). When satisfied with the user-level test install, a site-wide install in a global path
+may be desired. Since at NCAR this is done by the `csgteam` group which is different from root,
+at `--csgteam` or `-c` exists. Simply run:
 
-./configure --prefix=$HPCI_SW_DIR
-make && make install
+```
+hpcinstall -c build-mycode
 ```
 
-6. run `hpcinstall build-zlib-1.2.8  -a ../zlib-1.2.8.tar.gz` and [go playing in the hallway](http://www.xkcd.com/303/)
+and the same things as before will happen, just the directories will be the global ones (configured
+at the time `HPCInstall` was installed)
 
-7. If one among the last lines of the log is different from `Done running ./build-zlib-1.2.8 - exited with code 0`,
-figure out what was wrong, and go back to previous bullet.
-
-8. Run  `cat hpci.main.log` and look at the content of `$HPCI_SW_DIR` directory, which for me on Laramie is
-`/picnic/scratch/ddvento/test_installs/zlib/1.2.8/gnu/6.2.0/` (this is where everything should be installed,
-but **only** if the build script described at the bullet 5. uses `$HPCI_SW_DIR` as prefix)
-
-9. Run some program using this version of zlib (ideally making that program a test case for
-[shark](https://github.com/NCAR/shark/)).
-If everything is fine, you may install globally by running `HPCinstall` as csgteam
-(or as yourself, if you have writing permissions) by using the `--csgteam` option:
- ```
-hpcinstall -c build-zlib-1.2.8 -a ../zlib-1.2.8.tar.gz
-```
- If you are running this as a test, beware! **THIS WILL INSTALL in /glade/apps/opt !!!!!**
- (or wherever the default, user-visible install directory is on that system -- this is chosen at
- install time with a line in `config.hpcinstall.yaml`)
- So do it for a piece of software for which is appropriate (if directory exists, `HPCinstall`
- will not clobber, but you might want to play safe and use a strange name instead)
+## Notes and other features
  
-10. :fire: To verify the hash of an installation, checking if anybody has changed anything, run
+* :fire: To verify the hash of an installation, checking if anybody has changed anything, run
  ```
 hashdir -d /path/to/installed/directory
 ```
@@ -297,40 +271,9 @@ It will output details about each single file, which you can diff from the ones 
 install time, which are stored in `/path/to/installed/directory/BUILD_DIR/hpci.fileinfo.log`.
 You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
 
-# Notes
- 1. The install directory is automatically generated and contains the name and version of the
- compiler module loaded, per our policies. If no compiler is loaded, only software name and
- version would be used, such in `/glade/apps/opt/zlib/1.2.8/`, which is the policy for
- non-compiled stuff, such as pure-python (non compiled) libraries. It is now possible to
- change the base path of test installs from `/glade/scratch/$USER/test_installs` to a
- custom path by setting the `INSTALL_TEST_BASEPATH` environment variable before running `HPCinstall`.
+* :star: The `--csgteam` (root) install is interactive!
 
- 2. The modules are specified as comments in file `build-zlib-1.2.8`. This is needed for
- `HPCinstall` to correctly generate the `hpci.modules.log` file and (especially) to correctly
- generate the install directory as `/glade/apps/opt/zlib/1.2.8/gnu/4.8.2` (note the automatic
- use of the loaded module). If you are ok with not having both of these features, you may load
- the modules in any other way you want (e.g. command line before invoking, or executable
- `module such-and-such` in the script), and everything else will work just fine --
- **HOWEVER THIS IS NOT RECOMMENDED PRACTICE**, ask Sidd for details.
-
- 3. The install directory should not exist, to prevent involuntary clobbering. Use the
- `--force` option to allow `HPCinstall` to clobber previous builds. Note that the path
- is not currently cleaned up before rerunning the install script, so manually cleaning
- may still be desired.
-
- 4. The string (20161116T114509 in this case) at the end of the install script log
- `hpci.build-zlib-1.2.8-20161116T114509.txt` is the shortened isoformat of the date
- and time when the script ran, in this case 2016 Nov 16th at Time 11:45:09
- It is added to avoid deleting the log from previous attempts, so one can compare the
- current erros with the previous one(s) in case of failures, to see if any progress
- has been made. To reduce clutter, the other logs (modules, env, etc) are clobbered
- because tend to have more obvious content and not error messages.
-
- 5. The csgteam install is interactive! It may ask a bunch of questions. We may need
- to discuss in the group meeting whether or not this is desired, it can be easily
- changed if appropriate, as well as if we want the script to know about picnic and whatsnot
-
- 6. :bangbang: :bangbang: Last, but not least, one **IMPORTANT CONSIDERATION ABOUT POSSIBLY
+* :bangbang: :bangbang: Last, but not least, one **IMPORTANT CONSIDERATION ABOUT POSSIBLY
  INTERACTIVE SCRIPTS** :bangbang: :bangbang: The way `HPCInstall` talks to the subshell is
  such that you could miss a question and the installation may seem to hang. This happens for
  example when running `unzip` which will print something like 
