@@ -10,7 +10,7 @@ env_log = "hpci.env.log"
 module_log = "hpci.modules.log"
 config_options = {'list_of_dirs':   ['scratch_tree', 'sw_install_dir', 'mod_install_dir'],
                   'install_struct': ['sw_install_struct', 'mod_install_struct' ],
-                  'optional':       ['python_cmd', 'script_repo', 'git_cmd'],
+                  'optional':       ['python_cmd', 'script_repo', 'git_cmd', 'use_modules'],
                  }
 
 def print_invocation_info():
@@ -58,6 +58,7 @@ def parse_config_data(yaml_data):
     for thing in config_options['install_struct']: # mandatory
         default_dirs[thing] = config[thing]
 
+    default_dirs['use_modules'] = True # unless found as optional...
     for thing in config_options['optional']:
         if thing in config:
             default_dirs[thing] = config[thing]
@@ -138,35 +139,6 @@ def parse_command_line_arguments(list_of_files):
         modules_to_load, modules_prereq = parse_installscript_for_modules(install_script_str)
         args.prereq = modules_prereq
 
-    # Make sure user doesn't preserve environment during system install
-    if args.preserve and args.csgteam:
-        print >> sys.stderr, term.bold_red("ERROR: preserve environment not allowed for system installation (-c).")
-        should_exit = True
-
-    arg_sudo_user = args.nossh
-    args.nossh = "--nossh" in sys.argv
-
-    # Run test during initial pass
-    if not args.nossh:
-        if subcall(modules_to_load,            # try loading modules
-                   stop_on_errors=True,        # stop at the first failure
-                   log="/dev/null",            # don't output anything (output already happened in the ssh call)
-                   debug=args.debug,           # use specified debug level
-                  ) != 0:
-            print >> sys.stderr, term.bold_red("Modules from " + args.install_script.name + " are not loadable:")
-            print >> sys.stderr, modules_to_load
-            should_exit = True
-    # Check who issued the ssh during execution step (not during initial pass)
-    else:
-        env_sudo_user = os.environ.get('SUDO_USER', '')
-        if arg_sudo_user is not None:
-            if env_sudo_user == '':
-                os.environ['SUDO_USER'] = arg_sudo_user
-            else:
-                if env_sudo_user != arg_sudo_user:
-                    print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
-                    should_exit = True
-
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
     try:
@@ -179,6 +151,38 @@ def parse_command_line_arguments(list_of_files):
         print >> sys.stderr, e
         print >> sys.stderr, term.bold_red("Cannot read " + config_filename +  " -- ABORTING")
         should_exit = True
+
+    # Make sure user doesn't preserve environment during system install
+    if args.preserve and args.csgteam:
+        print >> sys.stderr, term.bold_red("ERROR: preserve environment not allowed for system installation (-c).")
+        should_exit = True
+
+    arg_sudo_user = args.nossh
+    args.nossh = "--nossh" in sys.argv
+
+    # Test requested modules during initial pass
+    if not args.nossh:
+        if defaults['use_modules']:
+            if subcall(modules_to_load,            # try loading modules
+                   stop_on_errors=True,        # stop at the first failure
+                   log="/dev/null",            # don't output anything (output already happened in the ssh call)
+                   debug=args.debug,           # use specified debug level
+                  ) != 0:
+                print >> sys.stderr, term.bold_red("Modules from " + args.install_script.name + " are not loadable:")
+                print >> sys.stderr, modules_to_load
+                should_exit = True
+        else:
+            modules_to_load = ""
+    # Check who issued the ssh during execution step (not during initial pass)
+    else:
+        env_sudo_user = os.environ.get('SUDO_USER', '')
+        if arg_sudo_user is not None:
+            if env_sudo_user == '':
+                os.environ['SUDO_USER'] = arg_sudo_user
+            else:
+                if env_sudo_user != arg_sudo_user:
+                    print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
+                    should_exit = True
 
     args.modules_to_load = modules_to_load
 
