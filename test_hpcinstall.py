@@ -103,7 +103,8 @@ def test_config_data_dirs():
                 "sw_install_dir": "/glade/apps/opt/",
                 "sw_install_struct": "${C}/${CV}/${M}/${MV}",
                 "mod_install_dir": "/glade/apps/opt/modulefiles/",
-                "mod_install_struct": "${M}/${MV}/${C}/${CV}"
+                "mod_install_struct": "${M}/${MV}/${C}/${CV}",
+                "use_modules": True,
                }
     parsed = hpcinstall.parse_config_data(data)
     assert len(expected) == len(parsed)
@@ -127,7 +128,9 @@ def test_config_data_environment():
                 "mod_install_struct": "${M}/${MV}/${C}/${CV}",
                 "script_repo":     "~csgteam/.hpcinstall/chey-install-scripts",
                 "git_cmd":         "/path/to/my/git",
-                "python_cmd": "/path/to/my/python"}
+                "python_cmd": "/path/to/my/python",
+                "use_modules": True,
+               }
     parsed = hpcinstall.parse_config_data(data)
     assert len(expected) == len(parsed)
     for key in expected:
