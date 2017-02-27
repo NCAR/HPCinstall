@@ -341,16 +341,17 @@ def subcall(command, log=None, use_popen = False, debug=False, stop_on_errors=Fa
     else:
         return subprocess.call(command, shell=True)
 
-def log_full_env(files_to_archive, module_use):
+def log_full_env(files_to_archive, log_modules=True):
     print term.bold_green("Saving environment status in " + env_log + "..."),
-    subcall(module_use + "env", env_log)
+    subcall("env", env_log)
     print "Done."
     files_to_archive.append(env_log)
 
-    print term.bold_green("Saving module list in " + module_log + "..."),
-    subcall(module_use + "module list", module_log)
-    print "Done.\n"
-    files_to_archive.append(module_log)
+    if log_modules:
+        print term.bold_green("Saving module list in " + module_log + "..."),
+        subcall("module list", module_log)
+        print "Done.\n"
+        files_to_archive.append(module_log)
 
 def expandvars_in_bash(expression):
     value = os.path.normpath(subprocess.check_output(["bash", "-c", 'echo -n "' + expression + '"']))
@@ -466,7 +467,10 @@ def how_to_call_yourself(args, yourself, pwd, opt):
         new_invocation = comb_cmd
         use_shell = True
     else:
-        module_prefix = "ml purge; "
+        if opt.defaults['use_modules']:
+            module_prefix = "ml purge; "
+        else:
+            module_prefix = ""
         new_invocation = ["ssh","-t","localhost"] + shell + ["'" + module_prefix + comb_cmd + "'"]
         use_shell = False
     
@@ -500,15 +504,11 @@ if __name__ == "__main__":
 
     bin_comp_mpi, mod_comp_mpi = identify_compiler_mpi(options)
     dirs = get_prefix_and_moduledir(options, bin_comp_mpi, mod_comp_mpi)
-    module_use = ""
-#   TODO: figure out if this has any value
-#    if not dirs.moduledir in os.environ['MODULEPATH']:
-#        module_use = "module use " + dirs.moduledir + "; "
-    log_full_env(files_to_archive, module_use)
+    log_full_env(files_to_archive, log_modules = options.defaults['use_modules'])
     start_logging_current_session(files_to_archive)
     print_invocation_info()
     prepare_variables_and_warn(dirs, options)
-    execute_installscript(options, files_to_archive, module_use)
+    execute_installscript(options, files_to_archive, "")
     for tarball in options.tarballs:
         print term.blue("Archiving file: " + tarball)
     for u in options.urls:
