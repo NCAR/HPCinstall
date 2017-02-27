@@ -56,6 +56,7 @@ def opt():                                                          # stub optio
     opt.force = True                                                # ignore actual paths on the filesystems
     opt.preserve = False                                            # do not preserve (unless asked)
     opt.defaults = {}                                               # do not use any defaults
+    opt.defaults['use_modules'] = True                              # besides modules
     install_script = lambda : None                                  # fake file object
     install_script.name = "build-mysoftware-1.2.3"                  # with this filename
     opt.install_script = install_script                             # stuffed as an option
