@@ -137,6 +137,28 @@ def test_config_data_environment():
         print key
         assert expected[key] == parsed[key]
 
+# using module is default and is tested in the previous two cases
+def test_config_not_using_modules():
+    data = ( "scratch_tree: /glade/scratch\n"
+             "sw_install_dir: /glade/apps/opt/\n"
+             "use_modules: False\n"
+             "sw_install_struct: ${C}/${CV}/${M}/${MV}\n"
+             "mod_install_dir: /glade/apps/opt/modulefiles\n"
+             "mod_install_struct: ${M}/${MV}/${C}/${CV}\n"
+             )
+    expected = {"scratch_tree": "/glade/scratch/",
+                "sw_install_dir": "/glade/apps/opt/",
+                "sw_install_struct": "${C}/${CV}/${M}/${MV}",
+                "mod_install_dir": "/glade/apps/opt/modulefiles/",
+                "mod_install_struct": "${M}/${MV}/${C}/${CV}",
+                "use_modules": False,
+               }
+    parsed = hpcinstall.parse_config_data(data)
+    assert len(expected) == len(parsed)
+    for key in expected:
+        print key
+        assert expected[key] == parsed[key]
+
 def test_missing_config_data():
     data = ( "scratch_tree: /glade/scratch\n"
              "sw_install_struct: abc\n"
