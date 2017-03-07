@@ -22,6 +22,9 @@ echo using prerequisite module $HPCI_MOD_PREREQ
 echo PRETENDING TO BE RUNNING: ./configure --prefix=$HPCI_SW_DIR
 echo PRETENDING TO BE RUNNING: make and make install
 
+echo PRETENDING TO BE RUNNING an X-tunneling code
+xclock
+
 # Create the module directory, if needed
 # if this were compiler-independent module $HPCI_MOD_DIR_IDEP would have been used
 mkdir -p $HPCI_MOD_DIR_CDEP/$HPCI_SW_NAME/
