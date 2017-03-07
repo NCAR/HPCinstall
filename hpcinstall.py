@@ -471,7 +471,7 @@ def how_to_call_yourself(args, yourself, pwd, opt):
             module_prefix = "ml purge; "
         else:
             module_prefix = ""
-        new_invocation = ["ssh","-t","localhost"] + shell + ["'" + module_prefix + comb_cmd + "'"]
+        new_invocation = ["ssh","-X","-t","localhost"] + shell + ["'" + module_prefix + comb_cmd + "'"]
         use_shell = False
     
     return new_invocation, use_shell
