@@ -404,7 +404,7 @@ def test_parse_installscript_for_modules_comments():
 def test_how_to_call_yourself(opt):
     opt.modules_to_load = "ml python; ml gnu;"
     args = ['./hpcinstall', 'build-example-1.2.3']
-    expected = (['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
+    expected = (['ssh', '-X', '-t', 'localhost', '/bin/bash', '-l', '-c',
                 "'ml purge; ml python; ml gnu; cd /the/pwd/; /some/strange/dir/hpcinstall build-example-1.2.3 --nossh'"], False)
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
     assert actual == expected
@@ -421,7 +421,7 @@ def test_how_to_call_yourself_with_environment(opt):
     opt.modules_to_load = "ml intel;"
     opt.defaults['python_cmd'] = "/the/good/python"
     args = ['./hpcinstall', 'build-example-1.2.3']
-    expected = (['ssh', '-t', 'localhost', '/bin/bash', '-l', '-c',
+    expected = (['ssh', '-X', '-t', 'localhost', '/bin/bash', '-l', '-c',
                 "'ml purge; ml intel; cd /the/pwd/; /the/good/python /some/strange/dir/hpcinstall build-example-1.2.3 --nossh'"], False)
     actual = hpcinstall.how_to_call_yourself(args, "/some/strange/dir/", "/the/pwd/", opt)
     assert actual == expected
