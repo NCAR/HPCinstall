@@ -12,9 +12,9 @@ See the [module and installation workflow](https://wiki.ucar.edu/display/csg/Mod
 currently in use at NCAR/CISL.
 
 # Features
- 
-Some of the features of `HPCinstall` are: 
-* :rocket: automatic log of everything (environment, log, script used for install, etc) 
+
+Some of the features of `HPCinstall` are:
+* :rocket: automatic log of everything (environment, log, script used for install, etc)
 * :+1: automatic archive of the logs in the install directory
 * :smile: automatic generation of the install directory name (and module name) from
  the name and version of the software to be compiled and the loaded compiler/mpi modules (if appropriate).
@@ -22,7 +22,7 @@ Some of the features of `HPCinstall` are:
  `sw_install_struct` and `mod_install_struct` config properties
 * :white_check_mark: checksum verification of the installation (at install time and post-mortem with `hashdir`)
 * :beer: and more
- 
+
 # Use
 
 HPCInstall is simply invoked as
@@ -77,23 +77,23 @@ Your script can and should communicate with HPCInstall some important matters, u
 
 * The values set with `-n` and `-v` are usually used to construct the install
  directory and module directory (depending on how HPCInstalled has been configured, see
- the installation section below). 
+ the installation section below).
 
 * The `-o` directive can be used to set options, at the moment only CLOBBER is supported. It is
  recommended that CLOBBER is not used unless strongly needed for particular use cases, and
  to make sure it is used only when needed, a confirmation message is asked twice.
- 
+
 * The values set with `-a` is a file that will be copied in the directory with installation logs,
  useful, e.g. to preserve a tarballs or other scripts (however use of [here
  document](https://en.wikipedia.org/wiki/Here_document) is recommended)
- 
+
 * Whatever follows `-x` is executed verbatim in the shell before invoking the script.
  It could be simply included in the script instead of using this directive, however
  using the directive will inform HPCInstall that these things will change the environment,
  and that can be extremely useful especially when sourcing third part files (because HPCInstall
  will automatically store the environment *after* running the `-x` commands, but *before*
  anything else in the script is exectuted)
- 
+
 * The `-l` and `-p` directives simply load the specified modules (without the need to write
  `module load`) and will inform HPCInstall that the environment has changed, like in the previous
  bullet. HPCInstall will run `module purge` before anything else, and therefore any desired module
@@ -101,7 +101,7 @@ Your script can and should communicate with HPCInstall some important matters, u
  `use` however they can be run in the `-x` directive when needed.
  Moreover, the `-p` can help creating the module for the software under installation, by
  setting the `$HPCI_MOD_PREREQ` environmental variable
- 
+
 * The directives are exectuted in the order they appear, so if there are dependent modules (or
  `module use` or other order-sensitive items, they are honored)
 
@@ -124,7 +124,7 @@ has been installed, these environmental variables can use the loaded modules (e.
 to build the appropriate directory structure, e.g. for where to install the software
 or where to create the modules. This can happen only if `HPCInstall` knows about the loaded
 modules, i.e. if they are loaded via a directive and not in the body of the script.
- 
+
 ## Putting everything together
 
 And here is an example install script using directives and environmental variables, similar to
@@ -139,7 +139,7 @@ separate file, and invoke it from bash, as opposed to have a shebang for anythin
 #HPCI -v 1.2.3
 #HPCI -a ../my_code-1.2.3.tgz
 #HPCI -l ncarenv
-#HPCI -l gnu                # modules can be loaded on same line or multiple lines 
+#HPCI -l gnu                # modules can be loaded on same line or multiple lines
 #HPCI -p netcdf             # even if they are prerequisite modules, however, the order
 #HPCI -p ncl                # of their dependency must be respected
 #HPCI -p another_module
@@ -287,7 +287,7 @@ and the same things as before will happen, just the directories will be the glob
 at the time `HPCInstall` was installed)
 
 ## Notes and other features
- 
+
 * To verify the hash of an installation, checking if anybody has changed anything, run
  ```
 hashdir -d /path/to/installed/directory
@@ -307,7 +307,7 @@ You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
 * :fire: Last, but not least, one **IMPORTANT CONSIDERATION ABOUT POSSIBLY
  INTERACTIVE SCRIPTS** :fire: The way `HPCInstall` talks to the subshell is
  such that you could miss a question and the installation may seem to hang. This happens for
- example when running `unzip` which will print something like 
+ example when running `unzip` which will print something like
  ```replace directory/file? [y]es, [n]o, [A]ll, [N]one, [r]ename:```
  if the content of the file you are unzipping will clobber existing ones. This is very
  complicated to fix (see https://github.com/NCAR/HPCinstall/issues/72 for details), but a
