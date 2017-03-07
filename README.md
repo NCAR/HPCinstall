@@ -318,8 +318,32 @@ You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
 
 ## Installation
 
-HPCInstall can be simply copied in a directory and invoked with fully qualified path. Or
-that directory can be put in the `$PATH`. Strictly speaking that ends the installation.
-However there is configuration to be done, and it must be done by creating a
-`config.hpcinstall.yaml` file in the installation directory. See the ones for the machines
-I work on for some examples, probably later I will describe more.
+HPCInstall can be simply copied in a directory and invoked with fully qualified path, or
+that directory can be put in the `$PATH`. However it needs to be configured for the
+particular machine, and to do so it needs a `config.hpcinstall.yaml` file in the
+installation directory.
+
+The mandatory configuration options are:
+
+* `scratch_tree`: The directory where temporary installs will happen is `scratch_tree/$USER` (can be
+overriden by setting the `HPCI_TEST_BASEPATH` environment variable)
+
+* `sw_install_dir`: The basepath of the tree where sofware will be installed
+* `sw_install_struct`: The structure of the tree where sofware will be installed
+
+* `mod_install_dir`: The directory tree where modules will be installed
+* `mod_install_struct`: The structure of the tree where modules will be installed
+
+There are additional optional configuration options, namely:
+
+* `use_modules`: must be a boolean, if `False` will not do anything module-related (default: `True`)
+* `python_cmd`: HPCInstall is written in python. If python is not in the `$PATH` or if the default
+version is too old, another one can be specified here with fully qualified path.
+* `script_repo`: if set to a directory, consider that directory as a clone of a repository where
+all the install scripts will be preserved. After a successful production installation, add the install
+script to that repository and push it
+* `git_cmd`: fully qualified path of the git binary, to be run to preserve the install scripts per
+previous bullet. If the git binary in the `$PATH` is new enough, no need to set this option.
+
+The directory-related configuration options may use evironmental variables. See the `.yaml` files for some
+examples.
