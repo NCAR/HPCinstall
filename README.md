@@ -382,4 +382,4 @@ This section may become reduntant once github includes the tag message in their
 * v1.0rc5         Swapping the order of directories for both modules and install: MPI first and COMPILER second
 * v1.1            Several minor features added and bug fixes; better documenation; see the commit history for details
 * v1.1.1          Made the use of modules optionally configurable at install time, and used that option for HPCFL
-
+* v1.2            Using x-tunneling when `ssh`ing into localhost, fixed configuration file on Yellowstone, first open source release
