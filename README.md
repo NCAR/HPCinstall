@@ -6,10 +6,21 @@
 What it does is simply to run a given install script, but it will
 help by automatize the clerical, tedious tasks, letting the script do only the complicated parts.
 It interfaces and helps create modulefiles (particularly for [lmod](https://github.com/TACC/Lmod))
-but it can be easily used also in a module-free environement
+but it can be easily used also in a module-free environement.
 
 See the [module and installation workflow](https://wiki.ucar.edu/display/csg/Module+and+installation+management+process)
 currently in use at NCAR/CISL.
+
+# Requirements
+
+* python 2.7+ (it may work with 2.6 + `argparse`)
+* bash (tested with v4.1 and v4.2, it should work with most versions)
+* ssh (tested with OpenSSH v5.3 and v6.6, it should work with most versions)
+* [lmod](https://github.com/TACC/Lmod)
+or [module](http://modules.sourceforge.net/)
+ (optional, tested with lmod v4.2 and v7.2, it should work with most versions)
+* python `yaml` and `blessed` modules (distributed with HPCInstall itself, see subdirectories, so they are
+not an external dependency)
 
 # Features
 
@@ -347,3 +358,28 @@ previous bullet. If the git binary in the `$PATH` is new enough, no need to set 
 
 The directory-related configuration options may use evironmental variables. See the `.yaml` files for some
 examples.
+
+# Release History
+
+This section may become reduntant once github includes the tag message in their
+[release page](https://github.com/NCAR/HPCinstall/releases) but for now, here it is, simply the output of
+`git tag -n1`:
+
+* v0.9            Initial release, decent enough to be installed on Yellowstone
+* v0.9.1          now hpcinstall can self-install itself :-)
+* v0.9.2          now enforcing clean slate in the environment
+* v0.9.3          never push too early.... changing name because of that
+* v0.9.4          Making sure the clean slate environment is usable, e.g. allowing to load modules
+* v1.0            Several improvements, namely issues #23 #62 #63 #64 #65 (most important: proper parsing of names-with-slash and push-installscript-to-github
+* v1.0.1          Wrong directory for modules on Yellowstone, otherwise identical to v1.0
+* v1.0.2          Missing dependencies in the install script, otherwise identical to v1.0
+* v1.0.3          Install script and config file for jellystone, otherwise identical to v1.0
+* v1.0.4          Cheyenne settings, otherwise identical to v1.0
+* v1.0rc          Many bugs fixed, large and small, changed the file format to directives
+* v1.0rc2         Second release canditate, fixing some serious bugs
+* v1.0rc3         Fixing issues for Yellowstone, caused by default python being v2.6
+* v1.0rc4         wildcards for the archive directive, tcsh, datetime instead of PID, more moduledirs
+* v1.0rc5         Swapping the order of directories for both modules and install: MPI first and COMPILER second
+* v1.1            Several minor features added and bug fixes; better documenation; see the commit history for details
+* v1.1.1          Made the use of modules optionally configurable at install time, and used that option for HPCFL
+
