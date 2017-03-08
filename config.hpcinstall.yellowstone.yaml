@@ -5,4 +5,4 @@ python_cmd: /glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/bin/python
 git_cmd: /glade/apps/opt/git/2.3.0/gnu/4.8.2/bin/git
 script_repo: ~/.hpcinstall/ys-install-scripts
 sw_install_struct: ${LMOD_FAMILY_COMPILER}/${LMOD_COMPILER_VERSION}
-mod_install_struct: ${LMOD_FAMILY_COMPILER}
+mod_install_struct: cdep/${LMOD_FAMILY_COMPILER}
