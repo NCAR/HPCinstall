@@ -111,6 +111,21 @@ def get_modules_in_script(install_script_str):
 
     return failed, modules_to_load, modules_prereq
 
+def get_config_data():
+    failed = False
+    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
+                        "/config.hpcinstall.yaml" )
+    try:
+        defaults = parse_config_data(open(config_filename))
+    except KeyError, e:
+        print >> sys.stderr, term.bold_red("Error: " + config_filename + " does not contain the expected fields"), e.args[0]
+        failed = True
+    except IOError as e:
+        print >> sys.stderr, e
+        print >> sys.stderr, term.bold_red("Cannot read " + config_filename +  " -- ABORTING")
+        failed = True
+    return failed, defaults
+
 def parse_command_line_arguments(list_of_files):
     parser = argparse.ArgumentParser()
     parser.add_argument("install_script", metavar="install-software-ver", type=argparse.FileType('r'),
@@ -148,17 +163,9 @@ def parse_command_line_arguments(list_of_files):
     if failed:
         should_exit = True
 
-    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
-                        "/config.hpcinstall.yaml" )
-    try:
-        defaults = parse_config_data(open(config_filename))
-        args.defaults = defaults
-    except KeyError, e:
-        print >> sys.stderr, term.bold_red("Error: " + config_filename + " does not contain the expected fields"), e.args[0]
-        should_exit = True
-    except IOError as e:
-        print >> sys.stderr, e
-        print >> sys.stderr, term.bold_red("Cannot read " + config_filename +  " -- ABORTING")
+    failed, defaults = get_config_data()
+    args.defaults = defaults
+    if failed:
         should_exit = True
 
     # Make sure user doesn't preserve environment during system install
