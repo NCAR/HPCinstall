@@ -189,8 +189,9 @@ def parse_command_line_arguments(list_of_files):
                 should_exit = True
         else:
             modules_to_load = ""
+
     # Check who issued the ssh during execution step (not during initial pass)
-    else:
+    if args.nossh:
         env_sudo_user = os.environ.get('SUDO_USER', '')
         if arg_sudo_user is not None:
             if env_sudo_user == '':
