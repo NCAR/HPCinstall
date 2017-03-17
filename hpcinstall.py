@@ -92,6 +92,25 @@ def validate_url(u):
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return regex.match(u)
 
+def get_modules_in_script(install_script_str):
+    failed = False
+    legacy_stuff = parse_installscript_for_directives(install_script_str)
+    stuff        = parse_installscript_for_directives(install_script_str, "-")
+    if len(stuff) == 0:
+        modules_to_load = ""
+        if len(legacy_stuff) > 0:
+            print >> sys.stderr, term.bold_red("Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated.")
+            print >> sys.stderr, term.bold_red("                   Must use the named '#HPCI -x foo' directive instead.")
+            failed = True
+    else:
+        if len(legacy_stuff) != len(stuff):
+            print >> sys.stderr, term.bold_red("ERROR: anoymous '#HPCI foo' directives are not supported anymore")
+            print >> sys.stderr, term.bold_red("       use '#HPCI -x foo' directives instead.")
+            failed = True
+        modules_to_load, modules_prereq = parse_installscript_for_modules(install_script_str)
+
+    return failed, modules_to_load, modules_prereq
+
 def parse_command_line_arguments(list_of_files):
     parser = argparse.ArgumentParser()
     parser.add_argument("install_script", metavar="install-software-ver", type=argparse.FileType('r'),
@@ -123,21 +142,11 @@ def parse_command_line_arguments(list_of_files):
         sys.exit(1)          # can't try most of the following
 
     install_script_str = args.install_script.read()
-    legacy_stuff = parse_installscript_for_directives(install_script_str)
-    stuff        = parse_installscript_for_directives(install_script_str, "-")
-    if len(stuff) == 0:
-        modules_to_load = ""
-        if len(legacy_stuff) > 0:
-            print >> sys.stderr, term.bold_red("Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated.")
-            print >> sys.stderr, term.bold_red("                   Must use the named '#HPCI -x foo' directive instead.")
-            should_exit = True
-    else:
-        if len(legacy_stuff) != len(stuff):
-            print >> sys.stderr, term.bold_red("ERROR: anoymous '#HPCI foo' directives are not supported anymore")
-            print >> sys.stderr, term.bold_red("       use '#HPCI -x foo' directives instead.")
-            should_exit = True
-        modules_to_load, modules_prereq = parse_installscript_for_modules(install_script_str)
-        args.prereq = modules_prereq
+
+    failed, modules_to_load, modules_prereq = get_modules_in_script(install_script_str)
+    args.prereq = modules_prereq
+    if failed:
+        should_exit = True
 
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
