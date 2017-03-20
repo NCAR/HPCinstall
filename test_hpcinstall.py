@@ -226,12 +226,14 @@ def test_check_sudo_user(stub_os):
     assert failed == 0
     assert env_sudo_user == "ddvento"
 
-    # must fail if there is not agreement in the second pass
+    # must fail if there is not agreement in the second pass, but only as CSGTEAM
     nossh         = True       # i.e. use ssh
     arg_sudo_user = "vanderw"
     stub_os.environ['SUDO_USER'] = "valent"
     failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, assume_csgteam, arg_sudo_user)
     assert failed == 1
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, not assume_csgteam, arg_sudo_user)
+    assert failed == 0
 
     # must pick the arg if there is not SUDO_USER in env
     nossh         = True       # i.e. use ssh
@@ -249,12 +251,14 @@ def test_check_sudo_user(stub_os):
     assert failed == 0
     assert env_sudo_user == "valent"
 
-    # must fail if both env and arg are None
+    # must fail if both env and arg are None, but only as CSGTEAM
     nossh         = True       # i.e. use ssh
     arg_sudo_user = None
     stub_os.environ['SUDO_USER'] = ""
     failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, assume_csgteam, arg_sudo_user)
     assert failed == 1
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, not assume_csgteam, arg_sudo_user)
+    assert failed == 0
 
 # test 
 
