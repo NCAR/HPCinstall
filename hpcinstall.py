@@ -146,13 +146,13 @@ def check_sudo_user(nossh, req_csgteam, arg_sudo_user):
             if env_sudo_user == '':
                 os.environ['SUDO_USER'] = arg_sudo_user
             else:
-                if env_sudo_user != arg_sudo_user:
+                if env_sudo_user != arg_sudo_user and req_csgteam:
                     print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
                     failed += 1
         else:
             # no need to store in env, since it was there already
             arg_sudo_user = env_sudo_user
-        if arg_sudo_user == "":
+        if arg_sudo_user == "" and req_csgteam:
             print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
             failed += 1
     else:
