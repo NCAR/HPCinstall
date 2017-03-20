@@ -138,6 +138,21 @@ def test_modules(modules_to_load, debug):
         failed = 1
     return failed
 
+def check_sudo_user(nossh, arg_sudo_user):
+    failed = 0
+    if nossh:
+        env_sudo_user = os.environ.get('SUDO_USER', '')
+        if arg_sudo_user is not None:
+            if env_sudo_user == '':
+                os.environ['SUDO_USER'] = arg_sudo_user
+            else:
+                if env_sudo_user != arg_sudo_user:
+                    print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
+                    failed += 1
+    else:
+        env_sudo_user = ""
+    return failed, env_sudo_user
+
 def parse_command_line_arguments(list_of_files):
     parser = argparse.ArgumentParser()
     parser.add_argument("install_script", metavar="install-software-ver", type=argparse.FileType('r'),
@@ -192,16 +207,8 @@ def parse_command_line_arguments(list_of_files):
             args.modules_to_load = ""
 
     # Check who issued the ssh during execution step (not during initial pass)
-    if args.nossh:
-        env_sudo_user = os.environ.get('SUDO_USER', '')
-        if arg_sudo_user is not None:
-            if env_sudo_user == '':
-                os.environ['SUDO_USER'] = arg_sudo_user
-            else:
-                if env_sudo_user != arg_sudo_user:
-                    print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
-                    num_failures += 1
-
+    failed, env_sudo_user = check_sudo_user(args.nossh, arg_sudo_user)
+    num_failures += failed
 
     args.urls = parse_installscript_for_directives(install_script_str, "-u")
     for u in args.urls:
