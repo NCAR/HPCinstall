@@ -170,12 +170,10 @@ def parse_command_line_arguments(list_of_files):
 
     install_script_str = args.install_script.read()
 
-    failed, modules_to_load, modules_prereq = get_modules_in_script(install_script_str)
-    args.prereq = modules_prereq
+    failed, args.modules_to_load, args.prereq = get_modules_in_script(install_script_str)
     num_failures += failed
 
-    failed, defaults = get_config_data()
-    args.defaults = defaults
+    failed, args.defaults = get_config_data()
     num_failures += failed
 
     # Make sure user doesn't preserve environment during system install
@@ -189,9 +187,9 @@ def parse_command_line_arguments(list_of_files):
     # Test requested modules during initial pass
     if not args.nossh:
         if defaults['use_modules']:
-            failed = test_modules(modules_to_load, args.debug)
+            num_failures += test_modules(args.modules_to_load, args.debug)
         else:
-            modules_to_load = ""
+            args.modules_to_load = ""
 
     # Check who issued the ssh during execution step (not during initial pass)
     if args.nossh:
@@ -204,7 +202,6 @@ def parse_command_line_arguments(list_of_files):
                     print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
                     num_failures += 1
 
-    args.modules_to_load = modules_to_load
 
     urls     = parse_installscript_for_directives(install_script_str, "-u")
     args.urls = urls
