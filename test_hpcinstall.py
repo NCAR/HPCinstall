@@ -201,7 +201,19 @@ def test_parse_installscript_filename():
     with pytest.raises(SystemExit):
         hpcinstall.parse_installscript_filename("build-netcdf-mpi-1.2.3")
 
-# not testing parse_command_line_arguments() since it's harmless and hard to test
+# not testing get_modules_in_script() since it's trivial and hard to test
+
+# not testing get_config_data() since it's trivial and hard to test
+
+# not testing test_modules() since it's trivial and hard to test
+
+def test_check_sudo_user():
+    assert False
+
+# test 
+
+
+# not testing parse_command_line_arguments() since it's hard to test
 
 # not testing ask_confirmation_for() since it's trivial and hard to test
 
