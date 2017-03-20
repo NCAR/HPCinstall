@@ -138,7 +138,7 @@ def test_modules(modules_to_load, debug):
         failed = 1
     return failed
 
-def check_sudo_user(nossh, arg_sudo_user):
+def check_sudo_user(nossh, req_csgteam, arg_sudo_user):
     failed = 0
     if nossh:
         env_sudo_user = os.environ.get('SUDO_USER', '')
@@ -198,7 +198,7 @@ def parse_command_line_arguments(list_of_files):
     # and set related arguments
     arg_sudo_user = args.nossh
     args.nossh = "--nossh" in sys.argv
-    failed, env_sudo_user = check_sudo_user(args.nossh, arg_sudo_user)
+    failed, env_sudo_user = check_sudo_user(args.nossh, args.csgteam, arg_sudo_user)
     num_failures += failed
 
     failed, args.defaults = get_config_data(env_sudo_user)
