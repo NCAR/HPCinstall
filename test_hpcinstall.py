@@ -201,7 +201,68 @@ def test_parse_installscript_filename():
     with pytest.raises(SystemExit):
         hpcinstall.parse_installscript_filename("build-netcdf-mpi-1.2.3")
 
-# not testing parse_command_line_arguments() since it's harmless and hard to test
+# not testing get_modules_in_script() since it's trivial and hard to test
+
+# not testing get_config_data() since it's trivial and hard to test
+
+# not testing test_modules() since it's trivial and hard to test
+
+def test_check_sudo_user(stub_os):
+    hpcinstall.os = stub_os
+
+    assume_csgteam = True
+    # should succeed regardless in the first pass
+    nossh         = False       # i.e. first pass, ignore sudo_user
+    arg_sudo_user = "ddvento"
+    stub_os.environ['USER'] = arg_sudo_user
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, assume_csgteam, arg_sudo_user)
+    assert failed == 0
+
+    # must succeed if there's agreement in the second pass
+    nossh         = True       # i.e. use ssh
+    arg_sudo_user = "ddvento"
+    stub_os.environ['SUDO_USER'] = arg_sudo_user
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, assume_csgteam, arg_sudo_user)
+    assert failed == 0
+    assert env_sudo_user == "ddvento"
+
+    # must fail if there is not agreement in the second pass, but only as CSGTEAM
+    nossh         = True       # i.e. use ssh
+    arg_sudo_user = "vanderw"
+    stub_os.environ['SUDO_USER'] = "valent"
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, assume_csgteam, arg_sudo_user)
+    assert failed == 1
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, not assume_csgteam, arg_sudo_user)
+    assert failed == 0
+
+    # must pick the arg if there is not SUDO_USER in env
+    nossh         = True       # i.e. use ssh
+    arg_sudo_user = "vanderw"
+    del stub_os.environ['SUDO_USER']
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, assume_csgteam, arg_sudo_user)
+    assert failed == 0
+    assert env_sudo_user == "vanderw"
+
+    # must pick the env if there is not SUDO_USER in arg
+    nossh         = True       # i.e. use ssh
+    arg_sudo_user = None
+    stub_os.environ['SUDO_USER'] = "valent"
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, assume_csgteam, arg_sudo_user)
+    assert failed == 0
+    assert env_sudo_user == "valent"
+
+    # must fail if both env and arg are None, but only as CSGTEAM
+    nossh         = True       # i.e. use ssh
+    arg_sudo_user = None
+    stub_os.environ['SUDO_USER'] = ""
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, assume_csgteam, arg_sudo_user)
+    assert failed == 1
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, not assume_csgteam, arg_sudo_user)
+    assert failed == 0
+
+# not testing get_program_name_and_version() for now since it's simple enough
+
+# not testing parse_command_line_arguments() since it's hard to test
 
 # not testing ask_confirmation_for() since it's trivial and hard to test
 

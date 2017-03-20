@@ -92,6 +92,85 @@ def validate_url(u):
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return regex.match(u)
 
+def get_modules_in_script(install_script_str):
+    failed = 0
+    legacy_stuff = parse_installscript_for_directives(install_script_str)
+    stuff        = parse_installscript_for_directives(install_script_str, "-")
+    if len(stuff) == 0:
+        modules_to_load = ""
+        if len(legacy_stuff) > 0:
+            print >> sys.stderr, term.bold_red("Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated.")
+            print >> sys.stderr, term.bold_red("                   Must use the named '#HPCI -x foo' directive instead.")
+            failed = 1
+    else:
+        if len(legacy_stuff) != len(stuff):
+            print >> sys.stderr, term.bold_red("ERROR: anoymous '#HPCI foo' directives are not supported anymore")
+            print >> sys.stderr, term.bold_red("       use '#HPCI -x foo' directives instead.")
+            failed = 1
+        modules_to_load, modules_prereq = parse_installscript_for_modules(install_script_str)
+
+    return failed, modules_to_load, modules_prereq
+
+def get_config_data(env_sudo_user):  # sudo_user is dependency only via environmental variable, adding pseudo-dependency here
+    failed = 0
+    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
+                        "/config.hpcinstall.yaml" )
+    try:
+        defaults = parse_config_data(open(config_filename))
+    except KeyError, e:
+        print >> sys.stderr, term.bold_red("Error: " + config_filename + " does not contain the expected fields"), e.args[0]
+        failed = 1
+    except IOError as e:
+        print >> sys.stderr, e
+        print >> sys.stderr, term.bold_red("Cannot read " + config_filename +  " -- ABORTING")
+        failed = 1
+    return failed, defaults
+
+def test_modules(modules_to_load, debug):
+    failed = 0
+    if subcall(modules_to_load,            # try loading modules
+                   stop_on_errors=True,        # stop at the first failure
+                   log="/dev/null",            # don't output anything (output already happened in the ssh call)
+                   debug=debug,                # use specified debug level
+                ) != 0:
+        print >> sys.stderr, term.bold_red("Modules from " + args.install_script.name + " are not loadable:")
+        print >> sys.stderr, modules_to_load
+        failed = 1
+    return failed
+
+def check_sudo_user(nossh, req_csgteam, arg_sudo_user):
+    failed = 0
+    if nossh:
+        env_sudo_user = os.environ.get('SUDO_USER', '')
+        if arg_sudo_user is not None:
+            if env_sudo_user == '':
+                os.environ['SUDO_USER'] = arg_sudo_user
+            else:
+                if env_sudo_user != arg_sudo_user and req_csgteam:
+                    print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
+                    failed += 1
+        else:
+            # no need to store in env, since it was there already
+            arg_sudo_user = env_sudo_user
+        if arg_sudo_user == "" and req_csgteam:
+            print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
+            failed += 1
+    else:
+        arg_sudo_user = ""
+    return failed, arg_sudo_user
+
+def get_program_name_and_version(install_script_str, install_script_name):
+    failed = 0
+    progname = parse_installscript_for_directives(install_script_str, "-n")
+    progver  = parse_installscript_for_directives(install_script_str, "-v")
+    if len(progname) > 1 or len(progver) > 1:
+        print >> sys.stderr, term.bold_red("'#HPCI -n software' and '#HPCI -v version' can't be specified more than once")
+        failed += 1
+    if len(progname) == 1 and len(progver) == 1:
+        return failed, progname[0], progver[0]
+    else:
+        return sum(((failed,), parse_installscript_filename(install_script_name)), ()) # tuple flattening
+
 def parse_command_line_arguments(list_of_files):
     parser = argparse.ArgumentParser()
     parser.add_argument("install_script", metavar="install-software-ver", type=argparse.FileType('r'),
@@ -112,7 +191,7 @@ def parse_command_line_arguments(list_of_files):
     # do not add a command line argument named prereq, because it will be overridden (see below)
     # do not add a command line argument named sudo-user or sudo_user, because it will be overridden (see below)
 
-    should_exit = False
+    num_failures = 0
     try:
         args = parser.parse_args()
     except IOError, e:
@@ -123,71 +202,39 @@ def parse_command_line_arguments(list_of_files):
         sys.exit(1)          # can't try most of the following
 
     install_script_str = args.install_script.read()
-    legacy_stuff = parse_installscript_for_directives(install_script_str)
-    stuff        = parse_installscript_for_directives(install_script_str, "-")
-    if len(stuff) == 0:
-        modules_to_load = ""
-        if len(legacy_stuff) > 0:
-            print >> sys.stderr, term.bold_red("Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated.")
-            print >> sys.stderr, term.bold_red("                   Must use the named '#HPCI -x foo' directive instead.")
-            should_exit = True
-    else:
-        if len(legacy_stuff) != len(stuff):
-            print >> sys.stderr, term.bold_red("ERROR: anoymous '#HPCI foo' directives are not supported anymore")
-            print >> sys.stderr, term.bold_red("       use '#HPCI -x foo' directives instead.")
-            should_exit = True
-        modules_to_load, modules_prereq = parse_installscript_for_modules(install_script_str)
-        args.prereq = modules_prereq
 
-    config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
-                        "/config.hpcinstall.yaml" )
-    try:
-        defaults = parse_config_data(open(config_filename))
-        args.defaults = defaults
-    except KeyError, e:
-        print >> sys.stderr, term.bold_red("Error: " + config_filename + " does not contain the expected fields"), e.args[0]
-        should_exit = True
-    except IOError as e:
-        print >> sys.stderr, e
-        print >> sys.stderr, term.bold_red("Cannot read " + config_filename +  " -- ABORTING")
-        should_exit = True
+    failed, args.modules_to_load, args.prereq = get_modules_in_script(install_script_str)
+    num_failures += failed
+
+    # Check who issued the ssh during execution step (not during initial pass)
+    # and set related arguments
+    really_csgteam = args.csgteam and os.environ['USER'] == "csgteam"
+    arg_sudo_user = args.nossh
+    args.nossh = "--nossh" in sys.argv
+    failed, env_sudo_user = check_sudo_user(args.nossh, really_csgteam, arg_sudo_user)
+    num_failures += failed
+
+    failed, args.defaults = get_config_data(env_sudo_user)
+    num_failures += failed
 
     # Make sure user doesn't preserve environment during system install
     if args.preserve and args.csgteam:
         print >> sys.stderr, term.bold_red("ERROR: preserve environment not allowed for system installation (-c).")
-        should_exit = True
-
-    arg_sudo_user = args.nossh
-    args.nossh = "--nossh" in sys.argv
+        num_failures += 1
 
     # Test requested modules during initial pass
     if not args.nossh:
-        if defaults['use_modules']:
-            if subcall(modules_to_load,            # try loading modules
-                   stop_on_errors=True,        # stop at the first failure
-                   log="/dev/null",            # don't output anything (output already happened in the ssh call)
-                   debug=args.debug,           # use specified debug level
-                  ) != 0:
-                print >> sys.stderr, term.bold_red("Modules from " + args.install_script.name + " are not loadable:")
-                print >> sys.stderr, modules_to_load
-                should_exit = True
+        if args.defaults['use_modules']:
+            num_failures += test_modules(args.modules_to_load, args.debug)
         else:
-            modules_to_load = ""
-    # Check who issued the ssh during execution step (not during initial pass)
-    else:
-        env_sudo_user = os.environ.get('SUDO_USER', '')
-        if arg_sudo_user is not None:
-            if env_sudo_user == '':
-                os.environ['SUDO_USER'] = arg_sudo_user
-            else:
-                if env_sudo_user != arg_sudo_user:
-                    print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
-                    should_exit = True
+            args.modules_to_load = ""
 
-    args.modules_to_load = modules_to_load
+    args.urls = parse_installscript_for_directives(install_script_str, "-u")
+    for u in args.urls:
+        if not validate_url(u):
+            print >> sys.stderr, term.bold_red("URL specified in install script " + args.install_script.name  + " is not a valid URL: " + u)
+            num_failures += 1
 
-    urls     = parse_installscript_for_directives(install_script_str, "-u")
-    args.urls = urls
     tarballs = parse_installscript_for_directives(install_script_str, "-a")
     parsed_tarballs = []
     for tarball in tarballs:
@@ -196,25 +243,17 @@ def parse_command_line_arguments(list_of_files):
             parsed_tarballs.append(t)
             if not os.access(t, os.R_OK):
                 print >> sys.stderr, term.bold_red("Troubles accessing file: " + t)
-                should_exit = True
+                num_failures += 1
             else:
                 list_of_files.append(t)
     args.tarballs = parsed_tarballs
 
-    if len(urls) == 0 and len(tarballs) == 0:
+    if len(args.urls) == 0 and len(args.tarballs) == 0:
         print >> sys.stderr, term.bold_red("ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided")
-        should_exit = True
+        num_failures += 1
 
-    for u in urls:
-        if not validate_url(u):
-            print >> sys.stderr, term.bold_red("URL specified in install script " + args.install_script.name  + " is not a valid URL: " + u)
-            should_exit = True
-
-    progname = parse_installscript_for_directives(install_script_str, "-n")
-    progver  = parse_installscript_for_directives(install_script_str, "-v")
-    if len(progname) > 1 or len(progver) > 1:
-        print >> sys.stderr, term.bold_red("'#HPCI -n software' and '#HPCI -v version' can't be specified more than once")
-        should_exit = True
+    failed, args.prog, args.vers = get_program_name_and_version(install_script_str, args.install_script.name)
+    num_failures += failed
 
     args.clobber = False
     other_options = parse_installscript_for_directives(install_script_str, "-o")
@@ -224,18 +263,12 @@ def parse_command_line_arguments(list_of_files):
             args.clobber = True
         else:
             print >> sys.stderr, term.bold_red("Unsupported option #HPCI -o " + one_opt)
-            should_exit = True
+            num_failures += 1
 
-    if should_exit:
+    if num_failures > 0:
         print >> sys.stderr, "" # just an empty line to make the output more clear in case of errors
         parser.print_help()
         sys.exit(1)
-
-    if len(progname) == 1 and len(progver) == 1:
-        args.prog = progname[0]
-        args.vers  = progver[0]
-    else:
-        args.prog, args.vers = parse_installscript_filename(args.install_script.name)
 
     return args
 
