@@ -383,3 +383,5 @@ This section may become reduntant once github includes the tag message in their
 * v1.1            Several minor features added and bug fixes; better documenation; see the commit history for details
 * v1.1.1          Made the use of modules optionally configurable at install time, and used that option for HPCFL
 * v1.2            Using x-tunneling when `ssh`ing into localhost, fixed configuration file on Yellowstone, first open source release
+* v1.2.1          Refactored the parse_command_line_argument method and got rid of the nasty ${SUDO_USER} is not expanded bug
+* v1.2.2          Configuration issue on Cheyenne/Laramie: it was not using the correct ldmod environmental variable
