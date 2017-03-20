@@ -248,6 +248,13 @@ def test_check_sudo_user(stub_os):
     assert failed == 0
     assert env_sudo_user == "valent"
 
+    # must fail if both env and arg are None
+    nossh         = True       # i.e. use ssh
+    arg_sudo_user = None
+    stub_os.environ['SUDO_USER'] = ""
+    failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, arg_sudo_user)
+    assert failed == 1
+
 # test 
 
 
