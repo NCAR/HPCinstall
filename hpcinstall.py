@@ -111,7 +111,7 @@ def get_modules_in_script(install_script_str):
 
     return failed, modules_to_load, modules_prereq
 
-def get_config_data():
+def get_config_data(env_sudo_user):  # sudo_user is dependency only via environmental variable, adding pseudo-dependency here
     failed = 0
     config_filename = ( os.path.dirname(os.path.realpath(__file__)) + # directory where this script is
                         "/config.hpcinstall.yaml" )
@@ -188,7 +188,14 @@ def parse_command_line_arguments(list_of_files):
     failed, args.modules_to_load, args.prereq = get_modules_in_script(install_script_str)
     num_failures += failed
 
-    failed, args.defaults = get_config_data()
+    # Check who issued the ssh during execution step (not during initial pass)
+    # and set related arguments
+    arg_sudo_user = args.nossh
+    args.nossh = "--nossh" in sys.argv
+    failed, env_sudo_user = check_sudo_user(args.nossh, arg_sudo_user)
+    num_failures += failed
+
+    failed, args.defaults = get_config_data(env_sudo_user)
     num_failures += failed
 
     # Make sure user doesn't preserve environment during system install
@@ -196,19 +203,12 @@ def parse_command_line_arguments(list_of_files):
         print >> sys.stderr, term.bold_red("ERROR: preserve environment not allowed for system installation (-c).")
         num_failures += 1
 
-    arg_sudo_user = args.nossh
-    args.nossh = "--nossh" in sys.argv
-
     # Test requested modules during initial pass
     if not args.nossh:
         if args.defaults['use_modules']:
             num_failures += test_modules(args.modules_to_load, args.debug)
         else:
             args.modules_to_load = ""
-
-    # Check who issued the ssh during execution step (not during initial pass)
-    failed, env_sudo_user = check_sudo_user(args.nossh, arg_sudo_user)
-    num_failures += failed
 
     args.urls = parse_installscript_for_directives(install_script_str, "-u")
     for u in args.urls:
