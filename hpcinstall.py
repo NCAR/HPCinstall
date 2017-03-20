@@ -126,6 +126,18 @@ def get_config_data():
         failed = True
     return failed, defaults
 
+def test_modules(modules_to_load, debug):
+    failed = False
+    if subcall(modules_to_load,            # try loading modules
+                   stop_on_errors=True,        # stop at the first failure
+                   log="/dev/null",            # don't output anything (output already happened in the ssh call)
+                   debug=debug,                # use specified debug level
+                ) != 0:
+        print >> sys.stderr, term.bold_red("Modules from " + args.install_script.name + " are not loadable:")
+        print >> sys.stderr, modules_to_load
+        failed = True
+    return failed
+
 def parse_command_line_arguments(list_of_files):
     parser = argparse.ArgumentParser()
     parser.add_argument("install_script", metavar="install-software-ver", type=argparse.FileType('r'),
@@ -179,14 +191,7 @@ def parse_command_line_arguments(list_of_files):
     # Test requested modules during initial pass
     if not args.nossh:
         if defaults['use_modules']:
-            if subcall(modules_to_load,            # try loading modules
-                   stop_on_errors=True,        # stop at the first failure
-                   log="/dev/null",            # don't output anything (output already happened in the ssh call)
-                   debug=args.debug,           # use specified debug level
-                  ) != 0:
-                print >> sys.stderr, term.bold_red("Modules from " + args.install_script.name + " are not loadable:")
-                print >> sys.stderr, modules_to_load
-                should_exit = True
+            failed = test_modules(modules_to_load, args.debug)
         else:
             modules_to_load = ""
 
