@@ -152,8 +152,11 @@ def check_sudo_user(nossh, arg_sudo_user):
         else:
             # no need to store in env, since it was there already
             arg_sudo_user = env_sudo_user
+        if arg_sudo_user == "":
+            print >> sys.stderr, term.bold_red("ERROR: Can't figure out the actual user invoking csgteam")
+            failed += 1
     else:
-        env_sudo_user = ""
+        arg_sudo_user = ""
     return failed, arg_sudo_user
 
 def parse_command_line_arguments(list_of_files):
