@@ -196,9 +196,10 @@ def parse_command_line_arguments(list_of_files):
 
     # Check who issued the ssh during execution step (not during initial pass)
     # and set related arguments
+    really_csgteam = args.csgteam and os.environ['USER'] == "csgteam"
     arg_sudo_user = args.nossh
     args.nossh = "--nossh" in sys.argv
-    failed, env_sudo_user = check_sudo_user(args.nossh, args.csgteam, arg_sudo_user)
+    failed, env_sudo_user = check_sudo_user(args.nossh, really_csgteam, arg_sudo_user)
     num_failures += failed
 
     failed, args.defaults = get_config_data(env_sudo_user)
