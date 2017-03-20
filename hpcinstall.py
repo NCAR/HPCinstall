@@ -186,7 +186,7 @@ def parse_command_line_arguments(list_of_files):
 
     # Test requested modules during initial pass
     if not args.nossh:
-        if defaults['use_modules']:
+        if args.defaults['use_modules']:
             num_failures += test_modules(args.modules_to_load, args.debug)
         else:
             args.modules_to_load = ""
@@ -203,8 +203,12 @@ def parse_command_line_arguments(list_of_files):
                     num_failures += 1
 
 
-    urls     = parse_installscript_for_directives(install_script_str, "-u")
-    args.urls = urls
+    args.urls = parse_installscript_for_directives(install_script_str, "-u")
+    for u in args.urls:
+        if not validate_url(u):
+            print >> sys.stderr, term.bold_red("URL specified in install script " + args.install_script.name  + " is not a valid URL: " + u)
+            num_failures += 1
+
     tarballs = parse_installscript_for_directives(install_script_str, "-a")
     parsed_tarballs = []
     for tarball in tarballs:
@@ -218,14 +222,9 @@ def parse_command_line_arguments(list_of_files):
                 list_of_files.append(t)
     args.tarballs = parsed_tarballs
 
-    if len(urls) == 0 and len(tarballs) == 0:
+    if len(args.urls) == 0 and len(args.tarballs) == 0:
         print >> sys.stderr, term.bold_red("ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided")
         num_failures += 1
-
-    for u in urls:
-        if not validate_url(u):
-            print >> sys.stderr, term.bold_red("URL specified in install script " + args.install_script.name  + " is not a valid URL: " + u)
-            num_failures += 1
 
     progname = parse_installscript_for_directives(install_script_str, "-n")
     progver  = parse_installscript_for_directives(install_script_str, "-v")
