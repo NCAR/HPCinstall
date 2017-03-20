@@ -151,7 +151,7 @@ def check_sudo_user(nossh, arg_sudo_user):
                     failed += 1
     else:
         env_sudo_user = ""
-    return failed, env_sudo_user
+    return failed, arg_sudo_user
 
 def parse_command_line_arguments(list_of_files):
     parser = argparse.ArgumentParser()
