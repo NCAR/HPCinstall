@@ -2,5 +2,5 @@ scratch_tree: /picnic/scratch
 sw_install_dir: /picnic/u/apps/la/opt/
 mod_install_dir: ~/CheyenneModules/${SUDO_USER}/CheyenneModules/la
 script_repo: ~/.hpcinstall/chey-install-scripts
-sw_install_struct:  ${LMOD_FAMILY_MPI}/${LMOD_MPI_VERSION}/${LMOD_FAMILY_COMPILER}/${LMOD_COMPILER_VERSION}/
-mod_install_struct: ${LMOD_FAMILY_MPI}/${LMOD_MPI_VERSION}/${LMOD_FAMILY_COMPILER}/${LMOD_COMPILER_VERSION}/
+sw_install_struct:  ${LMOD_FAMILY_MPI}/${LMOD_MPI_VERSION}/${LMOD_FAMILY_COMPILER}/${LMOD_FAMILY_COMPILER_VERSION}/
+mod_install_struct: ${LMOD_FAMILY_MPI}/${LMOD_MPI_VERSION}/${LMOD_FAMILY_COMPILER}/${LMOD_FAMILY_COMPILER_VERSION}/
