@@ -245,6 +245,12 @@ def parse_command_line_arguments(list_of_files):
     if len(progname) > 1 or len(progver) > 1:
         print >> sys.stderr, term.bold_red("'#HPCI -n software' and '#HPCI -v version' can't be specified more than once")
         num_failures += 1
+    if len(progname) == 1 and len(progver) == 1:
+        args.prog = progname[0]
+        args.vers  = progver[0]
+    else:
+        args.prog, args.vers = parse_installscript_filename(args.install_script.name)
+
 
     args.clobber = False
     other_options = parse_installscript_for_directives(install_script_str, "-o")
@@ -260,12 +266,6 @@ def parse_command_line_arguments(list_of_files):
         print >> sys.stderr, "" # just an empty line to make the output more clear in case of errors
         parser.print_help()
         sys.exit(1)
-
-    if len(progname) == 1 and len(progver) == 1:
-        args.prog = progname[0]
-        args.vers  = progver[0]
-    else:
-        args.prog, args.vers = parse_installscript_filename(args.install_script.name)
 
     return args
 
