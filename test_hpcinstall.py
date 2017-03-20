@@ -260,8 +260,7 @@ def test_check_sudo_user(stub_os):
     failed, env_sudo_user = hpcinstall.check_sudo_user(nossh, not assume_csgteam, arg_sudo_user)
     assert failed == 0
 
-# test 
-
+# not testing get_program_name_and_version() for now since it's simple enough
 
 # not testing parse_command_line_arguments() since it's hard to test
 

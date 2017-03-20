@@ -159,6 +159,18 @@ def check_sudo_user(nossh, req_csgteam, arg_sudo_user):
         arg_sudo_user = ""
     return failed, arg_sudo_user
 
+def get_program_name_and_version(install_script_str, install_script_name):
+    failed = 0
+    progname = parse_installscript_for_directives(install_script_str, "-n")
+    progver  = parse_installscript_for_directives(install_script_str, "-v")
+    if len(progname) > 1 or len(progver) > 1:
+        print >> sys.stderr, term.bold_red("'#HPCI -n software' and '#HPCI -v version' can't be specified more than once")
+        failed += 1
+    if len(progname) == 1 and len(progver) == 1:
+        return failed, progname[0], progver[0]
+    else:
+        return sum(((failed,), parse_installscript_filename(install_script_name)), ()) # tuple flattening
+
 def parse_command_line_arguments(list_of_files):
     parser = argparse.ArgumentParser()
     parser.add_argument("install_script", metavar="install-software-ver", type=argparse.FileType('r'),
@@ -240,17 +252,8 @@ def parse_command_line_arguments(list_of_files):
         print >> sys.stderr, term.bold_red("ERROR: Either or both the '#HPCI -u URL' and '#HPCI -a source.tgz' must be provided")
         num_failures += 1
 
-    progname = parse_installscript_for_directives(install_script_str, "-n")
-    progver  = parse_installscript_for_directives(install_script_str, "-v")
-    if len(progname) > 1 or len(progver) > 1:
-        print >> sys.stderr, term.bold_red("'#HPCI -n software' and '#HPCI -v version' can't be specified more than once")
-        num_failures += 1
-    if len(progname) == 1 and len(progver) == 1:
-        args.prog = progname[0]
-        args.vers  = progver[0]
-    else:
-        args.prog, args.vers = parse_installscript_filename(args.install_script.name)
-
+    failed, args.prog, args.vers = get_program_name_and_version(install_script_str, args.install_script.name)
+    num_failures += failed
 
     args.clobber = False
     other_options = parse_installscript_for_directives(install_script_str, "-o")
