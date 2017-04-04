@@ -1,6 +1,6 @@
 #!/bin/bash
 #HPCI -n hpcinstall
-#HPCI -v 1.2.1
+#HPCI -v 1.2.2
 #HPCI -u https://github.com/NCAR/HPCinstall/
 
 # jellystone does not have a viable git binary
