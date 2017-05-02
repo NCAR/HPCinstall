@@ -385,3 +385,4 @@ This section may become reduntant once github includes the tag message in their
 * v1.2            Using x-tunneling when `ssh`ing into localhost, fixed configuration file on Yellowstone, first open source release
 * v1.2.1          Refactored the parse_command_line_argument method and got rid of the nasty ${SUDO_USER} is not expanded bug
 * v1.2.2          Configuration issue on Cheyenne/Laramie: it was not using the correct ldmod environmental variable
+* v1.2.3          Now handles shared-scratch space for test installs and a minor bug fix

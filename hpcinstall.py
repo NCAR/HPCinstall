@@ -126,14 +126,14 @@ def get_config_data(env_sudo_user):  # sudo_user is dependency only via environm
         failed = 1
     return failed, defaults
 
-def test_modules(modules_to_load, debug):
+def test_modules(modules_to_load, debug, script_name):
     failed = 0
     if subcall(modules_to_load,            # try loading modules
                    stop_on_errors=True,        # stop at the first failure
                    log="/dev/null",            # don't output anything (output already happened in the ssh call)
                    debug=debug,                # use specified debug level
                 ) != 0:
-        print >> sys.stderr, term.bold_red("Modules from " + args.install_script.name + " are not loadable:")
+        print >> sys.stderr, term.bold_red("Modules from " + script_name + " are not loadable:")
         print >> sys.stderr, modules_to_load
         failed = 1
     return failed
@@ -225,7 +225,7 @@ def parse_command_line_arguments(list_of_files):
     # Test requested modules during initial pass
     if not args.nossh:
         if args.defaults['use_modules']:
-            num_failures += test_modules(args.modules_to_load, args.debug)
+            num_failures += test_modules(args.modules_to_load, args.debug, args.install_script.name)
         else:
             args.modules_to_load = ""
 
