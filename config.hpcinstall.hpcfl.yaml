@@ -1,4 +1,4 @@
-scratch_tree: /scratch
+scratch_tree: /scratch/${USER}/
 sw_install_dir: /ncar/csg/opt/
 mod_install_dir: /ncar/csg/opt/modulefiles/
 sw_install_struct:  ${LMOD_FAMILY_MPI}/${LMOD_MPI_VERSION}/${LMOD_FAMILY_COMPILER}/${LMOD_FAMILY_COMPILER_VERSION}/
