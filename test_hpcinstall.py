@@ -46,7 +46,7 @@ def dirs():                    # stub dirs
     dirs["sw_install_struct"] = "${COMP}/${COMP_VER}/${MPI}/${MPI_VER}"
     dirs["mod_install_dir"] = "/glade/mods/"
     dirs["mod_install_struct"] = "${MPI}/${MPI_VER}/${COMP}/${COMP_VER}"
-    dirs["scratch_tree"]    = "/glade/scra/"
+    dirs["scratch_tree"]    = "/glade/scra/${USER}/"
     return dirs
 
 @pytest.fixture
@@ -273,17 +273,17 @@ def test_get_prefix_and_moduledir_for_user(dirs, opt, stub_os):
     opt.vers = "1.2.3"
     opt.defaults = dirs
     d = hpcinstall.get_prefix_and_moduledir(opt, "gnu/4.4.1", "gnu/4.4.1")
-    assert d.prefix        == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3/gnu/4.4.1") + "/"
-    assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
-    assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
-    assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/gnu/4.4.1") + "/"
+    assert d.prefix        == os.path.abspath(dirs["scratch_tree"] + "/test_installs/foo/1.2.3/gnu/4.4.1") + "/"
+    assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + "/test_installs/modulefiles") + "/"
+    assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + "/test_installs/modulefiles/idep") + "/"
+    assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + "/test_installs/modulefiles/gnu/4.4.1") + "/"
     assert d.relativeprefix == "/foo/1.2.3/gnu/4.4.1/"
 
     d = hpcinstall.get_prefix_and_moduledir(opt, "gnu/4.4.1/mpi/1.2.3", "mpi/1.2.3/gnu/4.4.1")
-    assert d.prefix        == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/foo/1.2.3/gnu/4.4.1/mpi/1.2.3") + "/"
-    assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles") + "/"
-    assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/idep") + "/"
-    assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + stub_os.environ['USER'] + "/test_installs/modulefiles/mpi/1.2.3/gnu/4.4.1") + "/"
+    assert d.prefix        == os.path.abspath(dirs["scratch_tree"] + "/test_installs/foo/1.2.3/gnu/4.4.1/mpi/1.2.3") + "/"
+    assert d.basemoduledir == os.path.abspath(dirs["scratch_tree"] + "/test_installs/modulefiles") + "/"
+    assert d.idepmoduledir == os.path.abspath(dirs["scratch_tree"] + "/test_installs/modulefiles/idep") + "/"
+    assert d.cdepmoduledir == os.path.abspath(dirs["scratch_tree"] + "/test_installs/modulefiles/mpi/1.2.3/gnu/4.4.1") + "/"
     assert d.relativeprefix == "/foo/1.2.3/gnu/4.4.1/mpi/1.2.3/"
 
     stub_os.environ['HPCI_TEST_BASEPATH'] = "/I_want_this_tree_instead"

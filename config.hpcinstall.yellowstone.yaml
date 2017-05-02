@@ -1,4 +1,4 @@
-scratch_tree: /glade/scratch
+scratch_tree: /glade/scratch/${USER}/ys
 sw_install_dir: /glade/apps/opt
 mod_install_dir: /glade/apps/opt/modulefiles/ys
 python_cmd: /glade/apps/opt/python/2.7.7/gnu-westmere/4.8.2/bin/python

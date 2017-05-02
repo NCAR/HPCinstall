@@ -1,4 +1,4 @@
-scratch_tree: /picnic/scratch
+scratch_tree: /picnic/scratch/${USER}/la
 sw_install_dir: /picnic/u/apps/la/opt/
 mod_install_dir: ~/CheyenneModules/${SUDO_USER}/CheyenneModules/la
 script_repo: ~/.hpcinstall/chey-install-scripts

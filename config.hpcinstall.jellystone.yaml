@@ -1,4 +1,4 @@
-scratch_tree: /picnic/scratch
+scratch_tree: /picnic/scratch/${USER}/js
 sw_install_dir: /glade/apps/opt/
 mod_install_dir: /glade/apps/opt/modulefiles/js/
 python_cmd: /glade/apps/opt/python/2.7.5/gnu-westmere/4.7.2/bin/python
