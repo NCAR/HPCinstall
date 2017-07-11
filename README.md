@@ -325,7 +325,15 @@ You may also use hashdir `-i` and `-e` options to filter what exactly to hash.
  easy workaround is to just hit enter if the installation will seem to hang. The enter will
  flush the buffer and show the question, however a caveat is that it may also accept the
  default choice which might not be what you want. See if the program you are running has a
- non-interactive option (e.g. `unzip -o`)
+ non-interactive option (e.g. `unzip -o`). If not, you can try to use a here document, e.g.
+ ```
+program.exe << INPUT
+yes
+no
+/this/directory/over/here
+INPUT
+```
+or https://en.wikipedia.org/wiki/Expect
 
 ## Installation
 
