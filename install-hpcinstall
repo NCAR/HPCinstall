@@ -9,6 +9,13 @@ path_to_git=$(which git)
 # terminate this script immediately should anything go wrong
 set -e
 
+# Check that the user set the config file properly
+if [[ ! -L config.hpcinstall.yaml || ! -e config.hpcinstall.yaml ]]; then # file must be a non-broken syslink
+  echo "Please create a 'config.hpcinstall.yaml' symbolic link pointing to"
+  echo "one of the config.hpcinstall.{machine}.yaml files."
+  exit 1
+fi
+
 # if git is available, use it to checkout the specified version
 if [ -x "$path_to_git" ] ; then
     echo "Found $path_to_git"
