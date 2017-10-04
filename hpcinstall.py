@@ -131,7 +131,6 @@ def test_modules(modules_to_load, debug, script_name):
     failed = 0
     if subcall(modules_to_load,            # try loading modules
                    stop_on_errors=True,        # stop at the first failure
-                   log="/dev/null",            # don't output anything (output already happened in the ssh call)
                    debug=debug,                # use specified debug level
                 ) != 0:
         print >> sys.stderr, term.bold_red("Modules from " + script_name + " are not loadable:")
