@@ -98,6 +98,7 @@ def get_modules_in_script(install_script_str):
     stuff        = parse_installscript_for_directives(install_script_str, "-")
     if len(stuff) == 0:
         modules_to_load = ""
+        modules_prereq = ""
         if len(legacy_stuff) > 0:
             print >> sys.stderr, term.bold_red("Deprecation ERROR: The anonymous      '#HPCI foo'    directive is deprecated.")
             print >> sys.stderr, term.bold_red("                   Must use the named '#HPCI -x foo' directive instead.")
