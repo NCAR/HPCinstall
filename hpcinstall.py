@@ -238,7 +238,10 @@ def parse_command_line_arguments(list_of_files):
     tarballs = parse_installscript_for_directives(install_script_str, "-a")
     parsed_tarballs = []
     for tarball in tarballs:
-        for globbed_tarball in glob.iglob(tarball):
+        globbed_tarballs = glob.glob(tarball)
+        if len(globbed_tarballs) == 0:
+            print >> sys.stderr, term.bold_red("Cannot find tarball: " + tarball)
+        for globbed_tarball in globbed_tarballs:
             t = os.path.abspath(os.path.expanduser(globbed_tarball))
             parsed_tarballs.append(t)
             if not os.access(t, os.R_OK):
