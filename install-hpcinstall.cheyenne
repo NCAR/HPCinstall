@@ -1,22 +1,38 @@
 #!/bin/bash
 #HPCI -n hpcinstall
-#HPCI -v 1.2.3
+#HPCI -v 1.2.4
 #HPCI -u https://github.com/NCAR/HPCinstall/
 
-# saving current status of the repo
-branch=$(git symbolic-ref --short -q HEAD)
-if [ -z "${branch}" ]; then
-  tag=$(git name-rev --name-only --tags --no-undefined HEAD 2>/dev/null | sed -n 's/^\([^^~]\{1,\}\)\(\^0\)\{0,1\}$/\1/p')
-  branch=tags/${tag}
-fi
+# terminate this script immediately should anything go wrong
+set -e
 
-# switching to desired version
-git checkout -q tags/v${HPCI_SW_VERSION}
+# see if git is available
+path_to_git=$(which git)
+if [ -x "$path_to_git" ] ; then
+    echo "Found $path_to_git"
 
-tag_checkedout=$?
-if [ $tag_checkedout -ne 0 ]; then
-  echo "Can't checkout version ${HPCI_SW_VERSION} aborting"
-  exit $tag_checkedout
+    # saving current status of the repo
+    branch=$(git symbolic-ref --short -q HEAD)
+    if [ -z "${branch}" ]; then
+      tag=$(git name-rev --name-only --tags --no-undefined HEAD 2>/dev/null | sed -n 's/^\([^^~]\{1,\}\)\(\^0\)\{0,1\}$/\1/p')
+      branch=tags/${tag}
+    fi
+
+    # switching to desired version
+    git checkout -q tags/v${HPCI_SW_VERSION}
+
+    tag_checkedout=$?
+    if [ $tag_checkedout -ne 0 ]; then
+      echo "Can't checkout version ${HPCI_SW_VERSION} aborting"
+      exit $tag_checkedout
+    fi
+else
+    echo "******************************"
+    echo "* Not found any git binaries *"
+    echo "******************************"
+    echo
+    echo "Assuming current directory is alread ${HPCI_SW_VERSION} but"
+    echo "without running git cannot confirm...."
 fi
 
 # if successfull, create directory and copy relevant files
@@ -39,5 +55,7 @@ HPCinstall is supposed to be used by members of the CSG team
 prepend_path("PATH","$HPCI_SW_DIR")
 EOF
 
-echo You may restore the previous status of the repo with
-echo git checkout $branch
+if [ -x "$path_to_git" ] ; then
+    echo You may restore the previous status of the repo with
+    echo git checkout $branch
+fi
