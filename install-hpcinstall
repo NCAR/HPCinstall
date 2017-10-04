@@ -1,6 +1,6 @@
 #!/bin/bash
 #HPCI -n hpcinstall
-#HPCI -v 1.2.4
+#HPCI -v 1.2.5
 #HPCI -u https://github.com/NCAR/HPCinstall/
 
 # see if git is available -- this MUST be before 'set -e' otherwise is terminated
