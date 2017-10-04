@@ -3,11 +3,13 @@
 #HPCI -v 1.2.4
 #HPCI -u https://github.com/NCAR/HPCinstall/
 
+# see if git is available -- this MUST be before 'set -e' otherwise is terminated
+path_to_git=$(which git)
+
 # terminate this script immediately should anything go wrong
 set -e
 
-# see if git is available
-path_to_git=$(which git)
+# if git is available, use it to checkout the specified version
 if [ -x "$path_to_git" ] ; then
     echo "Found $path_to_git"
 
