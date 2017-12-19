@@ -181,6 +181,7 @@ def parse_command_line_arguments(list_of_files):
     parser.add_argument("-f", "--force", action="store_true", default=False, help='Force overwrite of existing install (default: False)')
     parser.add_argument("-d", "--debug", action="store_true", default=False, help='Debug mode i.e. more verbose output (default: False)')
     parser.add_argument("-p", "--preserve", action="store_true", default=False, help='Preserve current environment - not valid with --csgteam (default: False)')
+    parser.add_argument("--bypass-prompt", action="store_true", default=False, help='Bypass prompt when installing as --csgteam (default: False)')
     parser.add_argument("--nossh", nargs='?', help=argparse.SUPPRESS) # Never manually invoke this
     # do not add a command line argument named defaults, because it will be overridden (see below)
     # do not add a command line argument named modules-to-load or modules_to_load, because it will be overridden (see below)
@@ -336,7 +337,8 @@ def prepare_variables_and_warn(dirs, options):
         os.environ[key] = variables[key]
         print "{:<17}".format(key), "=", variables[key]
 
-    ask_confirmation_for(options.csgteam, "This will attempt global install in " + dirs.prefix +
+    ask_confirmation_for(options.csgteam and not options.bypass_prompt,
+                         "This will attempt global install in " + dirs.prefix +
                          " by running ./" + options.install_script.name + " as " + os.environ['USER'] + ". Continue? ")
     return variables
 
