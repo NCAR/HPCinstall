@@ -282,7 +282,7 @@ def ask_confirmation_for(really, msg):
         answer = sys.stdin.readline()
         print
         if answer.lower().strip() != "yes":
-            print >> sys.stderr, term.bold_red("You did not say an ethusiastic 'yes', aborting...")
+            print >> sys.stderr, term.bold_red("You did not say an enthusiastic 'yes', aborting...")
             sys.exit(1)
 
 def get_prefix_and_moduledir(options, bin_dep, mod_dep):
