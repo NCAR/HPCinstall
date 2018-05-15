@@ -408,15 +408,15 @@ def verify_compiler_mpi(options):
     mpi = ""
     try:
         if compiler:
-            compiler += "/" + os.environ['LMOD_COMPILER_VERSION'].strip()
+            compiler += "/" + os.environ['LMOD_FAMILY_COMPILER_VERSION'].strip()
             mpi = os.environ.get('LMOD_FAMILY_MPI','').strip()
             if mpi:
-                mpi += "/" + os.environ['LMOD_MPI_VERSION'].strip() + "/"
+                mpi += "/" + os.environ['LMOD_FAMILY_MPI_VERSION'].strip() + "/"
     except KeyError, ke:
         for broken_key in ke.args:
             print >> sys.stderr, term.bold_red("Error: " + broken_key + " not set")
         sys.exit(1)
-    vars = ('LMOD_FAMILY_COMPILER', 'LMOD_COMPILER_VERSION', 'LMOD_FAMILY_MPI', 'LMOD_MPI_VERSION')
+    vars = ('LMOD_FAMILY_COMPILER', 'LMOD_FAMILY_COMPILER_VERSION', 'LMOD_FAMILY_MPI', 'LMOD_FAMILY_MPI_VERSION')
     for v in vars:
         if not v in options.defaults['sw_install_struct']:
             print >> sys.stderr, term.on_black_bold_yellow("Warning: " + v + " not used in sw_install_struct of config.hpcinstall.yaml")
